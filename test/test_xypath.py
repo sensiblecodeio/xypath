@@ -6,6 +6,7 @@ import messytables
 import re
 import xy
 
+
 class Test_XYPath(object):
     @classmethod
     def setup_class(klass):
@@ -34,8 +35,13 @@ class Test_XYPath(object):
             return lambda b: re.search(s, unicode(b))
         self.table.match(textsearch("Country.code")).assertone()
 
-    def test_intersection(self):
+    def test_junction(self):
         a = self.table.match(xy.textsearch("WORLD")).getit()
         b = self.table.match(xy.textsearch("1990-1995")).getit()
-        c = a.intersection(b).getit()
-        assert c.value==1.523
+        c = a.junction(b).getit()
+        assert c.value == 1.523
+
+    def test_select(self):
+        a = self.table.match(xy.textsearch("WORLD"))
+        b = a.select(lambda t, b: t.y==b.y + 1 and t.x==b.x).getit()
+        assert "More developed regions" in b.value
