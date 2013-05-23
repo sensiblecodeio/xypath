@@ -1,5 +1,5 @@
 import messytables
-import timeit
+import re
 """ musings on order of variables, x/y vs. col/row
 Everyone agrees that col 2, row 1 is (2,1) which is xy ordered.
 This works well with the name.
@@ -16,10 +16,15 @@ class XYCell(object):
         self.table = table
 
     def __repr__(self):
-        return "XYCell(%r, %r, %r, %r)" % (self.value, self.x, self.y, self.table.name)
+        return "XYCell(%r, %r, %r, %r)" % \
+            (self.value, self.x, self.y, self.table.name)
 
     def __unicode__(self):
-        return "[%r (%r, %r)]" % (self.value, self.x, self.y, self.table)
+        #return "[%r (%r, %r)]" % (self.value, self.x, self.y, self.table)
+        return unicode(self.value)
+
+    def __str__(self):
+        return str(self.value)
 
 
 class Bag(set):
@@ -80,6 +85,8 @@ row_three = row_two.select(lambda t, b: t.y == b.y + 1)
 print row_three
 print "*"
 
+
+print row_three.match(lambda b: re.search("liz", b))
 #lambda should go from [set, cell -> bool] set = current set, cell = cell in table.
 #any
 
