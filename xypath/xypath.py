@@ -4,6 +4,7 @@ This works well with the name.
 Remember that the usual iterators (over a list-of-lists)
 is outer loop y first."""
 
+import xy
 
 class XYCell(object):
     """needs to contain: value, position (x,y), parent bag"""
@@ -25,7 +26,8 @@ class XYCell(object):
         return str(self.value)
 
     def junction(self, other):
-        """ gets the lower-right intersection of the row of one, and the column of the other. """
+        """ gets the lower-right intersection of the row of one, and the
+        column of the other. """
         # TODO maybe think about lookup as name
         # TODO check other is a cell
         x = max(self.x, other.x)
@@ -37,7 +39,7 @@ class XYCell(object):
         return bag
 
 
-class Bag(list):
+class CoreBag(list):
     """A collection of XYCells"""
     def add(self, value):
         self.append(value)
@@ -84,6 +86,11 @@ class Bag(list):
             return cell
 
 
+class Bag(CoreBag):
+    def extend(self, x,y):
+        return self.select(xy.extend(x,y))
+
+
 class Table(Bag):
     """A bag which represents an entire sheet"""
     def __init__(self):
@@ -102,3 +109,4 @@ class Table(Bag):
 def textsearch(s):
     import re
     return lambda b: re.search(s, unicode(b))
+

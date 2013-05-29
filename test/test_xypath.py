@@ -45,3 +45,10 @@ class Test_XYPath(object):
         a = self.table.match(xy.textsearch("WORLD"))
         b = a.select(lambda t, b: t.y == b.y + 1 and t.x == b.x).getit()
         assert "More developed regions" in b.value
+
+    def test_extend(self):
+        a = self.table.match(xy.textsearch("Variant"))
+        b = a.extend(-1, 0).getit()
+        assert b.value == "Index"
+
+
