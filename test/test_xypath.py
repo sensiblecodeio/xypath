@@ -1,6 +1,6 @@
 import sys
 from nose.tools import *
-sys.path.append('code')
+sys.path.append('xypath')
 import xypath
 import messytables
 import re
@@ -43,5 +43,5 @@ class Test_XYPath(object):
 
     def test_select(self):
         a = self.table.match(xy.textsearch("WORLD"))
-        b = a.select(lambda t, b: t.y==b.y + 1 and t.x==b.x).getit()
+        b = a.select(lambda t, b: t.y == b.y + 1 and t.x == b.x).getit()
         assert "More developed regions" in b.value
