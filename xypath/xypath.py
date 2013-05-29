@@ -19,7 +19,6 @@ class XYCell(object):
             (self.value, self.x, self.y, self.table.name)
 
     def __unicode__(self):
-        #return "[%r (%r, %r)]" % (self.value, self.x, self.y, self.table)
         return unicode(self.value)
 
     def __str__(self):
@@ -28,14 +27,12 @@ class XYCell(object):
     def junction(self, other):
         """ gets the lower-right intersection of the row of one, and the
         column of the other. """
-        # TODO maybe think about lookup as name
-        # TODO check other is a cell
         x = max(self.x, other.x)
         y = max(self.y, other.x)
         if (x, y) == (self.x, self.y) or (x, y) == (other.x, other.y):
             print self, other, x, y
             assert False
-        bag = self.table.match(lambda b: b.x == x and b.y == y).assertone()
+        bag = self.table.xy_index[(x,y)]
         return bag
 
 
@@ -78,7 +75,7 @@ class CoreBag(list):
         return self
 
     def assertone(self):
-        # TODO cassert len(self) == 1
+        assert len(self) == 1
         return self
 
     def getit(self):
