@@ -4,8 +4,6 @@ This works well with the name.
 Remember that the usual iterators (over a list-of-lists)
 is outer loop y first."""
 
-import xy
-
 class XYCell(object):
     """needs to contain: value, position (x,y), parent bag"""
     def __init__(self, value, x, y, table):
@@ -87,8 +85,17 @@ class CoreBag(list):
 
 
 class Bag(CoreBag):
-    def extend(self, x,y):
-        return self.select(xy.extend(x,y))
+
+    def textsearch(self, s):
+        import re
+        return self.match(
+            lambda b: re.search(s, unicode(b))
+        )
+
+    def extend(self, x, y):
+        return self.select(
+            lambda t, b: cmp(t.x, b.x) == x and cmp(t.y, b.y) == y
+        )
 
 
 class Table(Bag):
@@ -104,9 +111,3 @@ class Table(Bag):
             for x, cell in enumerate(row):
                 new_table.add(XYCell(cell.value, x, y, new_table))
         return new_table
-
-
-def textsearch(s):
-    import re
-    return lambda b: re.search(s, unicode(b))
-

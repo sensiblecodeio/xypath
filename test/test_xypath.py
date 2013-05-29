@@ -33,21 +33,21 @@ class Test_XYPath(object):
     def test_text_search(self):
         def textsearch(s):
             return lambda b: re.search(s, unicode(b))
-        self.table.match(textsearch("Country.code")).assertone()
+        self.table.textsearch("Country.code").assertone()
 
     def test_junction(self):
-        a = self.table.match(xy.textsearch("WORLD")).getit()
-        b = self.table.match(xy.textsearch("1990-1995")).getit()
+        a = self.table.textsearch("WORLD").getit()
+        b = self.table.textsearch("1990-1995").getit()
         c = a.junction(b).getit()
         assert c.value == 1.523
 
     def test_select(self):
-        a = self.table.match(xy.textsearch("WORLD"))
+        a = self.table.textsearch("WORLD")
         b = a.select(lambda t, b: t.y == b.y + 1 and t.x == b.x).getit()
         assert "More developed regions" in b.value
 
     def test_extend(self):
-        a = self.table.match(xy.textsearch("Variant"))
+        a = self.table.textsearch("Variant")
         b = a.extend(-1, 0).getit()
         assert b.value == "Index"
 
