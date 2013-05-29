@@ -4,6 +4,8 @@ This works well with the name.
 Remember that the usual iterators (over a list-of-lists)
 is outer loop y first."""
 
+from collections import defaultdict
+
 class XYCell(object):
     """needs to contain: value, position (x,y), parent bag"""
     def __init__(self, value, x, y, table):
@@ -97,12 +99,27 @@ class Bag(CoreBag):
             lambda t, b: cmp(t.x, b.x) == x and cmp(t.y, b.y) == y
         )
 
+    def junction(self, other):
+        for self_cell in self:
+            for other_cell in other:
+                yield (self_cell, other_cell,
+                       self_cell.junction(other_cell).getit())
+
 
 class Table(Bag):
     """A bag which represents an entire sheet"""
     def __init__(self):
         self.table = self
         self.name = ""
+        self.x_index = defaultdict(lambda: Bag(self))
+        self.y_index = defaultdict(lambda: Bag(self))
+        self.xy_index = defaultdict(lambda: Bag(self))
+
+    def add(self, cell):
+        self.x_index[cell.x].add(cell)
+        self.y_index[cell.y].add(cell)
+        self.xy_index[(cell.x, cell.y)].add(cell)
+        super(Table, self).add(cell)
 
     @staticmethod
     def from_messy(messy_rowset):

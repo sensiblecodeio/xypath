@@ -4,7 +4,6 @@ sys.path.append('xypath')
 import xypath
 import messytables
 import re
-import xy
 
 
 class Test_XYPath(object):
