@@ -17,18 +17,18 @@ class Test_XYPath(unittest.TestCase):
         pass
 
     def test_has_table(self):
-        assert type(self.table) == xypath.Table
-        assert isinstance(self.table, xypath.Bag)
+        self.assertEqual(xypath.Table, type(self.table))
+        self.assertIsInstance(self.table, xypath.Bag)
 
     def test_basic_vert(self):
         r = repr(self.table.filter(lambda b: b.x == 2))
-        assert "WORLD" in r
-        assert "Country code" not in r
+        self.assertIn("WORLD", r)
+        self.assertNotIn("Country code", r)
 
     def test_basic_horz(self):
         r = repr(self.table.filter(lambda b: b.y == 16))
-        assert "WORLD" not in r
-        assert "Country code" in r
+        self.assertNotIn("WORLD", r)
+        self.assertIn("Country code", r)
 
     def test_text_match_string(self):
         self.table.filter("Country code").assert_one()
@@ -43,24 +43,24 @@ class Test_XYPath(unittest.TestCase):
         a = self.table.filter("WORLD").get_one()
         b = self.table.filter("1990-1995").get_one()
         c = a.junction(b).get_one()
-        assert c.value == 1.523
+        self.assertEqual(1.523, c.value)
 
     def test_bag_junction(self):
         a = self.table.filter("WORLD")
         b = self.table.filter("1990-1995")
         j = list(a.junction(b))
         self.assertEqual(1, len(j))
-        self.assertEqual(j[0][2].value, 1.523)
+        self.assertEqual(1.523, j[0][2].value)
 
     def test_select(self):
         a = self.table.filter("WORLD")
         b = a.select(lambda t, b: t.y == b.y + 1 and t.x == b.x).get_one()
-        assert "More developed regions" in b.value
+        self.assertIn("More developed regions", b.value)
 
     def test_extend(self):
         a = self.table.filter("Variant")
         b = a.extend(-1, 0).get_one()
-        assert b.value == "Index"
+        self.assertEqual("Index", b.value)
 
     def test_shift(self):
         a = self.table.filter('Ethiopia')
