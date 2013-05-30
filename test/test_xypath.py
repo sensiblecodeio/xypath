@@ -1,4 +1,5 @@
 import sys
+import unittest
 from nose.tools import *
 sys.path.append('xypath')
 import xypath
@@ -6,7 +7,7 @@ import messytables
 import re
 
 
-class Test_XYPath(object):
+class Test_XYPath(unittest.TestCase):
     @classmethod
     def setup_class(klass):
         messy = messytables.excel.XLSTableSet(open("fixtures/wpp.xls", "rb"))
@@ -50,4 +51,10 @@ class Test_XYPath(object):
         b = a.extend(-1, 0).getit()
         assert b.value == "Index"
 
-
+    def test_shift(self):
+        a = self.table.textsearch('Ethiopia')
+        b = a.shift(-2, 2)  # down, left
+        
+        self.assertEqual(1, len(a))
+        self.assertEqual(1, len(b))
+        self.assertEqual(16.0, b[0].value)

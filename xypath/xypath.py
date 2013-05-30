@@ -102,6 +102,15 @@ class Bag(CoreBag):
                 yield (self_cell, other_cell,
                        self_cell.junction(other_cell).getit())
 
+    def shift(self, x, y):
+        """
+        Return a bag in which each cell is offset from the source bag by the
+        coordinates specified.
+        """
+        return self.select(
+            lambda tc, bc: tc.x == bc.x + x and tc.y == bc.y + y
+        )
+
 
 class Table(Bag):
     """A bag which represents an entire sheet"""
