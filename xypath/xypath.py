@@ -134,3 +134,10 @@ class Table(Bag):
             for x, cell in enumerate(row):
                 new_table.add(XYCell(cell.value, x, y, new_table))
         return new_table
+
+    @staticmethod
+    def from_bag(bag):
+        new_table = Table()
+        for cell in bag:
+            new_table.add(XYCell(cell.value, cell.x, cell.y, new_table))
+        return new_table
