@@ -21,20 +21,23 @@ class Test_XYPath(unittest.TestCase):
         assert isinstance(self.table, xypath.Bag)
 
     def test_basic_vert(self):
-        r = repr(self.table.match(lambda b: b.x == 2))
+        r = repr(self.table.filter(lambda b: b.x == 2))
         assert "WORLD" in r
         assert "Country code" not in r
 
     def test_basic_horz(self):
-        r = repr(self.table.match(lambda b: b.y == 16))
+        r = repr(self.table.filter(lambda b: b.y == 16))
         assert "WORLD" not in r
         assert "Country code" in r
 
     def test_text_search(self):
         self.table.textsearch("Country.code").assert_one()
 
-    def test_hamcrest(self):
-        self.table.hamcrest(hamcrest.equal_to("Country code")).assert_one()
+    def test_text_exact_match_lambda(self):
+        self.table.filter(lambda b: b.value == 'Country code').assert_one()
+
+    def test_text_exact_match_hamcrest(self):
+        self.table.filter(hamcrest.equal_to("Country code")).assert_one()
 
     def test_junction(self):
         a = self.table.textsearch("WORLD").get_one()

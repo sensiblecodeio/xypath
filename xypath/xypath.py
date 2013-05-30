@@ -5,6 +5,7 @@ Remember that the usual iterators (over a list-of-lists)
 is outer loop y first."""
 
 from collections import defaultdict
+import hamcrest
 
 class XYCell(object):
     """needs to contain: value, position (x,y), parent bag"""
@@ -63,18 +64,25 @@ class CoreBag(list):
                     break
         return newbag
 
-    def match(self, function):
+    def filter(self, filter_by):
+        """
+        Returns a new bag containing only cells which match the filter_by predicate.
+
+        filter_by can be either a) a callable, which takes a cell as a parameter, and
+        returns whether or not to include the cell, or b) a hamcrest match rule, such
+        as hamcrest.equal_to
+        """
+        if callable(filter_by):
+            return self._filter_internal(filter_by)
+        elif isinstance(filter_by, hamcrest.matcher.Matcher):
+            return self._filter_internal(lambda cell: filter_by.matches(cell.value))
+        else:
+            raise ValueError("filter_by must be a callable or a hamcrest filter")
+
+    def _filter_internal(self, function):
         newbag = Bag(table=self.table)
         for bag_cell in self:
             if function(bag_cell):
-                newbag.add(bag_cell)
-        return newbag
-
-    def hamcrest(self, function):
-        newbag = Bag(table=self.table)
-        #TODO massive refactor
-        for bag_cell in self:
-            if function.matches(bag_cell.value):
                 newbag.add(bag_cell)
         return newbag
 
@@ -91,7 +99,7 @@ class Bag(CoreBag):
 
     def textsearch(self, s):
         import re
-        return self.match(
+        return self.filter(
             lambda b: re.search(s, unicode(b))
         )
 
