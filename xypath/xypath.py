@@ -28,7 +28,7 @@ class XYCell(object):
         """ gets the lower-right intersection of the row of one, and the
         column of the other. """
         x = max(self.x, other.x)
-        y = max(self.y, other.x)
+        y = max(self.y, other.y)
         if (x, y) == (self.x, self.y) or (x, y) == (other.x, other.y):
             print self, other, x, y
             assert False
