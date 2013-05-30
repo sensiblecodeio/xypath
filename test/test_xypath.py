@@ -31,25 +31,25 @@ class Test_XYPath(unittest.TestCase):
         assert "Country code" in r
 
     def test_text_search(self):
-        self.table.textsearch("Country.code").assertone()
+        self.table.textsearch("Country.code").assert_one()
 
     def test_hamcrest(self):
-        self.table.hamcrest(hamcrest.equal_to("Country code")).assertone()
+        self.table.hamcrest(hamcrest.equal_to("Country code")).assert_one()
 
     def test_junction(self):
-        a = self.table.textsearch("WORLD").getit()
-        b = self.table.textsearch("1990-1995").getit()
-        c = a.junction(b).getit()
+        a = self.table.textsearch("WORLD").get_one()
+        b = self.table.textsearch("1990-1995").get_one()
+        c = a.junction(b).get_one()
         assert c.value == 1.523
 
     def test_select(self):
         a = self.table.textsearch("WORLD")
-        b = a.select(lambda t, b: t.y == b.y + 1 and t.x == b.x).getit()
+        b = a.select(lambda t, b: t.y == b.y + 1 and t.x == b.x).get_one()
         assert "More developed regions" in b.value
 
     def test_extend(self):
         a = self.table.textsearch("Variant")
-        b = a.extend(-1, 0).getit()
+        b = a.extend(-1, 0).get_one()
         assert b.value == "Index"
 
     def test_shift(self):

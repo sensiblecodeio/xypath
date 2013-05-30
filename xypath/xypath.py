@@ -78,17 +78,12 @@ class CoreBag(list):
                 newbag.add(bag_cell)
         return newbag
 
-
-    def assertsome(self):
-        assert len(self) > 0
-        return self
-
-    def assertone(self):
+    def assert_one(self):
         assert len(self) == 1
         return self
 
-    def getit(self):
-        for cell in self.assertone():
+    def get_one(self):
+        for cell in self.assert_one():
             return cell
 
 
