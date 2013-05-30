@@ -30,8 +30,8 @@ class Test_XYPath(unittest.TestCase):
         assert "WORLD" not in r
         assert "Country code" in r
 
-    def test_text_search(self):
-        self.table.textsearch("Country.code").assert_one()
+    def test_text_match_string(self):
+        self.table.filter("Country code").assert_one()
 
     def test_text_exact_match_lambda(self):
         self.table.filter(lambda b: b.value == 'Country code').assert_one()
@@ -40,30 +40,30 @@ class Test_XYPath(unittest.TestCase):
         self.table.filter(hamcrest.equal_to("Country code")).assert_one()
 
     def test_cell_junction(self):
-        a = self.table.textsearch("WORLD").get_one()
-        b = self.table.textsearch("1990-1995").get_one()
+        a = self.table.filter("WORLD").get_one()
+        b = self.table.filter("1990-1995").get_one()
         c = a.junction(b).get_one()
         assert c.value == 1.523
 
     def test_bag_junction(self):
-        a = self.table.textsearch("WORLD")
-        b = self.table.textsearch("1990-1995")
+        a = self.table.filter("WORLD")
+        b = self.table.filter("1990-1995")
         j = list(a.junction(b))
         self.assertEqual(1, len(j))
         self.assertEqual(j[0][2].value, 1.523)
 
     def test_select(self):
-        a = self.table.textsearch("WORLD")
+        a = self.table.filter("WORLD")
         b = a.select(lambda t, b: t.y == b.y + 1 and t.x == b.x).get_one()
         assert "More developed regions" in b.value
 
     def test_extend(self):
-        a = self.table.textsearch("Variant")
+        a = self.table.filter("Variant")
         b = a.extend(-1, 0).get_one()
         assert b.value == "Index"
 
     def test_shift(self):
-        a = self.table.textsearch('Ethiopia')
+        a = self.table.filter('Ethiopia')
         b = a.shift(-2, 2)  # down, left
         
         self.assertEqual(1, len(a))

@@ -74,6 +74,8 @@ class CoreBag(list):
         """
         if callable(filter_by):
             return self._filter_internal(filter_by)
+        elif isinstance(filter_by, basestring):
+            return self._filter_internal(lambda cell: unicode(cell.value) == filter_by)
         elif isinstance(filter_by, hamcrest.matcher.Matcher):
             return self._filter_internal(lambda cell: filter_by.matches(cell.value))
         else:
@@ -87,7 +89,7 @@ class CoreBag(list):
         return newbag
 
     def assert_one(self):
-        assert len(self) == 1
+        assert len(self) == 1, "Length is %d" % len(self)
         return self
 
     def get_one(self):
