@@ -3,7 +3,7 @@ from nose.tools import *
 sys.path.append('xypath')
 import xypath
 import messytables
-import re
+import hamcrest
 
 
 class Test_XYPath(object):
@@ -30,9 +30,10 @@ class Test_XYPath(object):
         assert "Country code" in r
 
     def test_text_search(self):
-        def textsearch(s):
-            return lambda b: re.search(s, unicode(b))
         self.table.textsearch("Country.code").assertone()
+
+    def test_hamcrest(self):
+        self.table.hamcrest(hamcrest.equal_to("Country code")).assertone()
 
     def test_junction(self):
         a = self.table.textsearch("WORLD").getit()

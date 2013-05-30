@@ -70,6 +70,15 @@ class CoreBag(list):
                 newbag.add(bag_cell)
         return newbag
 
+    def hamcrest(self, function):
+        newbag = Bag(table=self.table)
+        #TODO massive refactor
+        for bag_cell in self:
+            if function.matches(bag_cell.value):
+                newbag.add(bag_cell)
+        return newbag
+
+
     def assertsome(self):
         assert len(self) > 0
         return self
