@@ -99,12 +99,6 @@ class CoreBag(list):
 
 class Bag(CoreBag):
 
-    def textsearch(self, s):
-        import re
-        return self.filter(
-            lambda b: re.search(s, unicode(b))
-        )
-
     def extend(self, x, y):
         return self.select(
             lambda t, b: cmp(t.x, b.x) == x and cmp(t.y, b.y) == y
