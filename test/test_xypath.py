@@ -39,11 +39,18 @@ class Test_XYPath(unittest.TestCase):
     def test_text_exact_match_hamcrest(self):
         self.table.filter(hamcrest.equal_to("Country code")).assert_one()
 
-    def test_junction(self):
+    def test_cell_junction(self):
         a = self.table.textsearch("WORLD").get_one()
         b = self.table.textsearch("1990-1995").get_one()
         c = a.junction(b).get_one()
         assert c.value == 1.523
+
+    def test_bag_junction(self):
+        a = self.table.textsearch("WORLD")
+        b = self.table.textsearch("1990-1995")
+        j = list(a.junction(b))
+        self.assertEqual(1, len(j))
+        self.assertEqual(j[0][2].value, 1.523)
 
     def test_select(self):
         a = self.table.textsearch("WORLD")

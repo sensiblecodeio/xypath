@@ -112,7 +112,7 @@ class Bag(CoreBag):
         for self_cell in self:
             for other_cell in other:
                 yield (self_cell, other_cell,
-                       self_cell.junction(other_cell).getit())
+                       self_cell.junction(other_cell).get_one())
 
     def shift(self, x, y):
         """
