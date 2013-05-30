@@ -69,3 +69,20 @@ class Test_XYPath(unittest.TestCase):
         self.assertEqual(1, len(a))
         self.assertEqual(1, len(b))
         self.assertEqual(16.0, b[0].value)
+
+    def test_from_bag(self):
+        world_pops_bag = self.table.filter(lambda b: b.y >= 16 and b.y <= 22 and b.x >= 5 and b.x <= 16)
+        world_pops_table = xypath.Table.from_bag(world_pops_bag) 
+
+        # check extending the whole table gets lots of stuff all the way down
+        fifties = self.table.filter("1950-1955")
+        filties_col = fifties.extend(0, 1)
+        self.assertEqual(265, len(filties_col))
+
+        # check if we extend within the new world-only table, it only gets stuff from the table
+        fifties = world_pops_table.filter("1950-1955")
+        filties_col = fifties.extend(0, 1)
+        self.assertEqual(6, len(filties_col))
+
+
+
