@@ -28,7 +28,7 @@ class XYCell(object):
         """ gets the lower-right intersection of the row of one, and the
         column of the other. """
         x = max(self.x, other.x)
-        y = max(self.y, other.x)
+        y = max(self.y, other.y)
         if (x, y) == (self.x, self.y) or (x, y) == (other.x, other.y):
             print self, other, x, y
             assert False
@@ -111,6 +111,15 @@ class Bag(CoreBag):
                 yield (self_cell, other_cell,
                        self_cell.junction(other_cell).getit())
 
+    def shift(self, x, y):
+        """
+        Return a bag in which each cell is offset from the source bag by the
+        coordinates specified.
+        """
+        return self.select(
+            lambda tc, bc: tc.x == bc.x + x and tc.y == bc.y + y
+        )
+
 
 class Table(Bag):
     """A bag which represents an entire sheet"""
@@ -133,4 +142,11 @@ class Table(Bag):
         for y, row in enumerate(messy_rowset):
             for x, cell in enumerate(row):
                 new_table.add(XYCell(cell.value, x, y, new_table))
+        return new_table
+
+    @staticmethod
+    def from_bag(bag):
+        new_table = Table()
+        for cell in bag:
+            new_table.add(XYCell(cell.value, cell.x, cell.y, new_table))
         return new_table
