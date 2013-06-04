@@ -37,6 +37,13 @@ class Test_XYPath(unittest.TestCase):
         self.assertEqual(265, len(bag))
         self.assertEqual(len(bag), len(list(bag)))
 
+    def test_singleton_bag_value(self):
+        self.assertEqual(
+            "Country code",
+            self.table.filter("Country code").value)
+        self.assertRaises(ValueError,
+            lambda: self.table.filter("Estimates").value)
+
     def test_text_match_string(self):
         self.table.filter("Country code").assert_one()
 
@@ -68,9 +75,9 @@ class Test_XYPath(unittest.TestCase):
         self.assertIsInstance(x, xypath.Bag)
         self.assertIsInstance(y, xypath.Bag)
         self.assertIsInstance(z, xypath.Bag)
-        self.assertEqual("WORLD", x.store[0].value) # TODO: implement value()
-        self.assertEqual("1990-1995", y.store[0].value)
-        self.assertEqual(1.523, z.store[0].value)
+        self.assertEqual("WORLD", x.value)
+        self.assertEqual("1990-1995", y.value)
+        self.assertEqual(1.523, z.value)
 
     def test_bag_junction(self):
         a = self.table.filter("WORLD")
@@ -78,7 +85,7 @@ class Test_XYPath(unittest.TestCase):
         j = list(a.junction(b))
         self.assertEqual(1, len(j))
         (a_result, b_result, value_result) = j[0]
-        self.assertEqual(1.523, value_result.store[0].value)
+        self.assertEqual(1.523, value_result.value)
 
     def test_select(self):
         a = self.table.filter("WORLD")

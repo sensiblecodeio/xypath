@@ -137,6 +137,15 @@ class Bag(CoreBag):
             lambda tc, bc: tc.x == bc.x + x and tc.y == bc.y + y
         )
 
+    @property
+    def value(self):
+        try:
+            self.assert_one()
+        except AssertionError:
+            raise ValueError("Bag contains %d cells, can't get value" %
+                             len(self.store))
+        return self.get_one().value
+
 
 class Table(Bag):
     """A bag which represents an entire sheet"""
