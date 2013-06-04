@@ -111,7 +111,7 @@ class CoreBag(object):
 
 class Bag(CoreBag):
 
-    def extend(self, x, y):
+    def extend(self, x=0, y=0):
         return self.select(
             lambda t, b: cmp(t.x, b.x) == x and cmp(t.y, b.y) == y
         )
