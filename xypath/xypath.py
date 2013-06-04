@@ -5,6 +5,8 @@ Remember that the usual iterators (over a list-of-lists)
 is outer loop y first."""
 
 from collections import defaultdict
+import hamcrest
+import re
 
 class XYCell(object):
     """needs to contain: value, position (x,y), parent bag"""
@@ -33,14 +35,25 @@ class XYCell(object):
         return bag
 
 
-class CoreBag(list):
+class CoreBag(object):
     """A collection of XYCells"""
-    def add(self, value):
-        self.append(value)
-
     def __init__(self, table, name=None):
+        self.store = []
         self.name = name
         self.table = table
+
+    def add(self, value):
+        self.store.append(value)
+
+    def __len__(self):
+        return len(self.store)
+
+    def __repr__(self):
+        return repr(self.store)
+
+    def __iter__(self):
+        return self.store.__iter__()
+
 
     def select(self, function):
         """returns a new bag (using the same table) which
@@ -53,49 +66,50 @@ class CoreBag(list):
 
         #return Bag(cell for cell in self.table if function(cell, self))
         newbag = Bag(table=self.table)
-        for table_cell in self.table:
-            for bag_cell in self:
+        for table_cell in self.table.store:
+            for bag_cell in self.store:
                 if function(table_cell, bag_cell):
                     newbag.add(table_cell)
                     break
         return newbag
 
-    def match(self, function):
+    def filter(self, filter_by):
+        """
+        Returns a new bag containing only cells which match the filter_by predicate.
+
+        filter_by can be either a) a callable, which takes a cell as a parameter, and
+        returns whether or not to include the cell, or b) a hamcrest match rule, such
+        as hamcrest.equal_to
+        """
+        if callable(filter_by):
+            return self._filter_internal(filter_by)
+        elif isinstance(filter_by, basestring):
+            return self._filter_internal(lambda cell: unicode(cell.value) == filter_by)
+        elif isinstance(filter_by, hamcrest.matcher.Matcher):
+            return self._filter_internal(lambda cell: filter_by.matches(cell.value))
+        elif isinstance(filter_by, re._pattern_type):
+            return self._filter_internal(
+                lambda cell: re.match(filter_by, unicode(cell.value)))
+        else:
+            raise ValueError("filter_by must be a callable or a hamcrest filter")
+
+    def _filter_internal(self, function):
         newbag = Bag(table=self.table)
-        for bag_cell in self:
+        for bag_cell in self.store:
             if function(bag_cell):
                 newbag.add(bag_cell)
         return newbag
 
-    def hamcrest(self, function):
-        newbag = Bag(table=self.table)
-        #TODO massive refactor
-        for bag_cell in self:
-            if function.matches(bag_cell.value):
-                newbag.add(bag_cell)
-        return newbag
-
-
-    def assertsome(self):
-        assert len(self) > 0
+    def assert_one(self):
+        assert len(self.store) == 1, "Length is %d" % len(self.store)
         return self
 
-    def assertone(self):
-        assert len(self) == 1
-        return self
-
-    def getit(self):
-        for cell in self.assertone():
+    def get_one(self):
+        for cell in self.assert_one().store:
             return cell
 
 
 class Bag(CoreBag):
-
-    def textsearch(self, s):
-        import re
-        return self.match(
-            lambda b: re.search(s, unicode(b))
-        )
 
     def extend(self, x, y):
         return self.select(
@@ -103,10 +117,10 @@ class Bag(CoreBag):
         )
 
     def junction(self, other):
-        for self_cell in self:
-            for other_cell in other:
+        for self_cell in self.store:
+            for other_cell in other.store:
                 yield (self_cell, other_cell,
-                       self_cell.junction(other_cell).getit())
+                       self_cell.junction(other_cell).get_one())
 
     def shift(self, x, y):
         """
@@ -121,8 +135,7 @@ class Bag(CoreBag):
 class Table(Bag):
     """A bag which represents an entire sheet"""
     def __init__(self):
-        self.table = self
-        self.name = ""
+        super(Table, self).__init__(table=self, name="")
         self.x_index = defaultdict(lambda: Bag(self))
         self.y_index = defaultdict(lambda: Bag(self))
         self.xy_index = defaultdict(lambda: Bag(self))
@@ -144,6 +157,8 @@ class Table(Bag):
     @staticmethod
     def from_bag(bag):
         new_table = Table()
-        for cell in bag:
+        for cell in bag.store:
             new_table.add(XYCell(cell.value, cell.x, cell.y, new_table))
         return new_table
+
+
