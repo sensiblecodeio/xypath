@@ -31,6 +31,12 @@ class Test_XYPath(unittest.TestCase):
         self.assertNotIn("WORLD", r)
         self.assertIn("Country code", r)
 
+    def test_corebag_iterator_size(self):
+        """Test that the iterator yields as many results as len() claims"""
+        bag = self.table.filter('Estimates')
+        self.assertEqual(265, len(bag))
+        self.assertEqual(len(bag), len(list(bag)))
+
     def test_text_match_string(self):
         self.table.filter("Country code").assert_one()
 

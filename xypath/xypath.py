@@ -54,6 +54,9 @@ class CoreBag(object):
     def __repr__(self):
         return repr(self.store)
 
+    def __iter__(self):
+        return self.store.__iter__()
+
 
     def select(self, function):
         """returns a new bag (using the same table) which
