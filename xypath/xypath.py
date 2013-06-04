@@ -21,9 +21,6 @@ class XYCell(object):
     def __unicode__(self):
         return unicode(self.value)
 
-    def __str__(self):
-        return str(self.value)
-
     def junction(self, other):
         """ gets the lower-right intersection of the row of one, and the
         column of the other. """
@@ -32,7 +29,7 @@ class XYCell(object):
         if (x, y) == (self.x, self.y) or (x, y) == (other.x, other.y):
             print self, other, x, y
             assert False
-        bag = self.table.xy_index[(x,y)]
+        bag = self.table.xy_index[(x, y)]
         return bag
 
 
