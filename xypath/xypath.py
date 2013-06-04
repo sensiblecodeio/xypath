@@ -31,7 +31,7 @@ class XYCell(object):
         if (x, y) == (self.x, self.y) or (x, y) == (other.x, other.y):
             print self, other, x, y
             assert False
-        bag = self.table.xy_index[(x,y)]
+        bag = self.table.xy_index[(x, y)]
         return bag
 
 
