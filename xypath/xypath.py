@@ -122,7 +122,7 @@ class Bag(CoreBag):
                 yield (self_cell, other_cell,
                        self_cell.junction(other_cell).get_one())
 
-    def shift(self, x, y):
+    def shift(self, x=0, y=0):
         """
         Return a bag in which each cell is offset from the source bag by the
         coordinates specified.
