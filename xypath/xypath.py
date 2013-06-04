@@ -6,6 +6,7 @@ is outer loop y first."""
 
 from collections import defaultdict
 import hamcrest
+import re
 
 class XYCell(object):
     """needs to contain: value, position (x,y), parent bag"""
@@ -86,6 +87,9 @@ class CoreBag(object):
             return self._filter_internal(lambda cell: unicode(cell.value) == filter_by)
         elif isinstance(filter_by, hamcrest.matcher.Matcher):
             return self._filter_internal(lambda cell: filter_by.matches(cell.value))
+        elif isinstance(filter_by, re._pattern_type):
+            return self._filter_internal(
+                lambda cell: re.match(filter_by, unicode(cell.value)))
         else:
             raise ValueError("filter_by must be a callable or a hamcrest filter")
 

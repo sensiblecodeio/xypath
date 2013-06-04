@@ -5,6 +5,7 @@ sys.path.append('xypath')
 import xypath
 import messytables
 import hamcrest
+import re
 
 
 class Test_XYPath(unittest.TestCase):
@@ -38,6 +39,19 @@ class Test_XYPath(unittest.TestCase):
 
     def test_text_exact_match_hamcrest(self):
         self.table.filter(hamcrest.equal_to("Country code")).assert_one()
+    
+    def test_regex_match(self):
+        self.assertEqual(
+            2, len(self.table.filter(re.compile(r'.... developed regions$'))))
+    
+    def test_regex_not_search(self):
+        """
+        Expect it to use match() not search(), so shouldn't match inside the
+        middle of a cell.
+        """
+
+        self.assertEqual(
+            0, len(self.table.filter(re.compile(r'developed regions$'))))
 
     def test_cell_junction(self):
         a = self.table.filter("WORLD").get_one()
