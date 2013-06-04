@@ -45,11 +45,11 @@ class Test_XYPath(unittest.TestCase):
 
     def test_text_exact_match_hamcrest(self):
         self.table.filter(hamcrest.equal_to("Country code")).assert_one()
-    
+
     def test_regex_match(self):
         self.assertEqual(
             2, len(self.table.filter(re.compile(r'.... developed regions$'))))
-    
+
     def test_regex_not_search(self):
         """
         Expect it to use match() not search(), so shouldn't match inside the
@@ -62,8 +62,12 @@ class Test_XYPath(unittest.TestCase):
     def test_cell_junction(self):
         a = self.table.filter("WORLD").get_one()
         b = self.table.filter("1990-1995").get_one()
-        c = a.junction(b).get_one()
-        self.assertEqual(1.523, c.value)
+        junction_result = list(a.junction(b))
+        self.assertEqual(1, len(junction_result))
+        (x, y, z) = junction_result[0]
+        self.assertEqual("WORLD", x.value)
+        self.assertEqual("1990-1995", y.value)
+        self.assertEqual(1.523, z.value)
 
     def test_bag_junction(self):
         a = self.table.filter("WORLD")
@@ -85,14 +89,14 @@ class Test_XYPath(unittest.TestCase):
     def test_shift(self):
         a = self.table.filter('Ethiopia')
         b = a.shift(-2, 2)  # down, left
-        
+
         self.assertEqual(1, len(a))
         self.assertEqual(1, len(b))
         self.assertEqual(16.0, b.get_one().value)
 
     def test_from_bag(self):
         world_pops_bag = self.table.filter(lambda b: b.y >= 16 and b.y <= 22 and b.x >= 5 and b.x <= 16)
-        world_pops_table = xypath.Table.from_bag(world_pops_bag) 
+        world_pops_table = xypath.Table.from_bag(world_pops_bag)
 
         # check extending the whole table gets lots of stuff all the way down
         fifties = self.table.filter("1950-1955")

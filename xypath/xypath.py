@@ -8,6 +8,7 @@ from collections import defaultdict
 import hamcrest
 import re
 
+
 class XYCell(object):
     """needs to contain: value, position (x,y), parent bag"""
     def __init__(self, value, x, y, table):
@@ -31,8 +32,9 @@ class XYCell(object):
         if (x, y) == (self.x, self.y) or (x, y) == (other.x, other.y):
             print self, other, x, y
             assert False
-        bag = self.table.xy_index[(x, y)]
-        return bag
+        junction_bag = self.table.filter(
+            lambda cell: cell.x == x and cell.y == y)
+        yield (self, other, junction_bag.get_one())
 
 
 class CoreBag(object):
@@ -64,7 +66,6 @@ class CoreBag(object):
         returns true if the table_cell should be in the new
         bag and false otherwise"""
 
-        #return Bag(cell for cell in self.table if function(cell, self))
         newbag = Bag(table=self.table)
         for table_cell in self.table.store:
             for bag_cell in self.store:
@@ -119,8 +120,8 @@ class Bag(CoreBag):
     def junction(self, other):
         for self_cell in self.store:
             for other_cell in other.store:
-                yield (self_cell, other_cell,
-                       self_cell.junction(other_cell).get_one())
+                for triple in self_cell.junction(other_cell):
+                    yield triple
 
     def shift(self, x=0, y=0):
         """
