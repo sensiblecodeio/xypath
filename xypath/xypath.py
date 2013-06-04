@@ -34,7 +34,12 @@ class XYCell(object):
             assert False
         junction_bag = self.table.filter(
             lambda cell: cell.x == x and cell.y == y)
-        yield (self, other, junction_bag.get_one())
+
+        self_bag = Bag(self.table)
+        self_bag.add(self)
+        other_bag = Bag(self.table)
+        other_bag.add(other)
+        yield (self_bag, other_bag, junction_bag)
 
 
 class CoreBag(object):

@@ -65,16 +65,20 @@ class Test_XYPath(unittest.TestCase):
         junction_result = list(a.junction(b))
         self.assertEqual(1, len(junction_result))
         (x, y, z) = junction_result[0]
-        self.assertEqual("WORLD", x.value)
-        self.assertEqual("1990-1995", y.value)
-        self.assertEqual(1.523, z.value)
+        self.assertIsInstance(x, xypath.Bag)
+        self.assertIsInstance(y, xypath.Bag)
+        self.assertIsInstance(z, xypath.Bag)
+        self.assertEqual("WORLD", x.store[0].value) # TODO: implement value()
+        self.assertEqual("1990-1995", y.store[0].value)
+        self.assertEqual(1.523, z.store[0].value)
 
     def test_bag_junction(self):
         a = self.table.filter("WORLD")
         b = self.table.filter("1990-1995")
         j = list(a.junction(b))
         self.assertEqual(1, len(j))
-        self.assertEqual(1.523, j[0][2].value)
+        (a_result, b_result, value_result) = j[0]
+        self.assertEqual(1.523, value_result.store[0].value)
 
     def test_select(self):
         a = self.table.filter("WORLD")
