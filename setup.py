@@ -4,7 +4,7 @@ long_desc = """
 XYPath is aiming to be XPath for spreadsheets: it offers a framework for
 navigating around and extracting values from tabular data.
 """
-
+# See https://pypi.python.org/pypi?%3Aaction=list_classifiers for classifiers
 
 setup(
     name='xypath',
@@ -14,7 +14,7 @@ setup(
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
-        #"License :: OSI Approved :: MIT License" TODO,
+        "License :: OSI Approved :: BSD License",
         "Operating System :: POSIX :: Linux",
         "Programming Language :: Python",
     ],
@@ -22,7 +22,7 @@ setup(
     author='ScraperWiki Ltd',
     author_email='feedback@scraperwiki.com',
     url='http://scraperwiki.com',
-    # license='MIT', TODO
+    license='BSD',
     packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
     namespace_packages=[],
     include_package_data=False,
