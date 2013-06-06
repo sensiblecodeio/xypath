@@ -32,7 +32,7 @@ class XYCell(object):
         if (x, y) == (self.x, self.y) or (x, y) == (other.x, other.y):
             print self, other, x, y
             assert False
-        junction_bag = self.table.getat(x,y) # TODO: test
+        junction_bag = self.table.get_at(x,y) # TODO: test
 
         self_bag = Bag(self.table)
         self_bag.add(self)
@@ -132,9 +132,11 @@ class Bag(CoreBag):
         Return a bag in which each cell is offset from the source bag by the
         coordinates specified.
         """
-        return self.select(
-            lambda tc, bc: tc.x == bc.x + x and tc.y == bc.y + y
-        )
+        bag = Bag(table=self.table)
+        for b_cell in self.store:
+            for t_cell in self.table.get_at(b_cell.x + x, b_cell.y + y):
+                bag.add(t_cell)
+        return bag
 
     @property
     def value(self):
