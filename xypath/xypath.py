@@ -32,8 +32,9 @@ class XYCell(object):
         if (x, y) == (self.x, self.y) or (x, y) == (other.x, other.y):
             print self, other, x, y
             assert False
-        junction_bag = self.table.filter(
-            lambda cell: cell.x == x and cell.y == y)
+        #junction_bag = self.table.filter(
+        #    lambda cell: cell.x == x and cell.y == y)
+        junction_bag = self.table.xy_index[(x,y)] # TODO: test
 
         self_bag = Bag(self.table)
         self_bag.add(self)
