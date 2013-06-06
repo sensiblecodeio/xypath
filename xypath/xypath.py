@@ -32,9 +32,7 @@ class XYCell(object):
         if (x, y) == (self.x, self.y) or (x, y) == (other.x, other.y):
             print self, other, x, y
             assert False
-        #junction_bag = self.table.filter(
-        #    lambda cell: cell.x == x and cell.y == y)
-        junction_bag = self.table.xy_index[(x,y)] # TODO: test
+        junction_bag = self.table.getat(x,y) # TODO: test
 
         self_bag = Bag(self.table)
         self_bag.add(self)
@@ -162,6 +160,15 @@ class Table(Bag):
         self.xy_index[(cell.x, cell.y)].add(cell)
         super(Table, self).add(cell)
 
+    def get_at(self, x=None, y=None):
+        if x is None and y is None:
+            raise TypeError, 'get_at requires at least one x or y value'
+        if x is None:
+            return self.y_index[y]
+        if y is None:
+            return self.x_index[x]
+        return self.xy_index[(x,y)]
+    
     @staticmethod
     def from_messy(messy_rowset):
         new_table = Table()
