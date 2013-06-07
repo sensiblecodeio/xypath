@@ -110,11 +110,6 @@ class CoreBag(object):
         assert len(self.store) == 1, "Length is %d" % len(self.store)
         return self
 
-    def get_one(self):
-        for cell in self.assert_one().store:
-            return cell
-
-
 class Bag(CoreBag):
 
     def extend(self, x=0, y=0):
@@ -171,7 +166,7 @@ class Table(Bag):
         if y is None:
             return self.x_index[x]
         return self.xy_index[(x,y)]
-    
+
     @staticmethod
     def from_messy(messy_rowset):
         new_table = Table()
