@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """ musings on order of variables, x/y vs. col/row
 Everyone agrees that col 2, row 1 is (2,1) which is xy ordered.
 This works well with the name.
