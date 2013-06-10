@@ -8,6 +8,15 @@ from collections import defaultdict
 import hamcrest
 import re
 
+UP = (0, -1)
+RIGHT = (1, 0)
+DOWN = (0, 1)
+LEFT = (-1, 0)
+UP_RIGHT = (1, -1)
+DOWN_RIGHT = (1, 1)
+UP_LEFT = (-1, -1)
+DOWN_LEFT = (-1, 1)
+
 
 class XYCell(object):
     """needs to contain: value, position (x,y), parent bag"""
@@ -109,9 +118,15 @@ class CoreBag(object):
         assert len(self.store) == 1, "Length is %d" % len(self.store)
         return self
 
+
 class Bag(CoreBag):
 
-    def extend(self, x=0, y=0):
+    def fill(self, direction):
+        if direction not in (UP, RIGHT, DOWN, LEFT, UP_RIGHT, DOWN_RIGHT,
+                             UP_LEFT, DOWN_LEFT):
+            raise ValueError("Invalid direction! Use one of UP, RIGHT, "
+                             "DOWN_RIGHT etc")
+        (x, y) = direction
         return self.select(
             lambda t, b: cmp(t.x, b.x) == x and cmp(t.y, b.y) == y
         )

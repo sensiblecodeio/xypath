@@ -92,9 +92,9 @@ class Test_XYPath(unittest.TestCase):
         b = a.select(lambda t, b: t.y == b.y + 1 and t.x == b.x).get_one()
         self.assertIn("More developed regions", b.value)
 
-    def test_extend(self):
+    def test_fill(self):
         a = self.table.filter("Variant")
-        b = a.extend(-1, 0).get_one()
+        b = a.extend(xypath.LEFT).get_one()
         self.assertEqual("Index", b.value)
 
     def test_shift(self):
