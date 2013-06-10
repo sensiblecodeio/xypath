@@ -11,9 +11,9 @@ import re
 
 class Test_XYPath(unittest.TestCase):
     @classmethod
-    def setup_class(klass):
+    def setup_class(cls):
         messy = messytables.excel.XLSTableSet(open("fixtures/wpp.xls", "rb"))
-        klass.table = xypath.Table.from_messy(messy.tables[0])
+        cls.table = xypath.Table.from_messy(messy.tables[0])
 
     def setUp(self):
         pass
