@@ -12,11 +12,12 @@ import re
 
 class XYCell(object):
     """needs to contain: value, position (x,y), parent bag"""
-    def __init__(self, value, x, y, table):
+    def __init__(self, value, x, y, table, raw):
         self.value = value  # of appropriate type
         self.x = x  # column number
         self.y = y  # row number
         self.table = table
+        self.raw = raw
 
     def __repr__(self):
         return "XYCell(%r, %r, %r, %r)" % \
@@ -172,14 +173,14 @@ class Table(Bag):
         new_table = Table()
         for y, row in enumerate(messy_rowset):
             for x, cell in enumerate(row):
-                new_table.add(XYCell(cell.value, x, y, new_table))
+                new_table.add(XYCell(cell.value, x, y, new_table, cell.raw))
         return new_table
 
     @staticmethod
     def from_bag(bag):
         new_table = Table()
         for cell in bag.store:
-            new_table.add(XYCell(cell.value, cell.x, cell.y, new_table))
+            new_table.add(XYCell(cell.value, cell.x, cell.y, new_table, cell.raw))
         return new_table
 
 
