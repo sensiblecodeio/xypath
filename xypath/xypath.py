@@ -119,6 +119,14 @@ class CoreBag(object):
         assert len(self.store) == 1, "Length is %d" % len(self.store)
         return self
 
+    @property
+    def value(self):
+        try:
+            return self.assert_one().store[0].value
+        except AssertionError:
+            raise ValueError("Bag isn't a singleton, can't get value")
+
+
 
 class Bag(CoreBag):
 

@@ -90,7 +90,7 @@ class Test_XYPath(unittest.TestCase):
 
     def test_select(self):
         a = self.table.filter("WORLD")
-        b = a.select(lambda t, b: t.y == b.y + 1 and t.x == b.x).get_one()
+        b = a.select(lambda t, b: t.y == b.y + 1 and t.x == b.x).assert_one()
         self.assertIn("More developed regions", b.value)
 
     def test_fill(self):
@@ -104,7 +104,7 @@ class Test_XYPath(unittest.TestCase):
 
         self.assertEqual(1, len(a))
         self.assertEqual(1, len(b))
-        self.assertEqual(16.0, b.get_one().value)
+        self.assertEqual(16.0, b.value)
 
     def test_from_bag(self):
         world_pops_bag = self.table.filter(lambda b: b.y >= 16 and b.y <= 22 and b.x >= 5 and b.x <= 16)
