@@ -21,6 +21,13 @@ class Test_XYPath(unittest.TestCase):
     def setUp(self):
         pass
 
+    def test_filename_constructor(self):
+        table = xypath.Table(filename=self.wpp_filename, table_name='ESTIMATES')
+        self.assertEqual(265, len(self.table.filter('Estimates')))
+
+        #table = xypath.Table(filename=self.wpp_filename, table_index=1)
+        #self.assertEqual(265, len(self.table.filter('Estimates')))
+
     def test_has_table(self):
         self.assertEqual(xypath.Table, type(self.table))
         self.assertIsInstance(self.table, xypath.Bag)

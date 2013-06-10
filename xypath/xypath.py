@@ -8,6 +8,8 @@ is outer loop y first."""
 from collections import defaultdict
 import hamcrest
 import re
+import messytables
+import os
 
 UP = (0, -1)
 RIGHT = (1, 0)
@@ -52,14 +54,14 @@ class XYCell(object):
 
 
 class CoreBag(object):
-    """A collection of XYCells"""
+    """Has a collection of XYCells"""
     def __init__(self, table, name=None):
         self.store = []
         self.name = name
         self.table = table
 
-    def add(self, value):
-        self.store.append(value)
+    def add(self, cell):
+        self.store.append(cell)
 
     def __len__(self):
         return len(self.store)
@@ -69,7 +71,6 @@ class CoreBag(object):
 
     def __iter__(self):
         return self.store.__iter__()
-
 
     def select(self, function):
         """returns a new bag (using the same table) which
@@ -157,23 +158,22 @@ class Bag(CoreBag):
                 bag.add(t_cell)
         return bag
 
-    @property
-    def value(self):
-        try:
-            self.assert_one()
-        except AssertionError:
-            raise ValueError("Bag contains %d cells, can't get value" %
-                             len(self.store))
-        return self.get_one().value
-
 
 class Table(Bag):
     """A bag which represents an entire sheet"""
-    def __init__(self):
+    def __init__(self, filename=None, extension=None, table_name=None):
         super(Table, self).__init__(table=self, name="")
         self.x_index = defaultdict(lambda: Bag(self))
         self.y_index = defaultdict(lambda: Bag(self))
         self.xy_index = defaultdict(lambda: Bag(self))
+
+        if filename is not None:
+            if extension is None:
+                extension = os.path.splitext(filename)[1]
+            with open(filename, 'rb') as f:
+                table_set = messytables.any.any_tableset(f, extension='xls')
+                table = table_set[table_name]
+                Table.from_messy(table, self)
 
     def add(self, cell):
         self.x_index[cell.x].add(cell)
@@ -191,12 +191,16 @@ class Table(Bag):
         return self.xy_index[(x,y)]
 
     @staticmethod
-    def from_messy(messy_rowset):
-        new_table = Table()
+    def from_messy(messy_rowset, table_to_populate=None):
+        assert isinstance(messy_rowset, messytables.core.RowSet)
+
+        if table_to_populate is None:
+            table_to_populate = Table()
+        print(messy_rowset.__class__)
         for y, row in enumerate(messy_rowset):
             for x, cell in enumerate(row):
-                new_table.add(XYCell(cell.value, x, y, new_table))
-        return new_table
+                table_to_populate.add(XYCell(cell.value, x, y, table_to_populate))
+        return table_to_populate
 
     @staticmethod
     def from_bag(bag):
