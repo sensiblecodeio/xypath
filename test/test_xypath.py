@@ -68,8 +68,8 @@ class Test_XYPath(unittest.TestCase):
             0, len(self.table.filter(re.compile(r'developed regions$'))))
 
     def test_cell_junction(self):
-        a = self.table.filter("WORLD").get_one()
-        b = self.table.filter("1990-1995").get_one()
+        a = self.table.filter("WORLD").assert_one()
+        b = self.table.filter("1990-1995").assert_one()
         junction_result = list(a.junction(b))
         self.assertEqual(1, len(junction_result))
         (x, y, z) = junction_result[0]
@@ -90,13 +90,13 @@ class Test_XYPath(unittest.TestCase):
 
     def test_select(self):
         a = self.table.filter("WORLD")
-        b = a.select(lambda t, b: t.y == b.y + 1 and t.x == b.x).get_one()
-        self.assertIn("More developed regions", b.value)
+        b = a.select(lambda t, b: t.y == b.y + 1 and t.x == b.x).value
+        self.assertIn("More developed regions", b)
 
     def test_extend(self):
         a = self.table.filter("Variant")
-        b = a.extend(-1, 0).get_one()
-        self.assertEqual("Index", b.value)
+        b = a.extend(-1, 0).value
+        self.assertEqual("Index", b)
 
     def test_shift(self):
         a = self.table.filter('Ethiopia')
@@ -104,7 +104,7 @@ class Test_XYPath(unittest.TestCase):
 
         self.assertEqual(1, len(a))
         self.assertEqual(1, len(b))
-        self.assertEqual(16.0, b.get_one().value)
+        self.assertEqual(16.0, b.value)
 
     def test_from_bag(self):
         world_pops_bag = self.table.filter(lambda b: b.y >= 16 and b.y <= 22 and b.x >= 5 and b.x <= 16)

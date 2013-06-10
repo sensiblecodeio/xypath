@@ -141,7 +141,7 @@ class Bag(CoreBag):
         except AssertionError:
             raise ValueError("Bag contains %d cells, can't get value" %
                              len(self.store))
-        return self.get_one().value
+        return self.store[0].value
 
 
 class Table(Bag):
