@@ -7,12 +7,15 @@ import xypath
 import messytables
 import hamcrest
 import re
+from os.path import dirname, abspath, join
 
 
 class Test_XYPath(unittest.TestCase):
     @classmethod
     def setup_class(cls):
-        messy = messytables.excel.XLSTableSet(open("fixtures/wpp.xls", "rb"))
+        cls.wpp_filename = join(
+            abspath(dirname(__file__)), '..', 'fixtures', 'wpp.xls')
+        messy = messytables.excel.XLSTableSet(open(cls.wpp_filename, "rb"))
         cls.table = xypath.Table.from_messy(messy.tables[0])
 
     def setUp(self):
