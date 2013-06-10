@@ -68,8 +68,8 @@ class Test_XYPath(unittest.TestCase):
             0, len(self.table.filter(re.compile(r'developed regions$'))))
 
     def test_cell_junction(self):
-        a = self.table.filter("WORLD").get_one()
-        b = self.table.filter("1990-1995").get_one()
+        a = self.table.filter("WORLD").assert_one()
+        b = self.table.filter("1990-1995").assert_one()
         junction_result = list(a.junction(b))
         self.assertEqual(1, len(junction_result))
         (x, y, z) = junction_result[0]
