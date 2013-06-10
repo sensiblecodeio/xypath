@@ -95,7 +95,7 @@ class Test_XYPath(unittest.TestCase):
 
     def test_fill(self):
         a = self.table.filter("Variant")
-        b = a.extend(xypath.LEFT).get_one()
+        b = a.fill(xypath.LEFT).assert_one()
         self.assertEqual("Index", b.value)
 
     def test_shift(self):
@@ -112,12 +112,12 @@ class Test_XYPath(unittest.TestCase):
 
         # check extending the whole table gets lots of stuff all the way down
         fifties = self.table.filter("1950-1955")
-        filties_col = fifties.extend(0, 1)
+        filties_col = fifties.fill(xypath.DOWN)
         self.assertEqual(265, len(filties_col))
 
         # check if we extend within the new world-only table, it only gets stuff from the table
         fifties = world_pops_table.filter("1950-1955")
-        filties_col = fifties.extend(0, 1)
+        filties_col = fifties.fill(xypath.DOWN)
         self.assertEqual(6, len(filties_col))
 
 
