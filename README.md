@@ -2,6 +2,8 @@
 
 Select different parts of a spreadsheet via functions.
 
+[![Build Status](https://travis-ci.org/scraperwiki/xypath.png?branch=master)](https://travis-ci.org/scraperwiki/xypath)
+
 1. Import a table from messytable
 ```python
     messy = messytables.excel.XLSTableSet(open('mysheet.xls'))
