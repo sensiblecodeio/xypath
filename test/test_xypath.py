@@ -130,13 +130,13 @@ class Test_XYPath(unittest.TestCase):
 
     def test_select(self):
         a = self.table.filter("WORLD")
-        b = a.select(lambda t, b: t.y == b.y + 1 and t.x == b.x).assert_one()
-        self.assertIn("More developed regions", b.value)
+        b = a.select(lambda t, b: t.y == b.y + 1 and t.x == b.x).value
+        self.assertIn("More developed regions", b)
 
     def test_fill(self):
         a = self.table.filter("Variant")
-        b = a.fill(xypath.LEFT).assert_one()
-        self.assertEqual("Index", b.value)
+        b = a.fill(xypath.LEFT).value
+        self.assertEqual("Index", b)
 
     def test_shift(self):
         a = self.table.filter('Ethiopia')
