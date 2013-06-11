@@ -7,20 +7,60 @@ import xypath
 import messytables
 import hamcrest
 import re
+from os.path import dirname, abspath, join
 
 
 class Test_XYPath(unittest.TestCase):
     @classmethod
-    def setup_class(klass):
-        messy = messytables.excel.XLSTableSet(open("fixtures/wpp.xls", "rb"))
-        klass.table = xypath.Table.from_messy(messy.tables[0])
+    def setup_class(cls):
+        cls.wpp_filename = join(
+            abspath(dirname(__file__)), '..', 'fixtures', 'wpp.xls')
+        cls.messy = messytables.excel.XLSTableSet(open(cls.wpp_filename, "rb"))
+        cls.table = xypath.Table.from_messy(cls.messy.tables[0])
 
     def setUp(self):
         pass
 
+    def test_filename_constructor_with_table_name(self):
+        """Can we specify only the filename and 'name' of the table?"""
+        table = xypath.Table(filename=self.wpp_filename, table_name='NOTES')
+        #print(table)
+        for x in table:
+            print(x)
+        self.assertEqual(32, len(table))
+        table.filter(
+            hamcrest.contains_string('(2) Including Zanzibar.')).assert_one()
+
+    def test_filename_constructor_with_table_index(self):
+        """Can we specify only the filename and index of the table?"""
+        new_table = xypath.Table(filename=self.wpp_filename, table_index=5)
+        self.assertEqual(1, len(new_table.filter('(2) Including Zanzibar.')))
+
+    def test_filename_constructor_no_table_specified(self):
+        """If you use the filename constructor you must specify a table."""
+        func = lambda: xypath.Table(filename=self.wpp_filename)
+        self.assertRaises(TypeError, func)
+
     def test_has_table(self):
         self.assertEqual(xypath.Table, type(self.table))
         self.assertIsInstance(self.table, xypath.Bag)
+
+    def test_from_messy_no_table_given(self):
+        new_table = xypath.Table.from_messy(self.messy.tables[0])
+        self.assertEqual(265, len(new_table.filter('Estimates')))
+
+    def test_from_messy_table_given(self):
+        """
+        Does from_messy populate a table, modifying it in place, as well as
+        returning it?
+        """
+        new_table = xypath.Table()
+
+        result = xypath.Table.from_messy(self.messy.tables[0], new_table)
+        self.assertEqual(result, new_table)
+        self.assertIs(result, new_table)
+        self.assertEqual(265, len(new_table.filter('Estimates')))
+
 
     def test_basic_vert(self):
         r = repr(self.table.filter(lambda b: b.x == 2))
@@ -93,9 +133,9 @@ class Test_XYPath(unittest.TestCase):
         b = a.select(lambda t, b: t.y == b.y + 1 and t.x == b.x).value
         self.assertIn("More developed regions", b)
 
-    def test_extend(self):
+    def test_fill(self):
         a = self.table.filter("Variant")
-        b = a.extend(-1, 0).value
+        b = a.fill(xypath.LEFT).value
         self.assertEqual("Index", b)
 
     def test_shift(self):
@@ -112,12 +152,12 @@ class Test_XYPath(unittest.TestCase):
 
         # check extending the whole table gets lots of stuff all the way down
         fifties = self.table.filter("1950-1955")
-        filties_col = fifties.extend(0, 1)
+        filties_col = fifties.fill(xypath.DOWN)
         self.assertEqual(265, len(filties_col))
 
         # check if we extend within the new world-only table, it only gets stuff from the table
         fifties = world_pops_table.filter("1950-1955")
-        filties_col = fifties.extend(0, 1)
+        filties_col = fifties.fill(xypath.DOWN)
         self.assertEqual(6, len(filties_col))
 
 

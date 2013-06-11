@@ -8,11 +8,22 @@ is outer loop y first."""
 from collections import defaultdict
 import hamcrest
 import re
+import messytables
+import os
+
+UP = (0, -1)
+RIGHT = (1, 0)
+DOWN = (0, 1)
+LEFT = (-1, 0)
+UP_RIGHT = (1, -1)
+DOWN_RIGHT = (1, 1)
+UP_LEFT = (-1, -1)
+DOWN_LEFT = (-1, 1)
 
 
 class XYCell(object):
     """needs to contain: value, position (x,y), parent bag"""
-    def __init__(self, value, x, y, table, raw):
+    def __init__(self, value, x, y, table, raw=None): # TODO fix raw=None
         self.value = value  # of appropriate type
         self.x = x  # column number
         self.y = y  # row number
@@ -44,14 +55,14 @@ class XYCell(object):
 
 
 class CoreBag(object):
-    """A collection of XYCells"""
+    """Has a collection of XYCells"""
     def __init__(self, table, name=None):
         self.store = []
         self.name = name
         self.table = table
 
-    def add(self, value):
-        self.store.append(value)
+    def add(self, cell):
+        self.store.append(cell)
 
     def __len__(self):
         return len(self.store)
@@ -61,7 +72,6 @@ class CoreBag(object):
 
     def __iter__(self):
         return self.store.__iter__()
-
 
     def select(self, function):
         """returns a new bag (using the same table) which
@@ -111,9 +121,23 @@ class CoreBag(object):
         assert len(self.store) == 1, "Length is %d" % len(self.store)
         return self
 
+    @property
+    def value(self):
+        try:
+            return self.assert_one().store[0].value
+        except AssertionError:
+            raise ValueError("Bag isn't a singleton, can't get value")
+
+
+
 class Bag(CoreBag):
 
-    def extend(self, x=0, y=0):
+    def fill(self, direction):
+        if direction not in (UP, RIGHT, DOWN, LEFT, UP_RIGHT, DOWN_RIGHT,
+                             UP_LEFT, DOWN_LEFT):
+            raise ValueError("Invalid direction! Use one of UP, RIGHT, "
+                             "DOWN_RIGHT etc")
+        (x, y) = direction
         return self.select(
             lambda t, b: cmp(t.x, b.x) == x and cmp(t.y, b.y) == y
         )
@@ -144,14 +168,28 @@ class Bag(CoreBag):
                              len(self.store))
         return self.store[0].value
 
-
 class Table(Bag):
     """A bag which represents an entire sheet"""
-    def __init__(self):
+    def __init__(self, filename=None, extension=None, table_name=None,
+                 table_index=None):
         super(Table, self).__init__(table=self, name="")
         self.x_index = defaultdict(lambda: Bag(self))
         self.y_index = defaultdict(lambda: Bag(self))
         self.xy_index = defaultdict(lambda: Bag(self))
+
+        if filename is not None:
+            if extension is None:
+                extension = os.path.splitext(filename)[1]
+            with open(filename, 'rb') as f:
+                table_set = messytables.any.any_tableset(f, extension='xls')
+                if table_name is not None:
+                    table = table_set[table_name]
+                elif table_index is not None:
+                    table = table_set.tables[table_index]
+                else:
+                    raise TypeError(
+                        "You must specify one of table_name or table_index")
+                Table.from_messy(table, self)
 
     def add(self, cell):
         self.x_index[cell.x].add(cell)
@@ -169,12 +207,15 @@ class Table(Bag):
         return self.xy_index[(x,y)]
 
     @staticmethod
-    def from_messy(messy_rowset):
-        new_table = Table()
+    def from_messy(messy_rowset, table_to_populate=None):
+        assert isinstance(messy_rowset, messytables.core.RowSet)
+
+        if table_to_populate is None:
+            table_to_populate = Table()
         for y, row in enumerate(messy_rowset):
             for x, cell in enumerate(row):
-                new_table.add(XYCell(cell.value, x, y, new_table, cell.raw))
-        return new_table
+                table_to_populate.add(XYCell(cell.value, x, y, table_to_populate))
+        return table_to_populate
 
     @staticmethod
     def from_bag(bag):
