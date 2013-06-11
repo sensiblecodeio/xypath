@@ -21,9 +21,9 @@ class Test_XYPath(unittest.TestCase):
     def setUp(self):
         pass
 
-    def test_filename_constructor_with_table_name(self):
+    def test_from_file_with_table_name(self):
         """Can we specify only the filename and 'name' of the table?"""
-        table = xypath.Table(filename=self.wpp_filename, table_name='NOTES')
+        table = xypath.Table.from_file(filename=self.wpp_filename, table_name='NOTES')
         #print(table)
         for x in table:
             print(x)
@@ -31,9 +31,9 @@ class Test_XYPath(unittest.TestCase):
         table.filter(
             hamcrest.contains_string('(2) Including Zanzibar.')).assert_one()
 
-    def test_filename_constructor_with_table_index(self):
+    def test_from_file_with_table_index(self):
         """Can we specify only the filename and index of the table?"""
-        new_table = xypath.Table(filename=self.wpp_filename, table_index=5)
+        new_table = xypath.Table.from_file(filename=self.wpp_filename, table_index=5)
         self.assertEqual(1, len(new_table.filter('(2) Including Zanzibar.')))
 
     def test_filename_constructor_no_table_specified(self):
@@ -53,14 +53,10 @@ class Test_XYPath(unittest.TestCase):
         """
         Does from_messy populate a table, modifying it in place, as well as
         returning it?
+
+        Functionality removed.
         """
-        new_table = xypath.Table()
-
-        result = xypath.Table.from_messy(self.messy.tables[0], new_table)
-        self.assertEqual(result, new_table)
-        self.assertIs(result, new_table)
-        self.assertEqual(265, len(new_table.filter('Estimates')))
-
+        pass
 
     def test_basic_vert(self):
         r = repr(self.table.filter(lambda b: b.x == 2))
