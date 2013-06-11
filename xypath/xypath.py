@@ -56,21 +56,21 @@ class XYCell(object):
 class CoreBag(object):
     """Has a collection of XYCells"""
     def __init__(self, table, name=None):
-        self.store = []
+        self.__store = []
         self.name = name
         self.table = table
 
     def add(self, cell):
-        self.store.append(cell)
+        self.__store.append(cell)
 
     def __len__(self):
-        return len(self.store)
+        return len(self.__store)
 
     def __repr__(self):
-        return repr(self.store)
+        return repr(self.__store)
 
     def __iter__(self):
-        return self.store.__iter__()
+        return self.__store.__iter__()
 
     def select(self, function):
         """returns a new bag (using the same table) which
@@ -82,8 +82,8 @@ class CoreBag(object):
         bag and false otherwise"""
 
         newbag = Bag(table=self.table)
-        for table_cell in self.table.store:
-            for bag_cell in self.store:
+        for table_cell in self.table.__store:
+            for bag_cell in self.__store:
                 if function(table_cell, bag_cell):
                     newbag.add(table_cell)
                     break
@@ -111,19 +111,19 @@ class CoreBag(object):
 
     def _filter_internal(self, function):
         newbag = Bag(table=self.table)
-        for bag_cell in self.store:
+        for bag_cell in self.__store:
             if function(bag_cell):
                 newbag.add(bag_cell)
         return newbag
 
     def assert_one(self):
-        assert len(self.store) == 1, "Length is %d" % len(self.store)
+        assert len(self.__store) == 1, "Length is %d" % len(self.__store)
         return self
 
     @property
     def value(self):
         try:
-            return self.assert_one().store[0].value
+            return self.assert_one().__store[0].value
         except AssertionError:
             raise ValueError("Bag isn't a singleton, can't get value")
 
@@ -142,8 +142,8 @@ class Bag(CoreBag):
         )
 
     def junction(self, other):
-        for self_cell in self.store:
-            for other_cell in other.store:
+        for self_cell in self:
+            for other_cell in other:
                 for triple in self_cell.junction(other_cell):
                     yield triple
 
@@ -153,7 +153,7 @@ class Bag(CoreBag):
         coordinates specified.
         """
         bag = Bag(table=self.table)
-        for b_cell in self.store:
+        for b_cell in self:
             for t_cell in self.table.get_at(b_cell.x + x, b_cell.y + y):
                 bag.add(t_cell)
         return bag
@@ -211,7 +211,7 @@ class Table(Bag):
     @staticmethod
     def from_bag(bag):
         new_table = Table()
-        for cell in bag.store:
+        for cell in bag:
             new_table.add(XYCell(cell.value, cell.x, cell.y, new_table))
         return new_table
 
