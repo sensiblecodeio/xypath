@@ -45,6 +45,23 @@ class Test_XYPath(unittest.TestCase):
         self.assertEqual(xypath.Table, type(self.table))
         self.assertIsInstance(self.table, xypath.Bag)
 
+    def test_from_messy_no_table_given(self):
+        new_table = xypath.Table.from_messy(self.messy.tables[0])
+        self.assertEqual(265, len(new_table.filter('Estimates')))
+
+    def test_from_messy_table_given(self):
+        """
+        Does from_messy populate a table, modifying it in place, as well as
+        returning it?
+        """
+        new_table = xypath.Table()
+
+        result = xypath.Table.from_messy(self.messy.tables[0], new_table)
+        self.assertEqual(result, new_table)
+        self.assertIs(result, new_table)
+        self.assertEqual(265, len(new_table.filter('Estimates')))
+
+
     def test_basic_vert(self):
         r = repr(self.table.filter(lambda b: b.x == 2))
         self.assertIn("WORLD", r)
