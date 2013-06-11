@@ -15,18 +15,31 @@ class Test_XYPath(unittest.TestCase):
     def setup_class(cls):
         cls.wpp_filename = join(
             abspath(dirname(__file__)), '..', 'fixtures', 'wpp.xls')
-        messy = messytables.excel.XLSTableSet(open(cls.wpp_filename, "rb"))
-        cls.table = xypath.Table.from_messy(messy.tables[0])
+        cls.messy = messytables.excel.XLSTableSet(open(cls.wpp_filename, "rb"))
+        cls.table = xypath.Table.from_messy(cls.messy.tables[0])
 
     def setUp(self):
         pass
 
-    def test_filename_constructor(self):
-        table = xypath.Table(filename=self.wpp_filename, table_name='ESTIMATES')
-        self.assertEqual(265, len(self.table.filter('Estimates')))
+    def test_filename_constructor_with_table_name(self):
+        """Can we specify only the filename and 'name' of the table?"""
+        table = xypath.Table(filename=self.wpp_filename, table_name='NOTES')
+        #print(table)
+        for x in table:
+            print(x)
+        self.assertEqual(32, len(table))
+        table.filter(
+            hamcrest.contains_string('(2) Including Zanzibar.')).assert_one()
 
-        #table = xypath.Table(filename=self.wpp_filename, table_index=1)
-        #self.assertEqual(265, len(self.table.filter('Estimates')))
+    def test_filename_constructor_with_table_index(self):
+        """Can we specify only the filename and index of the table?"""
+        new_table = xypath.Table(filename=self.wpp_filename, table_index=5)
+        self.assertEqual(1, len(new_table.filter('(2) Including Zanzibar.')))
+
+    def test_filename_constructor_no_table_specified(self):
+        """If you use the filename constructor you must specify a table."""
+        func = lambda: xypath.Table(filename=self.wpp_filename)
+        self.assertRaises(TypeError, func)
 
     def test_has_table(self):
         self.assertEqual(xypath.Table, type(self.table))

@@ -161,7 +161,8 @@ class Bag(CoreBag):
 
 class Table(Bag):
     """A bag which represents an entire sheet"""
-    def __init__(self, filename=None, extension=None, table_name=None):
+    def __init__(self, filename=None, extension=None, table_name=None,
+                 table_index=None):
         super(Table, self).__init__(table=self, name="")
         self.x_index = defaultdict(lambda: Bag(self))
         self.y_index = defaultdict(lambda: Bag(self))
@@ -172,7 +173,13 @@ class Table(Bag):
                 extension = os.path.splitext(filename)[1]
             with open(filename, 'rb') as f:
                 table_set = messytables.any.any_tableset(f, extension='xls')
-                table = table_set[table_name]
+                if table_name is not None:
+                    table = table_set[table_name]
+                elif table_index is not None:
+                    table = table_set.tables[table_index]
+                else:
+                    raise TypeError(
+                        "You must specify one of table_name or table_index")
                 Table.from_messy(table, self)
 
     def add(self, cell):
@@ -196,7 +203,6 @@ class Table(Bag):
 
         if table_to_populate is None:
             table_to_populate = Table()
-        print(messy_rowset.__class__)
         for y, row in enumerate(messy_rowset):
             for x, cell in enumerate(row):
                 table_to_populate.add(XYCell(cell.value, x, y, table_to_populate))
