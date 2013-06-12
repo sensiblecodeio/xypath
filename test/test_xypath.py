@@ -1,13 +1,20 @@
 #!/usr/bin/env python
 import sys
 import unittest
-from nose.tools import *
 sys.path.append('xypath')
 import xypath
 import messytables
 import hamcrest
 import re
-from os.path import dirname, abspath, join
+from os.path import dirname, abspath, join, splitext
+
+
+def get_extension(filename):
+    """
+    >>> get_extension('/foo/bar/test.xls')
+    'xls'
+    """
+    return splitext(filename)[1].strip('.')
 
 
 class Test_XYPath(unittest.TestCase):
@@ -21,46 +28,71 @@ class Test_XYPath(unittest.TestCase):
     def setUp(self):
         pass
 
-    def test_filename_constructor_with_table_name(self):
-        """Can we specify only the filename and 'name' of the table?"""
-        table = xypath.Table(filename=self.wpp_filename, table_name='NOTES')
-        #print(table)
-        for x in table:
-            print(x)
-        self.assertEqual(32, len(table))
-        table.filter(
-            hamcrest.contains_string('(2) Including Zanzibar.')).assert_one()
-
-    def test_filename_constructor_with_table_index(self):
-        """Can we specify only the filename and index of the table?"""
-        new_table = xypath.Table(filename=self.wpp_filename, table_index=5)
-        self.assertEqual(1, len(new_table.filter('(2) Including Zanzibar.')))
-
-    def test_filename_constructor_no_table_specified(self):
-        """If you use the filename constructor you must specify a table."""
-        func = lambda: xypath.Table(filename=self.wpp_filename)
-        self.assertRaises(TypeError, func)
-
     def test_has_table(self):
         self.assertEqual(xypath.Table, type(self.table))
         self.assertIsInstance(self.table, xypath.Bag)
 
-    def test_from_messy_no_table_given(self):
+    def test_from_filename_with_table_name(self):
+        """Can we specify only the filename and 'name' of the table?"""
+        table = xypath.Table.from_filename(
+            self.wpp_filename,
+            table_name='NOTES')
+        self.assertEqual(32, len(table))
+        table.filter(
+            hamcrest.contains_string('(2) Including Zanzibar.')).assert_one()
+
+    def test_from_filename_with_table_index(self):
+        """Can we specify only the filename and index of the table?"""
+        new_table = xypath.Table.from_filename(
+                self.wpp_filename,
+                table_index=5)
+        self.assertEqual(1, len(new_table.filter('(2) Including Zanzibar.')))
+
+    def test_filename_constructor_no_table_specified(self):
+        """If you use the filename constructor you must specify a table."""
+        func = lambda: xypath.Table.from_filename(filename=self.wpp_filename)
+        self.assertRaises(TypeError, func)
+
+    def test_filename_constructor_ambiguous_table_specifier(self):
+        """If you use the filename constructor you must specify a table."""
+        func = lambda: xypath.Table.from_filename(
+            filename=self.wpp_filename, table_name='NOTES', table_index=5)
+        self.assertRaises(TypeError, func)
+
+    def test_from_file_object_table_index(self):
+        with open(self.wpp_filename, 'rb') as f:
+            extension = get_extension(self.wpp_filename)
+            new_table = xypath.Table.from_file_object(
+                f, extension, table_index=5)
+        self.assertEqual(1, len(new_table.filter('(2) Including Zanzibar.')))
+
+    def test_from_file_object_table_name(self):
+        with open(self.wpp_filename, 'rb') as f:
+            extension = get_extension(self.wpp_filename)
+            new_table = xypath.Table.from_file_object(
+                f, extension, table_name='NOTES')
+        self.assertEqual(1, len(new_table.filter('(2) Including Zanzibar.')))
+
+    def test_from_file_object_no_table_specifier(self):
+
+        with open(self.wpp_filename, 'rb') as f:
+            extension = get_extension(self.wpp_filename)
+            self.assertRaises(
+                TypeError,
+                lambda: xypath.Table.from_file_object(f, extension))
+
+    def test_from_file_object_ambiguous_table_specifier(self):
+        with open(self.wpp_filename, 'rb') as f:
+            extension = get_extension(self.wpp_filename)
+
+            self.assertRaises(
+                TypeError,
+                lambda: xypath.Table.from_file_object(
+                    f, extension, table_name='NOTES', table_index=4))
+
+    def test_from_messy(self):
         new_table = xypath.Table.from_messy(self.messy.tables[0])
         self.assertEqual(265, len(new_table.filter('Estimates')))
-
-    def test_from_messy_table_given(self):
-        """
-        Does from_messy populate a table, modifying it in place, as well as
-        returning it?
-        """
-        new_table = xypath.Table()
-
-        result = xypath.Table.from_messy(self.messy.tables[0], new_table)
-        self.assertEqual(result, new_table)
-        self.assertIs(result, new_table)
-        self.assertEqual(265, len(new_table.filter('Estimates')))
-
 
     def test_basic_vert(self):
         r = repr(self.table.filter(lambda b: b.x == 2))

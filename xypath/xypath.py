@@ -162,26 +162,11 @@ class Bag(CoreBag):
 
 class Table(Bag):
     """A bag which represents an entire sheet"""
-    def __init__(self, filename=None, extension=None, table_name=None,
-                 table_index=None):
-        super(Table, self).__init__(table=self, name="")
+    def __init__(self, name=""):
+        super(Table, self).__init__(table=self, name=name)
         self.x_index = defaultdict(lambda: Bag(self))
         self.y_index = defaultdict(lambda: Bag(self))
         self.xy_index = defaultdict(lambda: Bag(self))
-
-        if filename is not None:
-            if extension is None:
-                extension = os.path.splitext(filename)[1]
-            with open(filename, 'rb') as f:
-                table_set = messytables.any.any_tableset(f, extension='xls')
-                if table_name is not None:
-                    table = table_set[table_name]
-                elif table_index is not None:
-                    table = table_set.tables[table_index]
-                else:
-                    raise TypeError(
-                        "You must specify one of table_name or table_index")
-                Table.from_messy(table, self)
 
     def add(self, cell):
         self.x_index[cell.x].add(cell)
@@ -199,15 +184,44 @@ class Table(Bag):
         return self.xy_index[(x,y)]
 
     @staticmethod
-    def from_messy(messy_rowset, table_to_populate=None):
-        assert isinstance(messy_rowset, messytables.core.RowSet)
+    def from_filename(filename, table_name=None, table_index=None):
+        if (table_name is not None and table_index is not None) or \
+                (table_name is None and table_index is None):
+            raise TypeError("Must give exactly one of table_name, table_index")
 
-        if table_to_populate is None:
-            table_to_populate = Table()
+        extension = os.path.splitext(filename)[1].strip('.')
+
+        with open(filename, 'rb') as f:
+            table_set = messytables.any.any_tableset(f, extension=extension)
+
+            if table_name is not None:
+                return Table.from_messy(table_set[table_name])
+
+            elif table_index is not None:
+                return Table.from_messy(table_set.tables[table_index])
+
+    @staticmethod
+    def from_file_object(fobj, extension, table_name=None, table_index=None):
+        if (table_name is not None and table_index is not None) or \
+                (table_name is None and table_index is None):
+            raise TypeError("Must give exactly one of table_name, table_index")
+
+        table_set = messytables.any.any_tableset(fobj, extension=extension)
+
+        if table_name is not None:
+            return Table.from_messy(table_set[table_name])
+
+        elif table_index is not None:
+            return Table.from_messy(table_set.tables[table_index])
+
+    @staticmethod
+    def from_messy(messy_rowset):
+        assert isinstance(messy_rowset, messytables.core.RowSet)
+        new_table = Table()
         for y, row in enumerate(messy_rowset):
             for x, cell in enumerate(row):
-                table_to_populate.add(XYCell(cell.value, x, y, table_to_populate))
-        return table_to_populate
+                new_table.add(XYCell(cell.value, x, y, new_table))
+        return new_table
 
     @staticmethod
     def from_bag(bag):
