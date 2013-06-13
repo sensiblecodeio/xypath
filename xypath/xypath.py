@@ -136,11 +136,11 @@ class CoreBag(object):
 
         elif len(self.__store) == 0:
             raise NoCellsAssertionError(
-                "Zero cells found bag, not 1".format(len(self.__store)))
+                "Zero cells in found bag, not 1".format(len(self.__store)))
 
         elif len(self.__store) > 1:
             raise MultipleCellsAssertionError(
-                "{} cells found bag, not 1".format(len(self.__store)))
+                "{} cells found in bag, not 1".format(len(self.__store)))
 
     @property
     def value(self):
