@@ -21,9 +21,19 @@ UP_LEFT = (-1, -1)
 DOWN_LEFT = (-1, 1)
 
 
+class NoCellsAssertionError(AssertionError):
+    """Raised by Bag.assert_one() if the bag contains zero cells."""
+    pass
+
+
+class MultipleCellsAssertionError(AssertionError):
+    """Raised by Bag.assert_one() if the bag contains multiple cells."""
+    pass
+
+
 class XYCell(object):
     """needs to contain: value, position (x,y), parent bag"""
-    def __init__(self, value, x, y, table, raw=None): # TODO fix raw=None
+    def __init__(self, value, x, y, table, raw=None):  # TODO fix raw=None
         self.value = value  # of appropriate type
         self.x = x  # column number
         self.y = y  # row number
@@ -121,8 +131,16 @@ class CoreBag(object):
         return newbag
 
     def assert_one(self):
-        assert len(self.__store) == 1, "Length is %d" % len(self.__store)
-        return self
+        if len(self.__store) == 1:
+            return self
+
+        elif len(self.__store) == 0:
+            raise NoCellsAssertionError(
+                "Zero cells found bag, not 1".format(len(self.__store)))
+
+        elif len(self.__store) > 1:
+            raise MultipleCellsAssertionError(
+                "{} cells found bag, not 1".format(len(self.__store)))
 
     @property
     def value(self):
@@ -130,7 +148,6 @@ class CoreBag(object):
             return self.assert_one().__store[0].value
         except AssertionError:
             raise ValueError("Bag isn't a singleton, can't get value")
-
 
 
 class Bag(CoreBag):

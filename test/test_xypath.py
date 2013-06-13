@@ -176,10 +176,20 @@ class Test_XYPath(unittest.TestCase):
         filties_col = fifties.fill(xypath.DOWN)
         self.assertEqual(265, len(filties_col))
 
-        # check if we extend within the new world-only table, it only gets stuff from the table
+        # check if we extend within the new world-only table, it only gets
+        # stuff from the table
         fifties = world_pops_table.filter("1950-1955")
         filties_col = fifties.fill(xypath.DOWN)
         self.assertEqual(6, len(filties_col))
 
+    def test_assert_one_with_zero(self):
+        bag = self.table.filter('No Such Cell')
+        self.assertRaises(AssertionError, lambda: bag.assert_one())
+        self.assertRaises(
+            xypath.NoCellsAssertionError, lambda: bag.assert_one())
 
-
+    def test_assert_one_with_multiple(self):
+        bag = self.table.filter('Estimates')
+        self.assertRaises(AssertionError, lambda: bag.assert_one())
+        self.assertRaises(
+            xypath.MultipleCellsAssertionError, lambda: bag.assert_one())
