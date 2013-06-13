@@ -48,17 +48,6 @@ class Test_XYPath(unittest.TestCase):
                 table_index=5)
         self.assertEqual(1, len(new_table.filter('(2) Including Zanzibar.')))
 
-    def test_filename_constructor_no_table_specified(self):
-        """If you use the filename constructor you must specify a table."""
-        func = lambda: xypath.Table.from_filename(filename=self.wpp_filename)
-        self.assertRaises(TypeError, func)
-
-    def test_filename_constructor_ambiguous_table_specifier(self):
-        """If you use the filename constructor you must specify a table."""
-        func = lambda: xypath.Table.from_filename(
-            filename=self.wpp_filename, table_name='NOTES', table_index=5)
-        self.assertRaises(TypeError, func)
-
     def test_from_file_object_table_index(self):
         with open(self.wpp_filename, 'rb') as f:
             extension = get_extension(self.wpp_filename)

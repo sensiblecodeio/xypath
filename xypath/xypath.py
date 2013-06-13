@@ -180,29 +180,18 @@ class Table(Bag):
 
     def get_at(self, x=None, y=None):
         if x is None and y is None:
-            raise TypeError, 'get_at requires at least one x or y value'
+            raise TypeError('get_at requires at least one x or y value')
         if x is None:
             return self.y_index[y]
         if y is None:
             return self.x_index[x]
-        return self.xy_index[(x,y)]
+        return self.xy_index[(x, y)]
 
     @staticmethod
     def from_filename(filename, table_name=None, table_index=None):
-        if (table_name is not None and table_index is not None) or \
-                (table_name is None and table_index is None):
-            raise TypeError("Must give exactly one of table_name, table_index")
-
         extension = os.path.splitext(filename)[1].strip('.')
-
         with open(filename, 'rb') as f:
-            table_set = messytables.any.any_tableset(f, extension=extension)
-
-            if table_name is not None:
-                return Table.from_messy(table_set[table_name])
-
-            elif table_index is not None:
-                return Table.from_messy(table_set.tables[table_index])
+            return Table.from_file_object(f, extension, table_name=table_name, table_index=table_index)
 
     @staticmethod
     def from_file_object(fobj, extension, table_name=None, table_index=None):
@@ -214,7 +203,6 @@ class Table(Bag):
 
         if table_name is not None:
             return Table.from_messy(table_set[table_name])
-
         elif table_index is not None:
             return Table.from_messy(table_set.tables[table_index])
 
