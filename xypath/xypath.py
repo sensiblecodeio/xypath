@@ -43,8 +43,11 @@ class XYCell(object):
         x = max(self.x, other.x)
         y = max(self.y, other.y)
         if (x, y) == (self.x, self.y) or (x, y) == (other.x, other.y):
-            print self, other, x, y
-            assert False
+            raise RuntimeError(
+                "XYCell.junction(XYCell) resulted in a cell which is equal"
+                " to one of the input cells which is apparently bad.\n"
+                "  self: {}\n  other: {}\n  x: {}\n  y: {}".format(
+                    self, other, x, y))
         junction_bag = self.table.get_at(x,y) # TODO: test
 
         self_bag = Bag(self.table)
@@ -145,6 +148,7 @@ class Bag(CoreBag):
     def junction(self, other):
         for self_cell in self:
             for other_cell in other:
+                print("Calling {}.junction({})".format(self_cell, other_cell))
                 for triple in self_cell.junction(other_cell):
                     yield triple
 
