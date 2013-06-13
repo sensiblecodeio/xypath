@@ -163,7 +163,7 @@ class Bag(CoreBag):
 class Table(Bag):
     """A bag which represents an entire sheet"""
     def __init__(self, name=""):
-        super(Table, self).__init__(table=self)
+        super(Table, self).__init__(table=self, name=name)
         self.x_index = defaultdict(lambda: Bag(self))
         self.y_index = defaultdict(lambda: Bag(self))
         self.xy_index = defaultdict(lambda: Bag(self))
@@ -184,19 +184,23 @@ class Table(Bag):
         return self.xy_index[(x, y)]
 
     @staticmethod
-    def from_file(filename, table_name=None, table_index=None):
-        if (table_name, table_index).count(None) != 1:
-            raise TypeError(
-                "You must specify exactly one of table_name or table_index")
-        extension = os.path.splitext(filename)[1][1:]
-        print extension
+    def from_filename(filename, table_name=None, table_index=None):
+        extension = os.path.splitext(filename)[1].strip('.')
         with open(filename, 'rb') as f:
-            table_set = messytables.any.any_tableset(f, extension=extension)
-            if table_name is not None:
-                row_set = table_set[table_name]
-            else:
-                row_set = table_set.tables[table_index]
-            return Table.from_messy(row_set)
+            return Table.from_file_object(f, extension, table_name=table_name, table_index=table_index)
+
+    @staticmethod
+    def from_file_object(fobj, extension, table_name=None, table_index=None):
+        if (table_name is not None and table_index is not None) or \
+                (table_name is None and table_index is None):
+            raise TypeError("Must give exactly one of table_name, table_index")
+
+        table_set = messytables.any.any_tableset(fobj, extension=extension)
+
+        if table_name is not None:
+            return Table.from_messy(table_set[table_name])
+        elif table_index is not None:
+            return Table.from_messy(table_set.tables[table_index])
 
     @staticmethod
     def from_messy(messy_rowset):
