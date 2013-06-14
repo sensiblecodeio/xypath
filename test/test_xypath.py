@@ -99,12 +99,28 @@ class Test_XYPath(unittest.TestCase):
         self.assertEqual(265, len(bag))
         self.assertEqual(len(bag), len(list(bag)))
 
+    def test_corebag_iterator_size_squared(self):
+        """Worry: that iterating twice over bag doesn't work property.
+        Test: that every pair of cells from the bags is present."""
+        bag = self.table.filter('Estimates')
+        count = 0
+        for i in bag:
+            for j in bag:
+                count = count + 1
+        self.assertEqual(count, 265*265)
+
+    def test_corebag_iterator_returns_bags(self):
+        """Check the iterator returns bags, not _XYCells"""
+        bag = self.table.filter('Estimates')
+        for individual_cell in bag:
+            self.assertIsInstance(individual_cell, xypath.Bag)
+
     def test_singleton_bag_value(self):
         self.assertEqual(
             "Country code",
             self.table.filter("Country code").value)
         self.assertRaises(ValueError,
-            lambda: self.table.filter("Estimates").value)
+                          lambda: self.table.filter("Estimates").value)
 
     def test_text_match_string(self):
         self.table.filter("Country code").assert_one()

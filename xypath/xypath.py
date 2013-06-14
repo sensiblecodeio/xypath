@@ -40,6 +40,12 @@ class _XYCell(object):
         self.table = table
         self.raw = raw
 
+    def copy(self, new_table=None):
+        if new_table:
+            return _XYCell(self.value, self.x, self.y, new_table, self.raw)
+        else:
+            return _XYCell(self.value, self.x, self.y, self.table, self.raw)
+
     def __repr__(self):
         return "_XYCell(%r, %r, %r, %r)" % \
             (self.value, self.x, self.y, self.table.name)
@@ -58,7 +64,7 @@ class _XYCell(object):
                 " to one of the input cells which is apparently bad.\n"
                 "  self: {}\n  other: {}\n  x: {}\n  y: {}".format(
                     self, other, x, y))
-        junction_bag = self.table.get_at(x,y) # TODO: test
+        junction_bag = self.table.get_at(x, y)  # TODO: test
 
         self_bag = Bag(self.table)
         self_bag.add(self)
@@ -84,7 +90,10 @@ class CoreBag(object):
         return repr(self.__store)
 
     def __iter__(self):
-        return self.__store.__iter__()
+        for cell in self.__store:
+            newbag = Bag(table=self.table, name=None)
+            newbag.add(cell)
+            yield newbag
 
     def select(self, function):
         """returns a new bag (using the same table) which
@@ -143,11 +152,23 @@ class CoreBag(object):
                 message.format(len(self.__store)))
 
     @property
-    def value(self):
+    def _cell(self):
         try:
-            return self.assert_one().__store[0].value
-        except AssertionError:
-            raise ValueError("Bag isn't a singleton, can't get value")
+            return self.assert_one().__store[0]
+        except:
+            raise ValueError("Bag isn't a singleton, can't get cell properties.")
+
+    @property
+    def value(self):
+        return self._cell.value
+
+    @property
+    def x(self):
+        return self._cell.x
+
+    @property
+    def y(self):
+        return self._cell.y
 
 
 class Bag(CoreBag):
@@ -166,7 +187,7 @@ class Bag(CoreBag):
         for self_cell in self:
             for other_cell in other:
                 print("Calling {}.junction({})".format(self_cell, other_cell))
-                for triple in self_cell.junction(other_cell):
+                for triple in self_cell._cell.junction(other_cell._cell):
                     yield triple
 
     def shift(self, x=0, y=0):
@@ -235,8 +256,7 @@ class Table(Bag):
     @staticmethod
     def from_bag(bag):
         new_table = Table()
-        for cell in bag:
-            new_table.add(_XYCell(cell.value, cell.x, cell.y, new_table, cell.raw))
+        for bag_cell in bag:
+            new_table.add(bag_cell._cell.copy(new_table))
         return new_table
-
 
