@@ -31,7 +31,7 @@ Tables are simply specialised bags, which have the property that their table is 
 2) Match cells by filtering a bag or table
 ```python
     bag.filter("kitten")                 # value is exactly 'kitten'
-    table.filter(re.match(".a.*e"))        # regular expression of value; re.search works too
+    table.filter(re.compile(".a.*e"))        # regular expression of value
     table.filter(hamcrest.ends_with("c"))  # any pyhamcrest matcher
     table.filter(lambda cell: cell.x == 2)   # explicit lambda function on each cell   
 ```
