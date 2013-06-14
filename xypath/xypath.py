@@ -31,7 +31,7 @@ class MultipleCellsAssertionError(AssertionError):
     pass
 
 
-class XYCell(object):
+class _XYCell(object):
     """needs to contain: value, position (x,y), parent bag"""
     def __init__(self, value, x, y, table, raw=None):  # TODO fix raw=None
         self.value = value  # of appropriate type
@@ -41,7 +41,7 @@ class XYCell(object):
         self.raw = raw
 
     def __repr__(self):
-        return "XYCell(%r, %r, %r, %r)" % \
+        return "_XYCell(%r, %r, %r, %r)" % \
             (self.value, self.x, self.y, self.table.name)
 
     def __unicode__(self):
@@ -54,7 +54,7 @@ class XYCell(object):
         y = max(self.y, other.y)
         if (x, y) == (self.x, self.y) or (x, y) == (other.x, other.y):
             raise RuntimeError(
-                "XYCell.junction(XYCell) resulted in a cell which is equal"
+                "_XYCell.junction(_XYCell) resulted in a cell which is equal"
                 " to one of the input cells which is apparently bad.\n"
                 "  self: {}\n  other: {}\n  x: {}\n  y: {}".format(
                     self, other, x, y))
@@ -68,7 +68,7 @@ class XYCell(object):
 
 
 class CoreBag(object):
-    """Has a collection of XYCells"""
+    """Has a collection of _XYCells"""
     def __init__(self, table, name=None):
         self.__store = []
         self.name = name
@@ -229,14 +229,14 @@ class Table(Bag):
         new_table = Table()
         for y, row in enumerate(messy_rowset):
             for x, cell in enumerate(row):
-                new_table.add(XYCell(cell.value, x, y, new_table))
+                new_table.add(_XYCell(cell.value, x, y, new_table))
         return new_table
 
     @staticmethod
     def from_bag(bag):
         new_table = Table()
         for cell in bag:
-            new_table.add(XYCell(cell.value, cell.x, cell.y, new_table, cell.raw))
+            new_table.add(_XYCell(cell.value, cell.x, cell.y, new_table, cell.raw))
         return new_table
 
 
