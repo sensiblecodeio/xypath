@@ -167,7 +167,8 @@ class Test_XYPath(unittest.TestCase):
 
     def test_bag_junction_checks_type(self):
         bag = self.table.filter('Estimates')
-        #self.assertRaises(TypeError, lambda: list(bag.junction('wrong_type')))
+        self.assertRaises(TypeError, lambda: list(bag.junction('wrong_type')))
+
 
     def test_select(self):
         a = self.table.filter("WORLD")
