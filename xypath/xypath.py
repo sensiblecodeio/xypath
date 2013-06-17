@@ -33,18 +33,17 @@ class MultipleCellsAssertionError(AssertionError):
 
 class _XYCell(object):
     """needs to contain: value, position (x,y), parent bag"""
-    def __init__(self, value, x, y, table, raw=None):  # TODO fix raw=None
+    def __init__(self, value, x, y, table):
         self.value = value  # of appropriate type
         self.x = x  # column number
         self.y = y  # row number
         self.table = table
-        self.raw = raw
 
     def copy(self, new_table=None):
         if new_table:
-            return _XYCell(self.value, self.x, self.y, new_table, self.raw)
+            return _XYCell(self.value, self.x, self.y, new_table)
         else:
-            return _XYCell(self.value, self.x, self.y, self.table, self.raw)
+            return _XYCell(self.value, self.x, self.y, self.table)
 
     def __repr__(self):
         return "_XYCell(%r, %r, %r, %r)" % \
