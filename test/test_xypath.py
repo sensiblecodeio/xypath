@@ -165,6 +165,12 @@ class Test_XYPath(unittest.TestCase):
         (a_result, b_result, value_result) = j[0]
         self.assertEqual(1.523, value_result.value)
 
+    def test_bag_junction_overlap(self):
+        a = self.table.filter("WORLD")
+        b = self.table.filter("1990-1995")
+        j = a.junction_overlap(b).value
+        self.assertEqual(1.523, j)
+
     def test_bag_junction_checks_type(self):
         bag = self.table.filter('Estimates')
         self.assertRaises(TypeError, lambda: list(bag.junction('wrong_type')))
