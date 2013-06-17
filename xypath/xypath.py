@@ -33,17 +33,21 @@ class MultipleCellsAssertionError(AssertionError):
 
 class _XYCell(object):
     """needs to contain: value, position (x,y), parent bag"""
-    def __init__(self, value, x, y, table):
+    def __init__(self, value, x, y, table, properties=None):
         self.value = value  # of appropriate type
         self.x = x  # column number
         self.y = y  # row number
         self.table = table
+        if properties is None:
+            self.properties = {}
+        else:
+            self.properties = properties
 
     def copy(self, new_table=None):
         if new_table:
-            return _XYCell(self.value, self.x, self.y, new_table)
+            return _XYCell(self.value, self.x, self.y, new_table, self.properties)
         else:
-            return _XYCell(self.value, self.x, self.y, self.table)
+            return _XYCell(self.value, self.x, self.y, self.table, self.properties)
 
     def __repr__(self):
         return "_XYCell(%r, %r, %r, %r)" % \
@@ -175,6 +179,10 @@ class CoreBag(object):
     def y(self):
         return self._cell.y
 
+    @property
+    def properties(self):
+        return self._cell.properties
+
 
 class Bag(CoreBag):
 
@@ -260,7 +268,7 @@ class Table(Bag):
         new_table = Table()
         for y, row in enumerate(messy_rowset):
             for x, cell in enumerate(row):
-                new_table.add(_XYCell(cell.value, x, y, new_table))
+                new_table.add(_XYCell(cell.value, x, y, new_table, cell.properties))
         return new_table
 
     @staticmethod
