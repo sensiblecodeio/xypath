@@ -80,6 +80,9 @@ class CoreBag(object):
         self.table = table
 
     def add(self, cell):
+        if not isinstance(cell, _XYCell):
+            raise TypeError("Can only add _XYCell types to Bags: {}".format(
+                            cell.__class__))
         self.__store.append(cell)
 
     def __len__(self):
@@ -153,9 +156,12 @@ class CoreBag(object):
     @property
     def _cell(self):
         try:
-            return self.assert_one().__store[0]
-        except:
+            xycell = self.assert_one().__store[0]
+        except AssertionError:
             raise ValueError("Bag isn't a singleton, can't get cell properties.")
+        else:
+            assert isinstance(xycell, _XYCell)
+            return xycell
 
     @property
     def value(self):
@@ -189,6 +195,8 @@ class Bag(CoreBag):
                 "(Core)Bag".format(other.__class__))
         for self_cell in self:
             for other_cell in other:
+
+                assert self_cell._cell.__class__ == other_cell._cell.__class__
                 for triple in self_cell._cell.junction(other_cell._cell):
                     yield triple
 
@@ -200,7 +208,7 @@ class Bag(CoreBag):
         bag = Bag(table=self.table)
         for b_cell in self:
             for t_cell in self.table.get_at(b_cell.x + x, b_cell.y + y):
-                bag.add(t_cell)
+                bag.add(t_cell._cell)
         return bag
 
 
