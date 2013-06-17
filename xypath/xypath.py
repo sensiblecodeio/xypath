@@ -197,7 +197,6 @@ class Bag(CoreBag):
         for self_cell in self:
             for other_cell in other:
 
-                print("{}, {}".format(self_cell._cell.__class__, other_cell._cell.__class__))
                 assert self_cell._cell.__class__ == other_cell._cell.__class__
                 for triple in self_cell._cell.junction(other_cell._cell):
                     yield triple
