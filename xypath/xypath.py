@@ -184,9 +184,12 @@ class Bag(CoreBag):
         )
 
     def junction(self, other):
+        if not isinstance(other, CoreBag):
+            raise TypeError(
+                "Bag.junction() called with invalid type {}, must be "
+                "(Core)Bag".format(other.__class__))
         for self_cell in self:
             for other_cell in other:
-                print("Calling {}.junction({})".format(self_cell, other_cell))
                 for triple in self_cell._cell.junction(other_cell._cell):
                     yield triple
 

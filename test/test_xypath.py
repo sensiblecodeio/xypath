@@ -165,6 +165,10 @@ class Test_XYPath(unittest.TestCase):
         (a_result, b_result, value_result) = j[0]
         self.assertEqual(1.523, value_result.value)
 
+    def test_bag_junction_checks_type(self):
+        bag = self.table.filter('Estimates')
+        #self.assertRaises(TypeError, lambda: list(bag.junction('wrong_type')))
+
     def test_select(self):
         a = self.table.filter("WORLD")
         b = a.select(lambda t, b: t.y == b.y + 1 and t.x == b.x).value
