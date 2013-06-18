@@ -32,6 +32,10 @@ class Test_XYPath(unittest.TestCase):
         self.assertEqual(xypath.Table, type(self.table))
         self.assertIsInstance(self.table, xypath.Bag)
 
+    def test_messytables_has_properties(self):
+        for bag in self.table:
+            self.assertIsInstance(bag.properties, dict)
+
     def test_from_filename_with_table_name(self):
         """Can we specify only the filename and 'name' of the table?"""
         table = xypath.Table.from_filename(
