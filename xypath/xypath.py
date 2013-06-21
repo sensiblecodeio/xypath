@@ -6,11 +6,14 @@ Remember that the usual iterators (over a list-of-lists)
 is outer loop y first."""
 
 from collections import defaultdict
-import hamcrest
 import re
 import messytables
 import os
-
+try:
+    import hamcrest
+    have_ham = True
+except:
+    have_ham = False
 UP = (0, -1)
 RIGHT = (1, 0)
 DOWN = (0, 1)
@@ -130,7 +133,7 @@ class CoreBag(object):
             return self._filter_internal(filter_by)
         elif isinstance(filter_by, basestring):
             return self._filter_internal(lambda cell: unicode(cell.value) == filter_by)
-        elif isinstance(filter_by, hamcrest.matcher.Matcher):
+        elif have_ham and isinstance(filter_by, hamcrest.matcher.Matcher):
             return self._filter_internal(lambda cell: filter_by.matches(cell.value))
         elif isinstance(filter_by, re._pattern_type):
             return self._filter_internal(
