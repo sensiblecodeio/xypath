@@ -28,6 +28,22 @@ class Test_XYPath(unittest.TestCase):
     def setUp(self):
         pass
 
+    def test_table_rows(self):
+        counter = 0
+        rows = list(self.table.rows())
+        for row in rows:
+            counter = counter + len(row)
+        self.assertEqual(len(self.table), counter)  # misses none
+        self.assertEqual(len(rows), 282)
+
+    def test_table_cols(self):
+        counter = 0
+        cols = list(self.table.cols())
+        for col in cols:
+            counter = counter + len(col)
+        self.assertEqual(len(self.table), counter)  # misses none
+        self.assertEqual(len(cols), 17)
+
     def test_has_table(self):
         self.assertEqual(xypath.Table, type(self.table))
         self.assertIsInstance(self.table, xypath.Bag)

@@ -238,11 +238,23 @@ class Table(Bag):
         self.x_index = defaultdict(lambda: Bag(self))
         self.y_index = defaultdict(lambda: Bag(self))
         self.xy_index = defaultdict(lambda: Bag(self))
+        self._max_x = -1
+        self._max_y = -1
+
+    def rows(self):
+        for row_num in range(0, self._max_y + 1):  # inclusive
+            yield self.y_index[row_num]
+
+    def cols(self):
+        for col_num in range(0, self._max_x + 1):  # inclusive
+            yield self.x_index[col_num]
 
     def add(self, cell):
         self.x_index[cell.x].add(cell)
         self.y_index[cell.y].add(cell)
         self.xy_index[(cell.x, cell.y)].add(cell)
+        self._max_x = max(self._max_x, cell.x)
+        self._max_y = max(self._max_y, cell.y)
         super(Table, self).add(cell)
 
     def get_at(self, x=None, y=None):
