@@ -28,7 +28,7 @@ setup(
     include_package_data=False,
     zip_safe=False,
     install_requires=[
-        'messytables==0.10.0-dragon0',
+        'messytables',
     ],
     tests_require=[],
     entry_points=\
