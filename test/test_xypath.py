@@ -4,7 +4,10 @@ import unittest
 sys.path.append('xypath')
 import xypath
 import messytables
-import hamcrest
+try:
+    import hamcrest
+except:
+    pass
 import re
 from os.path import dirname, abspath, join, splitext
 
