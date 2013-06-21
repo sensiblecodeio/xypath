@@ -8,3 +8,6 @@ env:
 install: pip install -r $REQFILE --use-mirrors
 # command to run tests, e.g. python setup.py test
 script:  nosetests
+matrix:
+  allow_failures:
+    - env: REQFILE=nohamcrest.txt
