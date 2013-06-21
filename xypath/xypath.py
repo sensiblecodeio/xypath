@@ -123,10 +123,12 @@ class CoreBag(object):
 
     def filter(self, filter_by):
         """
-        Returns a new bag containing only cells which match the filter_by predicate.
+        Returns a new bag containing only cells which match
+        the filter_by predicate.
 
-        filter_by can be either a) a callable, which takes a cell as a parameter, and
-        returns whether or not to include the cell, or b) a hamcrest match rule, such
+        filter_by can be either a) a callable, which takes a
+        cell as a parameter, and returns whether or not to
+        include the cell, or b) a hamcrest match rule, such
         as hamcrest.equal_to
         """
         if callable(filter_by):
@@ -139,7 +141,7 @@ class CoreBag(object):
             return self._filter_internal(
                 lambda cell: re.match(filter_by, unicode(cell.value)))
         else:
-            raise ValueError("filter_by must be a callable or a hamcrest filter")
+            raise ValueError("filter_by must be callable or a hamcrest filter")
 
     def _filter_internal(self, function):
         newbag = Bag(table=self.table)
@@ -165,7 +167,7 @@ class CoreBag(object):
         try:
             xycell = self.assert_one().__store[0]
         except AssertionError:
-            raise ValueError("Bag isn't a singleton, can't get cell properties.")
+            raise ValueError("Can't get cell properties of non-singleton Bag.")
         else:
             assert isinstance(xycell, _XYCell)
             return xycell
@@ -216,7 +218,6 @@ class Bag(CoreBag):
         for triple in self.junction(other):
             bag.add(triple[2]._cell)
         return bag
-        
 
     def shift(self, x=0, y=0):
         """
@@ -257,7 +258,9 @@ class Table(Bag):
     def from_filename(filename, table_name=None, table_index=None):
         extension = os.path.splitext(filename)[1].strip('.')
         with open(filename, 'rb') as f:
-            return Table.from_file_object(f, extension, table_name=table_name, table_index=table_index)
+            return Table.from_file_object(f, extension,
+                                          table_name=table_name,
+                                          table_index=table_index)
 
     @staticmethod
     def from_file_object(fobj, extension, table_name=None, table_index=None):
@@ -278,7 +281,8 @@ class Table(Bag):
         new_table = Table()
         for y, row in enumerate(messy_rowset):
             for x, cell in enumerate(row):
-                new_table.add(_XYCell(cell.value, x, y, new_table, cell.properties))
+                new_table.add(_XYCell(cell.value, x, y,
+                                      new_table, cell.properties))
         return new_table
 
     @staticmethod
@@ -287,4 +291,3 @@ class Table(Bag):
         for bag_cell in bag:
             new_table.add(bag_cell._cell.copy(new_table))
         return new_table
-
