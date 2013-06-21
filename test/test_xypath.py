@@ -47,9 +47,8 @@ class Test_XYPath(unittest.TestCase):
 
     def test_from_filename_with_table_index(self):
         """Can we specify only the filename and index of the table?"""
-        new_table = xypath.Table.from_filename(
-                self.wpp_filename,
-                table_index=5)
+        new_table = xypath.Table.from_filename(self.wpp_filename,
+                                               table_index=5)
         self.assertEqual(1, len(new_table.filter('(2) Including Zanzibar.')))
 
     def test_from_file_object_table_index(self):
@@ -179,7 +178,6 @@ class Test_XYPath(unittest.TestCase):
         bag = self.table.filter('Estimates')
         self.assertRaises(TypeError, lambda: list(bag.junction('wrong_type')))
 
-
     def test_select(self):
         a = self.table.filter("WORLD")
         b = a.select(lambda t, b: t.y == b.y + 1 and t.x == b.x).value
@@ -199,7 +197,10 @@ class Test_XYPath(unittest.TestCase):
         self.assertEqual(16.0, b.value)
 
     def test_from_bag(self):
-        world_pops_bag = self.table.filter(lambda b: b.y >= 16 and b.y <= 22 and b.x >= 5 and b.x <= 16)
+        world_pops_bag = self.table.filter(lambda b: b.y >= 16 and
+                                                     b.y <= 22 and
+                                                     b.x >= 5 and
+                                                     b.x <= 16)
         world_pops_table = xypath.Table.from_bag(world_pops_bag)
 
         # check extending the whole table gets lots of stuff all the way down
