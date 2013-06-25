@@ -134,7 +134,7 @@ class CoreBag(object):
         if callable(filter_by):
             return self._filter_internal(filter_by)
         elif isinstance(filter_by, basestring):
-            return self._filter_internal(lambda cell: unicode(cell.value) == filter_by)
+            return self._filter_internal(lambda cell: unicode(cell.value).strip() == filter_by)
         elif have_ham and isinstance(filter_by, hamcrest.matcher.Matcher):
             return self._filter_internal(lambda cell: filter_by.matches(cell.value))
         elif isinstance(filter_by, re._pattern_type):
