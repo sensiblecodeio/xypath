@@ -31,6 +31,13 @@ class Test_XYPath(unittest.TestCase):
     def setUp(self):
         pass
 
+    def test_bag_equality(self):
+        bag1 = self.table.filter(lambda b: True)
+        bag2 = self.table.filter(lambda b: True)
+        self.assertEqual(bag1, bag2)
+        bag3 = xypath.Table.from_bag(bag2)
+        self.assertNotEqual(bag1, bag3)
+
     def test_table_rows(self):
         counter = 0
         rows = list(self.table.rows())

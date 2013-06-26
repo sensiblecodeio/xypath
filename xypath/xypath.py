@@ -92,6 +92,11 @@ class CoreBag(object):
                             cell.__class__))
         self.__store.append(cell)
 
+    def __eq__(self, other):
+        return self.name == other.name and \
+               self.table is other.table and \
+               set(self.__store) == set(other.__store)
+
     def __len__(self):
         return len(self.__store)
 
