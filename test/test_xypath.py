@@ -9,28 +9,11 @@ try:
 except:
     pass
 import re
-from os.path import dirname, abspath, join, splitext
+import tcore
 
 
-def get_extension(filename):
-    """
-    >>> get_extension('/foo/bar/test.xls')
-    'xls'
-    """
-    return splitext(filename)[1].strip('.')
-
-
-class Test_XYPath(unittest.TestCase):
-    @classmethod
-    def setup_class(cls):
-        cls.wpp_filename = join(
-            abspath(dirname(__file__)), '..', 'fixtures', 'wpp.xls')
-        cls.messy = messytables.excel.XLSTableSet(open(cls.wpp_filename, "rb"))
-        cls.table = xypath.Table.from_messy(cls.messy.tables[0])
-
-    def setUp(self):
-        pass
-
+class Test_Everything(tcore.TCore):
+    #bag
     def test_bag_equality(self):
         bag1 = self.table.filter(lambda b: True)
         bag2 = self.table.filter(lambda b: True)
@@ -38,96 +21,14 @@ class Test_XYPath(unittest.TestCase):
         bag3 = xypath.Table.from_bag(bag2)
         self.assertNotEqual(bag1, bag3)
 
-    def test_table_rows(self):
-        counter = 0
-        rows = list(self.table.rows())
-        for row in rows:
-            counter = counter + len(row)
-        self.assertEqual(len(self.table), counter)  # misses none
-        self.assertEqual(len(rows), 282)
-
-    def test_table_cols(self):
-        counter = 0
-        cols = list(self.table.cols())
-        for col in cols:
-            counter = counter + len(col)
-        self.assertEqual(len(self.table), counter)  # misses none
-        self.assertEqual(len(cols), 17)
-
-    def test_has_table(self):
-        self.assertEqual(xypath.Table, type(self.table))
-        self.assertIsInstance(self.table, xypath.Bag)
-
-    def test_messytables_has_properties(self):
-        for bag in self.table:
-            self.assertIsInstance(bag.properties, dict)
-
-    def test_from_filename_with_table_name(self):
-        """Can we specify only the filename and 'name' of the table?"""
-        table = xypath.Table.from_filename(
-            self.wpp_filename,
-            table_name='NOTES')
-        self.assertEqual(32, len(table))
-        table.filter(
-            hamcrest.contains_string('(2) Including Zanzibar.')).assert_one()
-
-    def test_from_filename_with_table_index(self):
-        """Can we specify only the filename and index of the table?"""
-        new_table = xypath.Table.from_filename(self.wpp_filename,
-                                               table_index=5)
-        self.assertEqual(1, len(new_table.filter('(2) Including Zanzibar.')))
-
-    def test_from_file_object_table_index(self):
-        with open(self.wpp_filename, 'rb') as f:
-            extension = get_extension(self.wpp_filename)
-            new_table = xypath.Table.from_file_object(
-                f, extension, table_index=5)
-        self.assertEqual(1, len(new_table.filter('(2) Including Zanzibar.')))
-
-    def test_from_file_object_table_name(self):
-        with open(self.wpp_filename, 'rb') as f:
-            extension = get_extension(self.wpp_filename)
-            new_table = xypath.Table.from_file_object(
-                f, extension, table_name='NOTES')
-        self.assertEqual(1, len(new_table.filter('(2) Including Zanzibar.')))
-
-    def test_from_file_object_no_table_specifier(self):
-
-        with open(self.wpp_filename, 'rb') as f:
-            extension = get_extension(self.wpp_filename)
-            self.assertRaises(
-                TypeError,
-                lambda: xypath.Table.from_file_object(f, extension))
-
-    def test_from_file_object_ambiguous_table_specifier(self):
-        with open(self.wpp_filename, 'rb') as f:
-            extension = get_extension(self.wpp_filename)
-
-            self.assertRaises(
-                TypeError,
-                lambda: xypath.Table.from_file_object(
-                    f, extension, table_name='NOTES', table_index=4))
-
-    def test_from_messy(self):
-        new_table = xypath.Table.from_messy(self.messy.tables[0])
-        self.assertEqual(265, len(new_table.filter('Estimates')))
-
-    def test_basic_vert(self):
-        r = repr(self.table.filter(lambda b: b.x == 2))
-        self.assertIn("WORLD", r)
-        self.assertNotIn("Country code", r)
-
-    def test_basic_horz(self):
-        r = repr(self.table.filter(lambda b: b.y == 16))
-        self.assertNotIn("WORLD", r)
-        self.assertIn("Country code", r)
-
+    #bag
     def test_corebag_iterator_size(self):
         """Test that the iterator yields as many results as len() claims"""
         bag = self.table.filter('Estimates')
         self.assertEqual(265, len(bag))
         self.assertEqual(len(bag), len(list(bag)))
 
+    #bag
     def test_corebag_iterator_size_squared(self):
         """Worry: that iterating twice over bag doesn't work property.
         Test: that every pair of cells from the bags is present."""
@@ -138,12 +39,14 @@ class Test_XYPath(unittest.TestCase):
                 count = count + 1
         self.assertEqual(count, 265*265)
 
+    #bag
     def test_corebag_iterator_returns_bags(self):
         """Check the iterator returns bags, not _XYCells"""
         bag = self.table.filter('Estimates')
         for individual_cell in bag:
             self.assertIsInstance(individual_cell, xypath.Bag)
 
+    #bag
     def test_singleton_bag_value(self):
         self.assertEqual(
             "Country code",
@@ -151,79 +54,12 @@ class Test_XYPath(unittest.TestCase):
         self.assertRaises(ValueError,
                           lambda: self.table.filter("Estimates").value)
 
-    def test_text_match_string(self):
-        self.table.filter("Country code").assert_one()
+    #bag
+    def test_messytables_has_properties(self):
+        for bag in self.table:
+            self.assertIsInstance(bag.properties, dict)
 
-    def test_text_exact_match_lambda(self):
-        self.table.filter(lambda b: b.value == 'Country code').assert_one()
-
-    def test_text_exact_match_hamcrest(self):
-        self.table.filter(hamcrest.equal_to("Country code")).assert_one()
-
-    def test_regex_match(self):
-        self.assertEqual(
-            2, len(self.table.filter(re.compile(r'.... developed regions$'))))
-
-    def test_regex_not_search(self):
-        """
-        Expect it to use match() not search(), so shouldn't match inside the
-        middle of a cell.
-        """
-
-        self.assertEqual(
-            0, len(self.table.filter(re.compile(r'developed regions$'))))
-
-    def test_cell_junction(self):
-        a = self.table.filter("WORLD").assert_one()
-        b = self.table.filter("1990-1995").assert_one()
-        junction_result = list(a.junction(b))
-        self.assertEqual(1, len(junction_result))
-        (x, y, z) = junction_result[0]
-        self.assertIsInstance(x, xypath.Bag)
-        self.assertIsInstance(y, xypath.Bag)
-        self.assertIsInstance(z, xypath.Bag)
-        self.assertEqual("WORLD", x.value)
-        self.assertEqual("1990-1995", y.value)
-        self.assertEqual(1.523, z.value)
-
-    def test_bag_junction(self):
-        a = self.table.filter("WORLD")
-        b = self.table.filter("1990-1995")
-        j = list(a.junction(b))
-        self.assertEqual(1, len(j))
-        (a_result, b_result, value_result) = j[0]
-        self.assertEqual(1.523, value_result.value)
-
-    def test_bag_junction_overlap(self):
-        a = self.table.filter("WORLD")
-        b = self.table.filter("1990-1995")
-        j = a.junction_overlap(b).value
-        self.assertEqual(1.523, j)
-
-    def test_bag_junction_checks_type(self):
-        bag = self.table.filter('Estimates')
-        self.assertRaises(TypeError, lambda: list(bag.junction('wrong_type')))
-
-    def test_select(self):
-        a = self.table.filter("WORLD")
-        b = a.select(lambda t, b: t.y == b.y + 1 and t.x == b.x).value
-        self.assertIn("More developed regions", b)
-
-    def test_fill(self):
-        a = self.table.filter("Variant")
-        b = a.fill(xypath.LEFT).value
-        self.assertEqual("Index", b)
-
-    def test_shift(self):
-        a = self.table.filter('Ethiopia')
-        b = a.shift(-2, 2)  # down, left
-        c = a.shift((-2, 2)) # as a tuple
-
-        self.assertEqual(1, len(a))
-        self.assertEqual(1, len(b))
-        self.assertEqual(16.0, b.value)
-        self.assertEqual(16.0, c.value)
-
+    #bag
     def test_from_bag(self):
         world_pops_bag = self.table.filter(lambda b: b.y >= 16 and
                                                      b.y <= 22 and
@@ -242,14 +78,194 @@ class Test_XYPath(unittest.TestCase):
         filties_col = fifties.fill(xypath.DOWN)
         self.assertEqual(6, len(filties_col))
 
+    #bag
     def test_assert_one_with_zero(self):
         bag = self.table.filter('No Such Cell')
         self.assertRaises(AssertionError, lambda: bag.assert_one())
         self.assertRaises(
             xypath.NoCellsAssertionError, lambda: bag.assert_one())
 
+    #bag
     def test_assert_one_with_multiple(self):
         bag = self.table.filter('Estimates')
         self.assertRaises(AssertionError, lambda: bag.assert_one())
         self.assertRaises(
             xypath.MultipleCellsAssertionError, lambda: bag.assert_one())
+
+    #table
+    def test_table_rows(self):
+        counter = 0
+        rows = list(self.table.rows())
+        for row in rows:
+            counter = counter + len(row)
+        self.assertEqual(len(self.table), counter)  # misses none
+        self.assertEqual(len(rows), 282)
+
+    #table
+    def test_table_cols(self):
+        counter = 0
+        cols = list(self.table.cols())
+        for col in cols:
+            counter = counter + len(col)
+        self.assertEqual(len(self.table), counter)  # misses none
+        self.assertEqual(len(cols), 17)
+
+    #table
+    def test_has_table(self):
+        self.assertEqual(xypath.Table, type(self.table))
+        self.assertIsInstance(self.table, xypath.Bag)
+
+class Test_Import(tcore.TCore):
+    #import
+    def test_from_filename_with_table_name(self):
+        """Can we specify only the filename and 'name' of the table?"""
+        table = xypath.Table.from_filename(
+            self.wpp_filename,
+            table_name='NOTES')
+        self.assertEqual(32, len(table))
+        table.filter(
+            hamcrest.contains_string('(2) Including Zanzibar.')).assert_one()
+
+    #import
+    def test_from_filename_with_table_index(self):
+        """Can we specify only the filename and index of the table?"""
+        new_table = xypath.Table.from_filename(self.wpp_filename,
+                                               table_index=5)
+        self.assertEqual(1, len(new_table.filter('(2) Including Zanzibar.')))
+
+    #import
+    def test_from_file_object_table_index(self):
+        with open(self.wpp_filename, 'rb') as f:
+            extension = tcore.get_extension(self.wpp_filename)
+            new_table = xypath.Table.from_file_object(
+                f, extension, table_index=5)
+        self.assertEqual(1, len(new_table.filter('(2) Including Zanzibar.')))
+
+    #import
+    def test_from_file_object_table_name(self):
+        with open(self.wpp_filename, 'rb') as f:
+            extension = tcore.get_extension(self.wpp_filename)
+            new_table = xypath.Table.from_file_object(
+                f, extension, table_name='NOTES')
+        self.assertEqual(1, len(new_table.filter('(2) Including Zanzibar.')))
+
+    #import
+    def test_from_file_object_no_table_specifier(self):
+        with open(self.wpp_filename, 'rb') as f:
+            extension = tcore.get_extension(self.wpp_filename)
+            self.assertRaises(
+                TypeError,
+                lambda: xypath.Table.from_file_object(f, extension))
+
+    #import
+    def test_from_file_object_ambiguous_table_specifier(self):
+        with open(self.wpp_filename, 'rb') as f:
+            extension = tcore.get_extension(self.wpp_filename)
+
+            self.assertRaises(
+                TypeError,
+                lambda: xypath.Table.from_file_object(
+                    f, extension, table_name='NOTES', table_index=4))
+
+    #import
+    def test_from_messy(self):
+        new_table = xypath.Table.from_messy(self.messy.tables[0])
+        self.assertEqual(265, len(new_table.filter('Estimates')))
+
+class Test_Filter(tcore.TCore):
+    #filter
+    def test_basic_vert(self):
+        r = repr(self.table.filter(lambda b: b.x == 2))
+        self.assertIn("WORLD", r)
+        self.assertNotIn("Country code", r)
+
+    #filter
+    def test_basic_horz(self):
+        r = repr(self.table.filter(lambda b: b.y == 16))
+        self.assertNotIn("WORLD", r)
+        self.assertIn("Country code", r)
+
+    #filter
+    def test_text_match_string(self):
+        self.table.filter("Country code").assert_one()
+
+    #filter
+    def test_text_exact_match_lambda(self):
+        self.table.filter(lambda b: b.value == 'Country code').assert_one()
+
+    #filter
+    def test_text_exact_match_hamcrest(self):
+        self.table.filter(hamcrest.equal_to("Country code")).assert_one()
+
+    #filter
+    def test_regex_match(self):
+        self.assertEqual(
+            2, len(self.table.filter(re.compile(r'.... developed regions$'))))
+
+    #filter
+    def test_regex_not_search(self):
+        """
+        Expect it to use match() not search(), so shouldn't match inside the
+        middle of a cell.
+        """
+
+        self.assertEqual(
+            0, len(self.table.filter(re.compile(r'developed regions$'))))
+
+    #filter
+    def test_select(self):
+        a = self.table.filter("WORLD")
+        b = a.select(lambda t, b: t.y == b.y + 1 and t.x == b.x).value
+        self.assertIn("More developed regions", b)
+
+    #filter
+    def test_fill(self):
+        a = self.table.filter("Variant")
+        b = a.fill(xypath.LEFT).value
+        self.assertEqual("Index", b)
+
+    #filter
+    def test_shift(self):
+        a = self.table.filter('Ethiopia')
+        b = a.shift(-2, 2)  # down, left
+        c = a.shift((-2, 2)) # as a tuple
+
+        self.assertEqual(1, len(a))
+        self.assertEqual(1, len(b))
+        self.assertEqual(16.0, b.value)
+        self.assertEqual(16.0, c.value)
+
+    #junction
+    def test_cell_junction(self):
+        a = self.table.filter("WORLD").assert_one()
+        b = self.table.filter("1990-1995").assert_one()
+        junction_result = list(a.junction(b))
+        self.assertEqual(1, len(junction_result))
+        (x, y, z) = junction_result[0]
+        self.assertIsInstance(x, xypath.Bag)
+        self.assertIsInstance(y, xypath.Bag)
+        self.assertIsInstance(z, xypath.Bag)
+        self.assertEqual("WORLD", x.value)
+        self.assertEqual("1990-1995", y.value)
+        self.assertEqual(1.523, z.value)
+
+    #junction
+    def test_bag_junction(self):
+        a = self.table.filter("WORLD")
+        b = self.table.filter("1990-1995")
+        j = list(a.junction(b))
+        self.assertEqual(1, len(j))
+        (a_result, b_result, value_result) = j[0]
+        self.assertEqual(1.523, value_result.value)
+
+    #junction
+    def test_bag_junction_overlap(self):
+        a = self.table.filter("WORLD")
+        b = self.table.filter("1990-1995")
+        j = a.junction_overlap(b).value
+        self.assertEqual(1.523, j)
+
+    #junction
+    def test_bag_junction_checks_type(self):
+        bag = self.table.filter('Estimates')
+        self.assertRaises(TypeError, lambda: list(bag.junction('wrong_type')))
