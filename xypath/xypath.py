@@ -5,7 +5,7 @@ This works well with the name.
 Remember that the usual iterators (over a list-of-lists)
 is outer loop y first."""
 
-from collections import defaultdict
+from collections import defaultdict, Iterable
 import re
 import messytables
 import os
@@ -222,8 +222,14 @@ class Bag(CoreBag):
     def shift(self, x=0, y=0):
         """
         Return a bag in which each cell is offset from the source bag by the
-        coordinates specified.
+        coordinates specified. Coordinates can be specified as:
+        Bag.shift(0,2) - full specification
+        Bag.shift(y=2) - partial specification
+        Bag.shift((0,2)) - use of tuple for x, unspecified y
         """
+        if not isinstance(x, int):
+            assert y==0, "Bag.shift: x=%r not integer and y=%r specified"%(x,y)
+            return self.shift(x[0], x[1])
         bag = Bag(table=self.table)
         for b_cell in self:
             for t_cell in self.table.get_at(b_cell.x + x, b_cell.y + y):

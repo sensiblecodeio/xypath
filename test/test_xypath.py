@@ -210,10 +210,12 @@ class Test_XYPath(unittest.TestCase):
     def test_shift(self):
         a = self.table.filter('Ethiopia')
         b = a.shift(-2, 2)  # down, left
+        c = a.shift((-2, 2)) # as a tuple
 
         self.assertEqual(1, len(a))
         self.assertEqual(1, len(b))
         self.assertEqual(16.0, b.value)
+        self.assertEqual(16.0, c.value)
 
     def test_from_bag(self):
         world_pops_bag = self.table.filter(lambda b: b.y >= 16 and
