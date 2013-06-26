@@ -34,6 +34,46 @@ class MultipleCellsAssertionError(AssertionError):
     pass
 
 
+def metajunction(cells, direction):
+    """
+    >>> cells_dr = (_XYCell(0,1,2,None), _XYCell(0,3,4,None))
+    >>> metajunction(cells_dr, DOWN)
+    (1, 4)
+    >>> metajunction(cells_dr, UP)
+    (3, 2)
+    >>> metajunction(cells_dr, LEFT)
+    (1, 4)
+    >>> metajunction(cells_dr, RIGHT)
+    (3, 2)
+    >>> cells_tr = (_XYCell(0,1,4,None), _XYCell(0,3,2,None))
+    >>> metajunction(cells_tr, DOWN)
+    (3, 4)
+    >>> metajunction(cells_tr, UP)
+    (1, 2)
+    >>> metajunction(cells_tr, LEFT)
+    (1, 2)
+    >>> metajunction(cells_tr, RIGHT)
+    (3, 4)
+    """
+
+    # TODO TODO TODO
+    if abs(direction[0]):  
+        key=lambda c: c.x  # LEFT/RIGHT
+    else:
+        key=lambda c: c.y  # UP/DOWN
+
+    min_cell, max_cell = sorted(cells, key=key)
+
+    if -direction[0]+direction[1] > 0: 
+        x_cell = min_cell   # x_cell: the cell that provides the x value
+        y_cell = max_cell
+    else:
+        x_cell = max_cell
+        y_cell = min_cell
+
+    return (x_cell.x, y_cell.y)
+
+        
 class _XYCell(object):
     """needs to contain: value, position (x,y), parent bag"""
     def __init__(self, value, x, y, table, properties=None):
@@ -59,12 +99,14 @@ class _XYCell(object):
     def __unicode__(self):
         return unicode(self.value)
 
-    def junction(self, other):
+    def junction(self, other, direction=DOWN, paranoid=True):
         """ gets the lower-right intersection of the row of one, and the
-        column of the other. """
+        column of the other. 
+        
+        paranoid: should we panic if we're hitting one of our input cells?"""
         x = max(self.x, other.x)
         y = max(self.y, other.y)
-        if (x, y) == (self.x, self.y) or (x, y) == (other.x, other.y):
+        if paranoid and (x, y) == (self.x, self.y) or (x, y) == (other.x, other.y):
             raise RuntimeError(
                 "_XYCell.junction(_XYCell) resulted in a cell which is equal"
                 " to one of the input cells which is apparently bad.\n"
