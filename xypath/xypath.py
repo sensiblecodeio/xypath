@@ -34,25 +34,25 @@ class MultipleCellsAssertionError(AssertionError):
     pass
 
 
-def metajunction(cells, direction):
+def junction_coord(cells, direction):
     """
     >>> cells_dr = (_XYCell(0,1,2,None), _XYCell(0,3,4,None))
-    >>> metajunction(cells_dr, DOWN)
+    >>> junction_coord(cells_dr, DOWN)
     (1, 4)
-    >>> metajunction(cells_dr, UP)
+    >>> junction_coord(cells_dr, UP)
     (3, 2)
-    >>> metajunction(cells_dr, LEFT)
+    >>> junction_coord(cells_dr, LEFT)
     (1, 4)
-    >>> metajunction(cells_dr, RIGHT)
+    >>> junction_coord(cells_dr, RIGHT)
     (3, 2)
     >>> cells_tr = (_XYCell(0,1,4,None), _XYCell(0,3,2,None))
-    >>> metajunction(cells_tr, DOWN)
+    >>> junction_coord(cells_tr, DOWN)
     (3, 4)
-    >>> metajunction(cells_tr, UP)
+    >>> junction_coord(cells_tr, UP)
     (1, 2)
-    >>> metajunction(cells_tr, LEFT)
+    >>> junction_coord(cells_tr, LEFT)
     (1, 2)
-    >>> metajunction(cells_tr, RIGHT)
+    >>> junction_coord(cells_tr, RIGHT)
     (3, 4)
     """
 
@@ -71,6 +71,23 @@ def metajunction(cells, direction):
         y_cell = min_cell
 
     return (x_cell.x, y_cell.y)
+
+def metajunction(cells, direction):
+    """ there are only two possible cells for the junction:
+        return the one which is most UP/DOWN etc."""
+    new_cells = (
+                (cells[0].x, cells[1].y),
+                (cells[1].x, cells[0].y)
+                )
+    for index, value in enumerate(direction):
+        if value == 0: 
+            continue
+        if cmp(new_cells[0][index], new_cells[1][index]) == value:
+            return new_cells[0]
+        else:
+            return new_cells[1]
+
+
 
 
 class _XYCell(object):
@@ -105,8 +122,7 @@ class _XYCell(object):
         column of the other.
 
         paranoid: should we panic if we're hitting one of our input cells?"""
-        x = max(self.x, other.x)
-        y = max(self.y, other.y)
+        (x,y) = metajunction((self, other),direction)
         if paranoid and (x, y) == (self.x, self.y) or \
                         (x, y) == (other.x, other.y):
             raise RuntimeError(
