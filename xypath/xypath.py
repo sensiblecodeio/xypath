@@ -54,40 +54,21 @@ def junction_coord(cells, direction):
     (1, 2)
     >>> junction_coord(cells_tr, RIGHT)
     (3, 4)
-    """
 
-    if abs(direction[0]):
-        key = lambda c: c.x  # LEFT/RIGHT
-    else:
-        key = lambda c: c.y  # UP/DOWN
+    there are only two possible cells for the junction:
+    return the one which is most UP/DOWN etc."""
 
-    min_cell, max_cell = sorted(cells, key=key)
-
-    if -direction[0]+direction[1] > 0:
-        x_cell = min_cell   # x_cell: the cell that provides the x value
-        y_cell = max_cell
-    else:
-        x_cell = max_cell
-        y_cell = min_cell
-
-    return (x_cell.x, y_cell.y)
-
-def metajunction(cells, direction):
-    """ there are only two possible cells for the junction:
-        return the one which is most UP/DOWN etc."""
     new_cells = (
                 (cells[0].x, cells[1].y),
                 (cells[1].x, cells[0].y)
-                )
+    )
     for index, value in enumerate(direction):
-        if value == 0: 
+        if value == 0:
             continue
         if cmp(new_cells[0][index], new_cells[1][index]) == value:
             return new_cells[0]
         else:
             return new_cells[1]
-
-
 
 
 class _XYCell(object):
@@ -122,7 +103,7 @@ class _XYCell(object):
         column of the other.
 
         paranoid: should we panic if we're hitting one of our input cells?"""
-        (x,y) = metajunction((self, other),direction)
+        (x,y) = junction_coord((self, other),direction)
         if paranoid and (x, y) == (self.x, self.y) or \
                         (x, y) == (other.x, other.y):
             raise RuntimeError(
