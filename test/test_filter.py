@@ -68,7 +68,7 @@ class Test_Filter(tcore.TCore):
     def test_shift(self):
         a = self.table.filter('Ethiopia')
         b = a.shift(-2, 2)  # down, left
-        c = a.shift((-2, 2)) # as a tuple
+        c = a.shift((-2, 2))  # as a tuple
 
         self.assertEqual(1, len(a))
         self.assertEqual(1, len(b))
@@ -88,6 +88,19 @@ class Test_Filter(tcore.TCore):
         self.assertEqual("WORLD", x.value)
         self.assertEqual("1990-1995", y.value)
         self.assertEqual(1.523, z.value)
+
+    #junction
+    def test_bag_junction_overlap_dir(self):
+        a = self.table.filter("WORLD")
+        b = self.table.filter("1990-1995")
+        topleft = "Major area, region, country or area"
+        cases = {xypath.RIGHT: 1.523,
+                xypath.LEFT: topleft,
+                xypath.DOWN: 1.523,
+                xypath.UP: topleft}
+        for i in cases:
+            jcell = a.junction_overlap(b, i)
+            self.assertEqual(cases[i], jcell.value)
 
     #junction
     def test_bag_junction(self):

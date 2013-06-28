@@ -34,7 +34,7 @@ class MultipleCellsAssertionError(AssertionError):
     pass
 
 
-def junction_coord(cells, direction):
+def junction_coord(cells, direction=DOWN):
     """
     >>> cells_dr = (_XYCell(0,1,2,None), _XYCell(0,3,4,None))
     >>> junction_coord(cells_dr, DOWN)
@@ -103,7 +103,7 @@ class _XYCell(object):
         column of the other.
 
         paranoid: should we panic if we're hitting one of our input cells?"""
-        (x,y) = junction_coord((self, other),direction)
+        (x, y) = junction_coord((self, other), direction)
         if paranoid and (x, y) == (self.x, self.y) or \
                         (x, y) == (other.x, other.y):
             raise RuntimeError(
@@ -247,7 +247,7 @@ class Bag(CoreBag):
             lambda t, b: cmp(t.x, b.x) == x and cmp(t.y, b.y) == y
         )
 
-    def junction(self, other):
+    def junction(self, other, *args, **kwargs):
         if not isinstance(other, CoreBag):
             raise TypeError(
                 "Bag.junction() called with invalid type {}, must be "
@@ -256,12 +256,13 @@ class Bag(CoreBag):
             for other_cell in other:
 
                 assert self_cell._cell.__class__ == other_cell._cell.__class__
-                for triple in self_cell._cell.junction(other_cell._cell):
+                for triple in self_cell._cell.junction(other_cell._cell, *args, **kwargs):
                     yield triple
 
-    def junction_overlap(self, other):
+    def junction_overlap(self, other, *args, **kwargs):
+        """ returns only the overlap cell """
         bag = Bag(table=self.table)
-        for triple in self.junction(other):
+        for triple in self.junction(other, *args, **kwargs):
             bag.add(triple[2]._cell)
         return bag
 
