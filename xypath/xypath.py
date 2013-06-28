@@ -5,7 +5,7 @@ This works well with the name.
 Remember that the usual iterators (over a list-of-lists)
 is outer loop y first."""
 
-from collections import defaultdict, Iterable
+from collections import defaultdict
 import re
 import messytables
 import os
@@ -56,15 +56,14 @@ def metajunction(cells, direction):
     (3, 4)
     """
 
-    # TODO TODO TODO
-    if abs(direction[0]):  
-        key=lambda c: c.x  # LEFT/RIGHT
+    if abs(direction[0]):
+        key = lambda c: c.x  # LEFT/RIGHT
     else:
-        key=lambda c: c.y  # UP/DOWN
+        key = lambda c: c.y  # UP/DOWN
 
     min_cell, max_cell = sorted(cells, key=key)
 
-    if -direction[0]+direction[1] > 0: 
+    if -direction[0]+direction[1] > 0:
         x_cell = min_cell   # x_cell: the cell that provides the x value
         y_cell = max_cell
     else:
@@ -73,7 +72,7 @@ def metajunction(cells, direction):
 
     return (x_cell.x, y_cell.y)
 
-        
+
 class _XYCell(object):
     """needs to contain: value, position (x,y), parent bag"""
     def __init__(self, value, x, y, table, properties=None):
@@ -88,9 +87,11 @@ class _XYCell(object):
 
     def copy(self, new_table=None):
         if new_table:
-            return _XYCell(self.value, self.x, self.y, new_table, self.properties)
+            return _XYCell(self.value, self.x, self.y,
+                           new_table, self.properties)
         else:
-            return _XYCell(self.value, self.x, self.y, self.table, self.properties)
+            return _XYCell(self.value, self.x, self.y,
+                           self.table, self.properties)
 
     def __repr__(self):
         return "_XYCell(%r, %r, %r, %r)" % \
@@ -101,12 +102,13 @@ class _XYCell(object):
 
     def junction(self, other, direction=DOWN, paranoid=True):
         """ gets the lower-right intersection of the row of one, and the
-        column of the other. 
-        
+        column of the other.
+
         paranoid: should we panic if we're hitting one of our input cells?"""
         x = max(self.x, other.x)
         y = max(self.y, other.y)
-        if paranoid and (x, y) == (self.x, self.y) or (x, y) == (other.x, other.y):
+        if paranoid and (x, y) == (self.x, self.y) or \
+                        (x, y) == (other.x, other.y):
             raise RuntimeError(
                 "_XYCell.junction(_XYCell) resulted in a cell which is equal"
                 " to one of the input cells which is apparently bad.\n"
@@ -275,7 +277,8 @@ class Bag(CoreBag):
         Bag.shift((0,2)) - use of tuple for x, unspecified y
         """
         if not isinstance(x, int):
-            assert y==0, "Bag.shift: x=%r not integer and y=%r specified"%(x,y)
+            assert y == 0, \
+                "Bag.shift: x=%r not integer and y=%r specified" % (x, y)
             return self.shift(x[0], x[1])
         bag = Bag(table=self.table)
         for b_cell in self:
