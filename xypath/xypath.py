@@ -343,7 +343,7 @@ class Table(Bag):
 
     @staticmethod
     def from_messy(messy_rowset):
-        assert isinstance(messy_rowset, messytables.core.RowSet)
+        assert isinstance(messy_rowset, messytables.core.RowSet), "Expected a RowSet, got a %r"%type(messy_rowset)
         new_table = Table()
         for y, row in enumerate(messy_rowset):
             for x, cell in enumerate(row):
