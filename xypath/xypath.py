@@ -191,9 +191,9 @@ class CoreBag(object):
 
     def _filter_internal(self, function):
         newbag = Bag(table=self.table)
-        for bag_cell in self.__store:
+        for bag_cell in self:
             if function(bag_cell):
-                newbag.add(bag_cell)
+                newbag.add(bag_cell._cell)
         return newbag
 
     def assert_one(self, message="assert_one() : {} cells in bag, not 1"):

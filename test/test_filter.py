@@ -14,6 +14,9 @@ import tcore
 
 class Test_Filter(tcore.TCore):
     #filter
+    def test_bag_function(self):
+        self.table.filter("Country code").filter(lambda b: b.shift(x=0, y=0).value=="Country code").assert_one()
+    #filter
     def test_basic_vert(self):
         r = repr(self.table.filter(lambda b: b.x == 2))
         self.assertIn("WORLD", r)
