@@ -14,6 +14,17 @@ import tcore
 
 class Test_Bag(tcore.TCore):
     #bag
+    def test_bag_from_list(self):
+        "That it works and table is preserved"
+        true_bag = self.table.filter(lambda b: b.value > "F")
+        fake_bag = list(true_bag.table)
+        self.assertEqual(type(fake_bag), list)
+        remade_bag = xypath.Bag.from_list(fake_bag)
+        self.assertEqual(true_bag.table, remade_bag.table)
+        self.assertEqual(type(remade_bag), xypath.Bag)
+        self.assertEqual(len(remade_bag), len(self.table))
+
+    #bag
     def test_bag_equality(self):
         bag1 = self.table.filter(lambda b: True)
         bag2 = self.table.filter(lambda b: True)
