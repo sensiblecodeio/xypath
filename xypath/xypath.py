@@ -237,6 +237,24 @@ class CoreBag(object):
 
 class Bag(CoreBag):
 
+    @staticmethod
+    def from_list(cells, name=None):
+        """
+        Make a non-bag iterable of cells into a Bag. Some magic may be lost,
+        especially if it's zero length.
+        TODO: This should probably be part of the core __init__ class.
+        TODO: Don't do a piece-by-piece insertion, just slap the whole listed
+              iterable in, because this is slow.
+        """ # TODO
+        bag=Bag(table=None)
+        for i, cell_bag in enumerate(cells):
+            bag.add(cell_bag._cell)
+            if i==0:
+                bag.table = cell_bag.table
+            else:
+                assert bag.table == cell_bag.table
+        return bag
+
     def fill(self, direction):
         if direction not in (UP, RIGHT, DOWN, LEFT, UP_RIGHT, DOWN_RIGHT,
                              UP_LEFT, DOWN_LEFT):
