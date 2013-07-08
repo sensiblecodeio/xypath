@@ -24,6 +24,10 @@ UP_LEFT = (-1, -1)
 DOWN_LEFT = (-1, 1)
 
 
+class JunctionError(RuntimeError):
+    pass
+
+
 class NoCellsAssertionError(AssertionError):
     """Raised by Bag.assert_one() if the bag contains zero cells."""
     pass
@@ -106,9 +110,9 @@ class _XYCell(object):
         (x, y) = junction_coord((self, other), direction)
         if paranoid and (x, y) == (self.x, self.y) or \
                         (x, y) == (other.x, other.y):
-            raise RuntimeError(
+            raise JunctionError(
                 "_XYCell.junction(_XYCell) resulted in a cell which is equal"
-                " to one of the input cells which is apparently bad.\n"
+                " to one of the input cells.\n"
                 "  self: {}\n  other: {}\n  x: {}\n  y: {}".format(
                     self, other, x, y))
         junction_bag = self.table.get_at(x, y)  # TODO: test

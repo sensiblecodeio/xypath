@@ -55,3 +55,8 @@ class TestJunction(tcore.TCore):
     def test_bag_junction_checks_type(self):
         bag = self.table.filter('Estimates')
         self.assertRaises(TypeError, lambda: list(bag.junction('wrong_type')))
+
+    def test_junction_raises(self):
+	a = self.table.filter('WORLD')
+        b = self.table.filter('AFRICA')  # is below WORLD
+        self.assertRaises(xypath.JunctionError, lambda: list(a.junction(b)))
