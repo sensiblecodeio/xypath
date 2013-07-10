@@ -116,7 +116,8 @@ class _XYCell(object):
                 "  self: {}\n  other: {}\n  x: {}\n  y: {}".format(
                     self, other, x, y))
         junction_bag = self.table.get_at(x, y)  # TODO: test
-
+        if len(junction_bag) == 0:
+            return
         self_bag = Bag(self.table)
         self_bag.add(self)
         other_bag = Bag(self.table)

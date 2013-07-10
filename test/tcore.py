@@ -26,4 +26,13 @@ class TCore(unittest.TestCase):
     def setUp(self):
         pass
 
+class TMissing(unittest.TestCase):
+    @classmethod
+    def setup_class(cls):
+        cls.wpp_filename = join(
+            abspath(dirname(__file__)), '..', 'fixtures', 'missingcell.csv')
+        cls.messy = messytables.commas.CSVTableSet(open(cls.wpp_filename, "rb"))
+        cls.table = xypath.Table.from_messy(cls.messy.tables[0])
 
+    def setUp(self):
+        pass
