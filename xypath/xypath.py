@@ -317,6 +317,7 @@ class Table(Bag):
         self.xy_index = defaultdict(lambda: Bag(self))
         self._max_x = -1
         self._max_y = -1
+        self.sheet = None
 
     def rows(self):
         for row_num in range(0, self._max_y + 1):  # inclusive
@@ -368,6 +369,8 @@ class Table(Bag):
     def from_messy(messy_rowset):
         assert isinstance(messy_rowset, messytables.core.RowSet), "Expected a RowSet, got a %r"%type(messy_rowset)
         new_table = Table()
+        if hasattr(messy_rowset, 'sheet'):
+            new_table.sheet = messy_rowset.sheet
         for y, row in enumerate(messy_rowset):
             for x, cell in enumerate(row):
                 new_table.add(_XYCell(cell.value, x, y,

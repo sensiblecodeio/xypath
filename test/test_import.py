@@ -11,7 +11,14 @@ except:
 import re
 import tcore
 
+class Test_Import_Missing(tcore.TMissing):
+    def test_table_has_properties_at_all(self):
+        self.table.sheet
+
 class Test_Import(tcore.TCore):
+    def test_table_has_sheet_properties(self):
+        self.assertIn('xlrd', repr(self.table.sheet))
+
     #import
     def test_from_filename_with_table_name(self):
         """Can we specify only the filename and 'name' of the table?"""
