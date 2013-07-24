@@ -158,24 +158,6 @@ class CoreBag(object):
     def select(self, function):
         return self.table.select_other(function, self)    
 
-    def select2(self, function):
-        """returns a new bag (using the same table) which
-        is a transformation of the bag. It can potentially
-        have any cells from the table in it.
-
-        function takes parameters (table_cell, bag_cell) and
-        returns true if the table_cell should be in the new
-        bag and false otherwise"""
-
-        newbag = Bag(table=self.table)
-        for table_cell in self.table.__store:
-            for bag_cell in self.__store:
-                if function(table_cell, bag_cell):
-                    newbag.add(table_cell)
-                    break
-        return newbag
-
-
     def select_other(self, function, other=None):
         """note: self.select(f) = self.table.select_other(f, self)"""
         newbag = Bag(table=self.table)
@@ -185,7 +167,6 @@ class CoreBag(object):
                     newbag.add(bag_cell)
                     break
         return newbag
-
 
     def filter(self, filter_by):
         """
