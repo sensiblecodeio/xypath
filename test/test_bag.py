@@ -24,11 +24,20 @@ class Test_Bag(tcore.TCore):
         self.assertEqual(len(remade_bag), len(self.table))
 
     def test_bag_equality(self):
+        lhs = self.table.filter("WORLD")
+        rhs = self.table.filter("WORLD")
+
+        self.assertEqual(lhs, rhs)
+
+        rhs = self.table.filter("Variant")
+
+        self.assertNotEqual(lhs, rhs)
+
+
+    def test_bags_from_different_tables_are_not_equal(self):
         bag1 = self.table.filter(lambda b: True)
-        bag2 = self.table.filter(lambda b: True)
-        self.assertEqual(bag1, bag2)
-        bag3 = xypath.Table.from_bag(bag2)
-        self.assertNotEqual(bag1, bag3)
+        bag2 = xypath.Table.from_bag(bag1)
+        self.assertNotEqual(bag1, bag2)
 
     def test_corebag_iterator_size(self):
         """Test that the iterator yields as many results as len() claims"""
@@ -81,6 +90,49 @@ class Test_Bag(tcore.TCore):
         filties_col = fifties.fill(xypath.DOWN)
         self.assertEqual(6, len(filties_col))
 
+    def test_bag_union(self):
+        bag = self.table.filter('Estimates')
+        another_bag = self.table.filter("WORLD")
+
+        union = bag + another_bag
+        self.assertEqual(len(bag) + len(another_bag), len(union))
+
+    def test_bag_set_difference(self):
+        super_bag = self.table.filter("WORLD").assert_one().fill(xypath.DOWN)
+        sub_bag = self.table.filter("AFRICA").assert_one()
+
+        diff = super_bag - sub_bag
+
+        self.assertEqual(len(super_bag) - len(sub_bag), len(diff))
+
+    def test_bag_set_difference_rhs_non_subset_of_lhs(self):
+        super_bag = self.table.filter("WORLD").assert_one().fill(xypath.DOWN)
+        unrelated_bag = self.table.filter("Estimates")
+
+        diff = super_bag - unrelated_bag
+
+        self.assertEqual(len(super_bag), len(diff))
+        self.assertEqual(super_bag, diff)
+
+    def test_bag_ordering(self):
+
+
+        # The purpose of this test is to have a "reasonably pathological" bag
+        # so that the sort test is meaningful
+
+        col1 = self.table.filter("Index").fill(xypath.DOWN)
+        col2 = self.table.filter("Variant").fill(xypath.DOWN)
+
+        bag = col1 + col2
+
+        self.assertEqual(["1", "Estimates", "2", "Estimates"],
+                         [cell.value for cell in list(bag)[:4]])
+
+        def yx(cell):
+            return (cell.y, cell.x)
+
+        self.assertEqual(sorted(bag, key=yx), list(bag))
+
     def test_assert_one_with_zero(self):
         bag = self.table.filter('No Such Cell')
         self.assertRaises(AssertionError, lambda: bag.assert_one())
@@ -112,3 +164,6 @@ class Test_Bag(tcore.TCore):
     def test_has_table(self):
         self.assertEqual(xypath.Table, type(self.table))
         self.assertIsInstance(self.table, xypath.Bag)
+
+
+
