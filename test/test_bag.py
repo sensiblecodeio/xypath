@@ -13,7 +13,6 @@ import tcore
 
 
 class Test_Bag(tcore.TCore):
-    #bag
     def test_bag_from_list(self):
         "That it works and table is preserved"
         true_bag = self.table.filter(lambda b: b.value > "F")
@@ -24,7 +23,6 @@ class Test_Bag(tcore.TCore):
         self.assertEqual(type(remade_bag), xypath.Bag)
         self.assertEqual(len(remade_bag), len(self.table))
 
-    #bag
     def test_bag_equality(self):
         bag1 = self.table.filter(lambda b: True)
         bag2 = self.table.filter(lambda b: True)
@@ -32,14 +30,12 @@ class Test_Bag(tcore.TCore):
         bag3 = xypath.Table.from_bag(bag2)
         self.assertNotEqual(bag1, bag3)
 
-    #bag
     def test_corebag_iterator_size(self):
         """Test that the iterator yields as many results as len() claims"""
         bag = self.table.filter('Estimates')
         self.assertEqual(265, len(bag))
         self.assertEqual(len(bag), len(list(bag)))
 
-    #bag
     def test_corebag_iterator_size_squared(self):
         """Worry: that iterating twice over bag doesn't work property.
         Test: that every pair of cells from the bags is present."""
@@ -50,14 +46,12 @@ class Test_Bag(tcore.TCore):
                 count = count + 1
         self.assertEqual(count, 265*265)
 
-    #bag
     def test_corebag_iterator_returns_bags(self):
         """Check the iterator returns bags, not _XYCells"""
         bag = self.table.filter('Estimates')
         for individual_cell in bag:
             self.assertIsInstance(individual_cell, xypath.Bag)
 
-    #bag
     def test_singleton_bag_value(self):
         self.assertEqual(
             "Country code",
@@ -65,12 +59,10 @@ class Test_Bag(tcore.TCore):
         self.assertRaises(ValueError,
                           lambda: self.table.filter("Estimates").value)
 
-    #bag
     def test_messytables_has_properties(self):
         for bag in self.table:
             self.assertIsInstance(bag.properties, dict)
 
-    #bag
     def test_from_bag(self):
         world_pops_bag = self.table.filter(lambda b: b.y >= 16 and
                                                      b.y <= 22 and
@@ -89,21 +81,18 @@ class Test_Bag(tcore.TCore):
         filties_col = fifties.fill(xypath.DOWN)
         self.assertEqual(6, len(filties_col))
 
-    #bag
     def test_assert_one_with_zero(self):
         bag = self.table.filter('No Such Cell')
         self.assertRaises(AssertionError, lambda: bag.assert_one())
         self.assertRaises(
             xypath.NoCellsAssertionError, lambda: bag.assert_one())
 
-    #bag
     def test_assert_one_with_multiple(self):
         bag = self.table.filter('Estimates')
         self.assertRaises(AssertionError, lambda: bag.assert_one())
         self.assertRaises(
             xypath.MultipleCellsAssertionError, lambda: bag.assert_one())
 
-    #table
     def test_table_rows(self):
         counter = 0
         rows = list(self.table.rows())
@@ -112,7 +101,6 @@ class Test_Bag(tcore.TCore):
         self.assertEqual(len(self.table), counter)  # misses none
         self.assertEqual(len(rows), 282)
 
-    #table
     def test_table_cols(self):
         counter = 0
         cols = list(self.table.cols())
@@ -121,7 +109,6 @@ class Test_Bag(tcore.TCore):
         self.assertEqual(len(self.table), counter)  # misses none
         self.assertEqual(len(cols), 17)
 
-    #table
     def test_has_table(self):
         self.assertEqual(xypath.Table, type(self.table))
         self.assertIsInstance(self.table, xypath.Bag)
