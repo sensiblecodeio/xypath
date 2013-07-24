@@ -5,7 +5,6 @@ This works well with the name.
 Remember that the usual iterators (over a list-of-lists)
 is outer loop y first."""
 
-from collections import defaultdict
 import re
 import messytables
 import os
@@ -14,6 +13,10 @@ try:
     have_ham = True
 except:
     have_ham = False
+
+from collections import defaultdict
+from copy import copy
+
 UP = (0, -1)
 RIGHT = (1, 0)
 DOWN = (0, 1)
@@ -87,6 +90,17 @@ class _XYCell(object):
         else:
             self.properties = properties
 
+    def __hash__(self):
+        """
+        An _XYCell is uniquely identified (by sets, etc) through its position,
+        content, and parent table.
+        """
+        return hash((self.value, self.x, self.y, self.table))
+
+    def __eq__(self, rhs):
+        return hash(self) == hash(rhs)
+
+
     def copy(self, new_table=None):
         if new_table:
             return _XYCell(self.value, self.x, self.y,
@@ -128,7 +142,7 @@ class _XYCell(object):
 class CoreBag(object):
     """Has a collection of _XYCells"""
     def __init__(self, table, name=None):
-        self.__store = []
+        self.__store = set()
         self.name = name
         self.table = table
 
@@ -136,7 +150,7 @@ class CoreBag(object):
         if not isinstance(cell, _XYCell):
             raise TypeError("Can only add _XYCell types to Bags: {}".format(
                             cell.__class__))
-        self.__store.append(cell)
+        self.__store.add(cell)
 
     def __eq__(self, other):
         return self.name == other.name and \
@@ -150,10 +164,34 @@ class CoreBag(object):
         return repr(self.__store)
 
     def __iter__(self):
-        for cell in self.__store:
+        """
+        Return a view of the cells in this back in left-right, top-bottom order
+        """
+        def yx(cell):
+            return cell.y, cell.x
+
+        for cell in sorted(self.__store, key=yx):
             newbag = Bag(table=self.table, name=None)
             newbag.add(cell)
             yield newbag
+
+    def __sub__(self, rhs):
+        return self.difference(rhs)
+
+    def difference(self, rhs):
+        assert self.table is rhs.table, "Can't difference bags from separate tables"
+        new = copy(self)
+        new.__store = self.__store.difference(rhs.__store)
+        return new
+
+    def __or__(self, rhs):
+        return self.union(rhs)
+
+    def union(self, rhs):
+        assert self.table is rhs.table, "Can't union bags from separate tables"
+        new = copy(self)
+        new.__store = self.__store.union(rhs.__store)
+        return new
 
     def select(self, function):
         """returns a new bag (using the same table) which
@@ -216,7 +254,7 @@ class CoreBag(object):
     @property
     def _cell(self):
         try:
-            xycell = self.assert_one().__store[0]
+            xycell = list(self.assert_one().__store)[0]
         except AssertionError:
             raise ValueError("Can't get cell properties of non-singleton Bag.")
         else:

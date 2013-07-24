@@ -94,7 +94,7 @@ class Test_Bag(tcore.TCore):
         bag = self.table.filter('Estimates')
         another_bag = self.table.filter("WORLD")
 
-        union = bag + another_bag
+        union = bag | another_bag
         self.assertEqual(len(bag) + len(another_bag), len(union))
 
     def test_bag_set_difference(self):
@@ -123,9 +123,9 @@ class Test_Bag(tcore.TCore):
         col1 = self.table.filter("Index").fill(xypath.DOWN)
         col2 = self.table.filter("Variant").fill(xypath.DOWN)
 
-        bag = col1 + col2
+        bag = col1 | col2
 
-        self.assertEqual(["1", "Estimates", "2", "Estimates"],
+        self.assertEqual([1.0, "Estimates", 2.0, "Estimates"],
                          [cell.value for cell in list(bag)[:4]])
 
         def yx(cell):

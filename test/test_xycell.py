@@ -6,6 +6,19 @@ import unittest
 from copy import copy
 
 class XYCellTests(unittest.TestCase):
+
+    def test_cell_equality(self):
+        """
+        test_cell_equality: required for expected set behaviour
+        """
+        table = xypath.Table()
+
+        cell_a = xypath._XYCell("foo", 1, 3, table)
+        also_cell_a = xypath._XYCell("foo", 1, 3, table)
+
+        self.assertIsNot(cell_a, also_cell_a)
+        self.assertEqual(cell_a, also_cell_a)
+
     def test_cell_identity(self):
         """
         test_cell_identity: given two cells which were instantiated separately
