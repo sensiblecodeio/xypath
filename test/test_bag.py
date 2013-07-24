@@ -184,5 +184,5 @@ class Test_Bag(tcore.TCore):
         self.assertEqual(xypath.Table, type(self.table))
         self.assertIsInstance(self.table, xypath.Bag)
 
-
-
+    def test_select_other(self):
+        raise self.skipTest("select_other not tested")
