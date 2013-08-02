@@ -14,7 +14,7 @@ try:
 except:
     have_ham = False
 
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from copy import copy
 
 UP = (0, -1)
@@ -163,6 +163,9 @@ class CoreBag(object):
     def __repr__(self):
         return repr(self.__store)
 
+    def __in__(self, *args, **kwargs):
+        return self.__store.__in__(*args, **kwargs)
+
     def __iter__(self):
         """
         Return a view of the cells in this back in left-right, top-bottom order
@@ -288,11 +291,11 @@ class Bag(CoreBag):
         TODO: This should probably be part of the core __init__ class.
         TODO: Don't do a piece-by-piece insertion, just slap the whole listed
               iterable in, because this is slow.
-        """ # TODO
-        bag=Bag(table=None)
+        """  # TODO
+        bag = Bag(table=None)
         for i, cell_bag in enumerate(cells):
             bag.add(cell_bag._cell)
-            if i==0:
+            if i == 0:
                 bag.table = cell_bag.table
             else:
                 assert bag.table == cell_bag.table
@@ -317,7 +320,8 @@ class Bag(CoreBag):
             for other_cell in other:
 
                 assert self_cell._cell.__class__ == other_cell._cell.__class__
-                for triple in self_cell._cell.junction(other_cell._cell, *args, **kwargs):
+                for triple in self_cell._cell.junction(other_cell._cell,
+                                                       *args, **kwargs):
                     yield triple
 
     def junction_overlap(self, other, *args, **kwargs):
@@ -405,7 +409,8 @@ class Table(Bag):
 
     @staticmethod
     def from_messy(messy_rowset):
-        assert isinstance(messy_rowset, messytables.core.RowSet), "Expected a RowSet, got a %r"%type(messy_rowset)
+        assert isinstance(messy_rowset, messytables.core.RowSet),\
+                          "Expected a RowSet, got a %r" % type(messy_rowset)
         new_table = Table()
         if hasattr(messy_rowset, 'sheet'):
             new_table.sheet = messy_rowset.sheet
@@ -421,3 +426,23 @@ class Table(Bag):
         for bag_cell in bag:
             new_table.add(bag_cell._cell.copy(new_table))
         return new_table
+
+    def xyzzy(self, fields, valuename='_value'):
+        fieldkeys = fields.keys()
+        assert valuename not in fieldkeys
+
+        for cell in self:
+            path = OrderedDict()
+            for i, field in enumerate(fields):  # country, year
+                for fieldvalue in fields[field]:  # Afghanistan, Armenia; 1998, 1999
+                    if cell in fields[field][fieldvalue]:  # i.e. in bag
+                        assert field not in path  # only one match per field
+                        path[field] = fieldvalue
+                if len(path) != i+1:
+                    break  # save unnecessary work
+            if len(path) != len(fieldkeys):
+                if len(path)>0: print "found %r matches for %r "%(len(path), cell)
+                continue
+            # add cell details to list of dictionaries
+            path[valuename] = cell.value
+            yield path

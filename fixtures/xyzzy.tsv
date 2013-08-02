@@ -1,0 +1,16 @@
+upper
+		a1a	a1b	a2a	a2b
+		b1a	b2a	b1b	b2b
+c1a	d1a	A	B	C	D
+c1b	d2a	E	F	G	H
+c2a	d1b	I	J	K	L
+c2b	d2b	M	N	O	P
+
+lower
+		a1a	a1b	a2a	a2b
+		b1a	b2a	b1b	b2b
+c1a	d1a	a	b	c	d
+c1b	d2a	e	f	g	h
+c2a	d1b	i	j	k	l
+c2b	d2b	m	n	o	p
+
