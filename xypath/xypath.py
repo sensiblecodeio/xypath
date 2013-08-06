@@ -283,16 +283,19 @@ class Bag(CoreBag):
     @staticmethod
     def from_list(cells, name=None):
         """
-        Make a non-bag iterable of cells into a Bag. Some magic may be lost,
-        especially if it's zero length.
+        Make an iterable of either singleton Bags, or _XYCells into a Bag. 
+        Some magic may be lost, especially if it's zero length.
         TODO: This should probably be part of the core __init__ class.
         TODO: Don't do a piece-by-piece insertion, just slap the whole listed
               iterable in, because this is slow.
         """ # TODO
         bag=Bag(table=None)
         for i, cell_bag in enumerate(cells):
-            bag.add(cell_bag._cell)
-            if i==0:
+            if isinstance(cell_bag, _XYCell):
+                bag.add(cell_bag)
+            else:  # assume is a Bag
+                bag.add(cell_bag._cell)
+            if i == 0:  # yuck! may be the _XYCell or Bag table method!
                 bag.table = cell_bag.table
             else:
                 assert bag.table == cell_bag.table
