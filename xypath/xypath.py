@@ -280,19 +280,6 @@ class CoreBag(object):
     def properties(self):
         return self._cell.properties
 
-    def group(self, keyfunc=None):
-        """get a dictionary containing lists of singleton bags with the same
-           value (by default; other functions available)"""
-        groups = {}
-        if keyfunc is None:
-            keyfunc = lambda x: x.value
-        protogroups = groupby(sorted(self.__store, key=keyfunc), key=keyfunc)
-        for k, v in protogroups:
-            newbag = Bag.from_list(v)
-            newbag.table = self.table
-            groups[k] = newbag
-        return groups
-
 
 class Bag(CoreBag):
 
@@ -364,6 +351,27 @@ class Bag(CoreBag):
             for t_cell in self.table.get_at(b_cell.x + x, b_cell.y + y):
                 bag.add(t_cell._cell)
         return bag
+
+    def group(self, keyfunc=None):  # XYZZY
+        """get a dictionary containing lists of singleton bags with the same
+           value (by default; other functions available)"""
+        groups = {}
+        if keyfunc is None:
+            keyfunc = lambda x: x.value
+        protogroups = groupby(sorted(self, key=keyfunc), key=keyfunc)
+        for k, v in protogroups:
+            newbag = Bag.from_list(v)
+            newbag.table = self.table
+            groups[k] = newbag
+        return groups
+
+    def headerheader(self, dir1, dir2, **kwargs):  # XYZZY
+        """Given a header (e.g. "COUNTRY") get all things in one direction
+           from it (e.g. down: "FRANCE", "GERMANY"), then use those to get
+           a suitable xyzzy dict"""
+        header = self.fill(dir1).group(**kwargs)
+        return {k: header[k].fill(dir2) for k in header}
+         
 
 
 class Table(Bag):
@@ -443,7 +451,7 @@ class Table(Bag):
             new_table.add(bag_cell._cell.copy(new_table))
         return new_table
 
-    def xyzzy(self, fields, valuename='_value'):
+    def xyzzy(self, fields, valuename='_value'):  # XYZZY
         fieldkeys = fields.keys()
         assert valuename not in fieldkeys
         # TODO: test at this stage that fieldvalue bags don't overlap:
@@ -461,7 +469,7 @@ class Table(Bag):
                     break  # save unnecessary work
             if len(path) != len(fieldkeys):
                 if len(path) > 0:
-                    print "found %r matches for %r " % (len(path), cell)
+                    print "found %r matches for %r: %r" % (len(path), cell, path.keys())
                 continue
             # add dictionary of cell details to list
             path[valuename] = cell.value
