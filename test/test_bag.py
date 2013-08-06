@@ -18,6 +18,17 @@ class Test_Bag(tcore.TCore):
         true_bag = self.table.filter(lambda b: b.value > "F")
         fake_bag = list(true_bag.table)
         self.assertEqual(type(fake_bag), list)
+        self.assertEqual(type(fake_bag[0]), xypath.Bag)
+        remade_bag = xypath.Bag.from_list(fake_bag)
+        self.assertEqual(true_bag.table, remade_bag.table)
+        self.assertEqual(type(remade_bag), xypath.Bag)
+        self.assertEqual(len(remade_bag), len(self.table))
+
+    def test_bag_from_list_with_nonbag(self):
+        true_bag = self.table.filter(lambda b: b.value > "F")
+        fake_bag = [x._cell for x in true_bag.table]
+        self.assertEqual(type(fake_bag), list)
+        self.assertEqual(str(type(fake_bag[0])), "<class 'xypath.xypath._XYCell'>")
         remade_bag = xypath.Bag.from_list(fake_bag)
         self.assertEqual(true_bag.table, remade_bag.table)
         self.assertEqual(type(remade_bag), xypath.Bag)
