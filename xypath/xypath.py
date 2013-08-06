@@ -16,6 +16,7 @@ except:
 
 from collections import defaultdict, OrderedDict
 from copy import copy
+from itertools import groupby
 
 UP = (0, -1)
 RIGHT = (1, 0)
@@ -278,6 +279,19 @@ class CoreBag(object):
     @property
     def properties(self):
         return self._cell.properties
+
+    def group(self, keyfunc=None):
+        """get a dictionary containing lists of singleton bags with the same
+           value (by default; other functions available)"""
+        groups = {}
+        if keyfunc is None:
+            keyfunc = lambda x: x.value
+        protogroups = groupby(sorted(self.__store, key=keyfunc), key=keyfunc)
+        for k, v in protogroups:
+            newbag = Bag.from_list(v)
+            newbag.table = self.table
+            groups[k] = newbag
+        return groups
 
 
 class Bag(CoreBag):
