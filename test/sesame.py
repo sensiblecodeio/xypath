@@ -6,42 +6,6 @@ def maketable(s):
     return [x.split(' ') for x in lines]
 
 foods = "ei"
-months = "BCD"
-
-in_table = maketable("""
-A B C D
-e 1 2 3
-i 4 5 6
-""")
-
-out_table = maketable("""
-e B 1
-e C 2
-e D 3
-i B 4
-i C 5
-i D 6""")
-
-
-def f(table, a):
-    for food, b in a(table):
-        for indic, c in b():
-            yield [food, indic, c()]
-
-
-def a(table):
-    for i, food in enumerate(foods, 1):
-        def b(food=food, i=i):
-            for j, month in enumerate(months, 1):
-                def g(food=food, month=month, i=i, j=j):
-                    return in_table[i][j]
-                yield month, g
-        yield food, b
-
-assert list(f(in_table, a)) == out_table
-# =============================================
-print ("4")
-foods = "ei"
 months = "BC"
 years = "#!*"
 # indicators = ",."
@@ -74,31 +38,21 @@ out_table = maketable("""
 * i C C
 """)
 
-def f(table, a):
-    for year, b in a(table):
-        for food, c in b():
-            for month, d in c():
-                yield [year, food, month, d()]
-
-#def f(table, a):
-#    return list(a(table))
-#    for element, sub_generator in a(table):
-#         sub_elements = sub_genertor(element)
-#         yield from sub_elements
 
 def a(table):
     for i, year in enumerate(years, 0):
-        def b(year=year, i=i):
+        def b():
             for j, food in enumerate(foods, i*(len(foods)+1)+2):
-                def g(year=year, food=food, i=i, j=j):
+                def c():
                     for k, month in enumerate(months, 1):
-                        def h(year=year, food=food, month=month, i=i, j=j, k=k):
+                        def d():
                             #print (i, j, k, in_table[j])
                             yield [year, food, month, in_table[j][k]]
-                        yield from h()
-                yield from g()
+                        yield from d()
+                yield from c()
         yield from b()
 
 
 q = list(a(in_table))
-pprint (q)
+pprint(q)
+assert q == out_table
