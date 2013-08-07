@@ -36,3 +36,14 @@ class TMissing(unittest.TestCase):
 
     def setUp(self):
         pass
+
+class TXyzzy(unittest.TestCase):
+    @classmethod
+    def setup_class(cls):
+        cls.wpp_filename = join(
+            abspath(dirname(__file__)), '..', 'fixtures', 'xyzzy.tsv')
+        cls.messy = messytables.any.any_tableset(open(cls.wpp_filename, "rb"), extension='tsv')
+        cls.table = xypath.Table.from_messy(cls.messy.tables[0])
+
+    def setUp(self):
+        pass

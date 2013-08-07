@@ -467,10 +467,10 @@ class Table(Bag):
                         path[field] = fieldvalue
                 if len(path) != i+1:
                     break  # save unnecessary work
-            if len(path) != len(fieldkeys):
-                if len(path) > 0:
-                    print "found %r matches for %r: %r" % (len(path), cell, path.keys())
-                continue
+            # if len(path) != len(fieldkeys):
+            #     if len(path) > 0:
+            #         print "found %r matches for %r: %r" % (len(path), cell, path.keys())
+            #     continue
             # add dictionary of cell details to list
             path[valuename] = cell.value
             yield path
