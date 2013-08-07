@@ -1,5 +1,6 @@
 from pprint import pprint
 
+
 def maketable(s):
     lines = s.strip().split('\n')
     return [x.split(' ') for x in lines]
@@ -39,7 +40,7 @@ def a(table):
 
 assert list(f(in_table, a)) == out_table
 # =============================================
-print "4"
+print ("4")
 foods = "ei"
 months = "BC"
 years = "#!*"
@@ -73,13 +74,17 @@ out_table = maketable("""
 * i C C
 """)
 
-pprint (in_table)
 def f(table, a):
     for year, b in a(table):
         for food, c in b():
             for month, d in c():
                 yield [year, food, month, d()]
 
+#def f(table, a):
+#    return list(a(table))
+#    for element, sub_generator in a(table):
+#         sub_elements = sub_genertor(element)
+#         yield from sub_elements
 
 def a(table):
     for i, year in enumerate(years, 0):
@@ -88,11 +93,12 @@ def a(table):
                 def g(year=year, food=food, i=i, j=j):
                     for k, month in enumerate(months, 1):
                         def h(year=year, food=food, month=month, i=i, j=j, k=k):
-                            print i, j, k, in_table[j]
-                            return in_table[j][k]
-                        yield month, h
-                yield food, g
-        yield year, b
+                            #print (i, j, k, in_table[j])
+                            yield [year, food, month, in_table[j][k]]
+                        yield from h()
+                yield from g()
+        yield from b()
 
-pprint (list(f(in_table, a)))
-assert list(f(in_table, a)) == out_table
+
+q = list(a(in_table))
+pprint (q)
