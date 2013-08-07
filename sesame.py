@@ -8,9 +8,6 @@ def maketable(s):
     lines = s.strip().split('\n')
     return [x.split(' ') for x in lines]
 
-foods = "ei"
-months = "YZ"
-years = "#!*"
 # indicators = ",."
 
 in_table_raw = """
@@ -43,6 +40,14 @@ out_table = maketable("""
 * i Z C
 """)
 
+@supergenerator
+def a(table):
+    years = table.column(1)
+    foods = table.column(2)
+    months = table.column(3)
+    values = table.column(4)
+    for year, month, food, value in zip(years, foods, months, values):
+        yield [year, month, food, value]
 
 @supergenerator
 def a(table):
@@ -73,19 +78,23 @@ a[1:,1:]
 a.shiftdown(1).shiftright(1)
 """
 
+def __from(f):
+    return supergenerator(f)()
+
+YEARS = "#!*"
+FOODS = "ei"
+MONTHS = "YZ"
 @supergenerator
 def a(table):
+    years = xy.filter(lambda x: x.value in YEARS)
+    months = xy.filter(lambda x: x.value in MONTHS)
     
-    for year in xy.filter(lambda x: x.value in years):
-        @supergenerator
+    for year, nextyear in zip(years, years[1:]): 
         def b():
-            for food in xy.filter(lambda x: x.value in foods and 1): # in terms of year!
-                @supergenerator
-                def c():
-                    for month in xy.filter(lambda x: x.value in months):
-                            yield [year.value, food.value, month.value, xy.get_at(month.x, food.y).value] #table]
-                yield _from(c())
-        yield _from(b())
+            for food in xy._range(year, nextyear)[:,1:-1]
+                for month in months:
+                    yield [year.value, food.value, month.value, xy.get_at(month.x, food.y).value]
+        yield __from(b)
 
 
 
