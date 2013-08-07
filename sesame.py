@@ -1,3 +1,4 @@
+from supergenerator import supergenerator, _from
 from pprint import pprint
 
 
@@ -39,18 +40,19 @@ out_table = maketable("""
 """)
 
 
+
+@supergenerator
 def a(table):
     for i, year in enumerate(years, 0):
+        @supergenerator
         def b():
             for j, food in enumerate(foods, i*(len(foods)+1)+2):
+                @supergenerator
                 def c():
                     for k, month in enumerate(months, 1):
-                        def d():
-                            #print (i, j, k, in_table[j])
                             yield [year, food, month, in_table[j][k]]
-                        yield from d()
-                yield from c()
-        yield from b()
+                yield _from(c())
+        yield _from(b())
 
 
 q = list(a(in_table))
