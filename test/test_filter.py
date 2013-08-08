@@ -40,7 +40,7 @@ class TestFilter(tcore.TCore):
 
     def test_regex_not_search(self):
         """
-        Expect it to use match() not search(), so shouldn't match inside the
+        Expect Table.filter to use match() not search(), so shouldn't match inside the
         middle of a cell.
         """
 
