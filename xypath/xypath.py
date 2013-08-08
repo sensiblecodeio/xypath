@@ -371,8 +371,17 @@ class Bag(CoreBag):
            a suitable xyzzy dict"""
         header = self.fill(dir1).group(**kwargs)
         return {k: header[k].fill(dir2) for k in header}
-         
 
+    def headerheader2(self, dir1, dir2, k):  # XYZZY2
+        for header in self.fill(dir1):
+            header.fill(dir2).markup(k, header.value)
+
+    def markup(self, k, v):
+        for cell in self:
+            try:
+                cell.properties['marks'][k] = v
+            except KeyError:
+                cell.properties['marks'] = {k: v}
 
 class Table(Bag):
     """A bag which represents an entire sheet"""
@@ -462,9 +471,11 @@ class Table(Bag):
             path = OrderedDict()
             for i, field in enumerate(fields):  # country, year
                 for fieldvalue in fields[field]:  # AFG, GBR; 1998, 1999
+
                     if cell in fields[field][fieldvalue]:  # i.e. in bag
                         assert field not in path  # only one match per field
                         path[field] = fieldvalue
+                        break  # speedup - need test at top of function, really!
                 if len(path) != i+1:
                     break  # save unnecessary work
             # if len(path) != len(fieldkeys):
@@ -474,7 +485,19 @@ class Table(Bag):
             # add dictionary of cell details to list
             path[valuename] = cell.value
             yield path
-    
+
+    def xyzzy2(self, fields, valuename="_value"):
+        for i, field in enumerate(fields):
+            lastpass = (i == len(fields)-1)
+            for fieldvalue in fields[field]:
+                fields[field][fieldvalue].markup(field, fieldvalue)
+                if lastpass:
+                    for cell in fields[field][fieldvalue]:
+                        g = cell.properties['marks']
+                        if len(g) == len(fields): 
+                            g[valuename] = cell.value
+                            yield g
+
     def between(self, cell_a, cell_b):
         assert len(cell_a) == 1
         assert len(cell_b) == 1

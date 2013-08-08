@@ -8,5 +8,5 @@ bigdict = {"display": xy.filter("GHO (DISPLAY)").headerheader(xypath.DOWN, xypat
            "year": xy.filter("YEAR (DISPLAY)").headerheader(xypath.DOWN, xypath.RIGHT),
            "_placeholder": {"1": xy.filter("Numeric").fill(xypath.DOWN)}}
 
-print list(xy.xyzzy(bigdict))
-
+print "Bigdict calculated"
+print list(xy.xyzzy2(bigdict, valuename="value"))
