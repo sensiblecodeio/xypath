@@ -486,7 +486,7 @@ class Table(Bag):
             path[valuename] = cell.value
             yield path
 
-    def xyzzy2(self, fields, valuename="_value"):
+    def xyzzy2(self, fields, length, valuename="_value"):
         for i, field in enumerate(fields):
             lastpass = (i == len(fields)-1)
             for fieldvalue in fields[field]:
@@ -494,7 +494,7 @@ class Table(Bag):
                 if lastpass:
                     for cell in fields[field][fieldvalue]:
                         g = cell.properties['marks']
-                        if len(g) == len(fields): 
+                        if len(g) == length: 
                             g[valuename] = cell.value
                             yield g
 
