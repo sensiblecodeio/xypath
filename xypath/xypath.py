@@ -100,7 +100,6 @@ class _XYCell(object):
     def __eq__(self, rhs):
         return hash(self) == hash(rhs)
 
-
     def copy(self, new_table=None):
         if new_table:
             return _XYCell(self.value, self.x, self.y,
@@ -154,8 +153,8 @@ class CoreBag(object):
 
     def __eq__(self, other):
         return self.name == other.name and \
-               self.table is other.table and \
-               set(self.__store) == set(other.__store)
+            self.table is other.table and \
+            set(self.__store) == set(other.__store)
 
     def __len__(self):
         return len(self.__store)
@@ -283,13 +282,13 @@ class Bag(CoreBag):
     @staticmethod
     def from_list(cells, name=None):
         """
-        Make an iterable of either singleton Bags, or _XYCells into a Bag. 
+        Make an iterable of either singleton Bags, or _XYCells into a Bag.
         Some magic may be lost, especially if it's zero length.
         TODO: This should probably be part of the core __init__ class.
         TODO: Don't do a piece-by-piece insertion, just slap the whole listed
               iterable in, because this is slow.
-        """ # TODO
-        bag=Bag(table=None)
+        """  # TODO
+        bag = Bag(table=None)
         for i, cell_bag in enumerate(cells):
             if isinstance(cell_bag, _XYCell):
                 bag.add(cell_bag)
@@ -408,7 +407,8 @@ class Table(Bag):
 
     @staticmethod
     def from_messy(messy_rowset):
-        assert isinstance(messy_rowset, messytables.core.RowSet), "Expected a RowSet, got a %r"%type(messy_rowset)
+        assert isinstance(messy_rowset, messytables.core.RowSet), \
+            "Expected a RowSet, got a %r" % type(messy_rowset)
         new_table = Table()
         if hasattr(messy_rowset, 'sheet'):
             new_table.sheet = messy_rowset.sheet
@@ -424,3 +424,15 @@ class Table(Bag):
         for bag_cell in bag:
             new_table.add(bag_cell._cell.copy(new_table))
         return new_table
+
+    def between(self, cell_a, cell_b):
+        assert len(cell_a) == 1
+        assert len(cell_b) == 1
+
+        bag = Bag(table=self)
+        lox, hix = sorted([cell_a.x, cell_b.x])
+        loy, hiy = sorted([cell_a.y, cell_b.y])
+        for x in xrange(lox, hix+1):
+            for y in xrange(loy, hiy+1):
+                bag = bag | self.get_at(x, y)
+        return bag

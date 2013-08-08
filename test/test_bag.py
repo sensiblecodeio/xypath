@@ -144,6 +144,14 @@ class Test_Bag(tcore.TCore):
 
         self.assertEqual(sorted(bag, key=yx), list(bag))
 
+    def test_table_between(self):
+        b1 = self.table.filter("Index").assert_one()
+        b2 = self.table.filter("WORLD").assert_one()
+        bet = self.table.between(b1, b2)
+        bet.filter("Index").assert_one()
+        bet.filter("WORLD").assert_one()
+        assert len(bet)>2
+
     def test_assert_one_with_zero(self):
         bag = self.table.filter('No Such Cell')
         self.assertRaises(AssertionError, lambda: bag.assert_one())
