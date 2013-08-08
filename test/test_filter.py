@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 import sys
+
 import unittest
 sys.path.append('xypath')
 import xypath
 import messytables
 try:
     import hamcrest
-except:
-    pass
+except ImportError:
+    hamcrest = None
 import re
 import tcore
 
@@ -32,6 +33,8 @@ class TestFilter(tcore.TCore):
         self.table.filter(lambda b: b.value == 'Country code').assert_one()
 
     def test_text_exact_match_hamcrest(self):
+        if hamcrest is None:
+            raise unittest.SkipTest
         self.table.filter(hamcrest.equal_to("Country code")).assert_one()
 
     def test_regex_match(self):

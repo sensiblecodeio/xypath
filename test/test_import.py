@@ -6,8 +6,8 @@ import xypath
 import messytables
 try:
     import hamcrest
-except:
-    pass
+except ImportError:
+    hamcrest = None
 import re
 import tcore
 
@@ -22,6 +22,8 @@ class Test_Import(tcore.TCore):
     #import
     def test_from_filename_with_table_name(self):
         """Can we specify only the filename and 'name' of the table?"""
+        if hamcrest is None:
+            raise unittest.SkipTest
         table = xypath.Table.from_filename(
             self.wpp_filename,
             table_name='NOTES')
