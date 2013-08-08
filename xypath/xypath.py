@@ -178,7 +178,8 @@ class CoreBag(object):
         return self.difference(rhs)
 
     def difference(self, rhs):
-        assert self.table is rhs.table, "Can't difference bags from separate tables"
+        assert self.table is rhs.table, \
+            "Can't difference bags from separate tables"
         new = copy(self)
         new.__store = self.__store.difference(rhs.__store)
         return new
@@ -222,9 +223,11 @@ class CoreBag(object):
         if callable(filter_by):
             return self._filter_internal(filter_by)
         elif isinstance(filter_by, basestring):
-            return self._filter_internal(lambda cell: unicode(cell.value).strip() == filter_by)
+            return self._filter_internal(
+                lambda cell: unicode(cell.value).strip() == filter_by)
         elif have_ham and isinstance(filter_by, hamcrest.matcher.Matcher):
-            return self._filter_internal(lambda cell: filter_by.matches(cell.value))
+            return self._filter_internal(
+                lambda cell: filter_by.matches(cell.value))
         elif isinstance(filter_by, re._pattern_type):
             return self._filter_internal(
                 lambda cell: re.match(filter_by, unicode(cell.value)))
@@ -319,7 +322,8 @@ class Bag(CoreBag):
             for other_cell in other:
 
                 assert self_cell._cell.__class__ == other_cell._cell.__class__
-                for triple in self_cell._cell.junction(other_cell._cell, *args, **kwargs):
+                for triple in self_cell._cell.junction(
+                        other_cell._cell, *args, **kwargs):
                     yield triple
 
     def junction_overlap(self, other, *args, **kwargs):

@@ -1,14 +1,7 @@
 #!/usr/bin/env python
 import sys
-import unittest
 sys.path.append('xypath')
 import xypath
-import messytables
-try:
-    import hamcrest
-except:
-    pass
-import re
 import tcore
 
 
@@ -28,7 +21,8 @@ class Test_Bag(tcore.TCore):
         true_bag = self.table.filter(lambda b: b.value > "F")
         fake_bag = [x._cell for x in true_bag.table]
         self.assertEqual(type(fake_bag), list)
-        self.assertEqual(str(type(fake_bag[0])), "<class 'xypath.xypath._XYCell'>")
+        self.assertEqual(str(type(fake_bag[0])),
+                         "<class 'xypath.xypath._XYCell'>")
         remade_bag = xypath.Bag.from_list(fake_bag)
         self.assertEqual(true_bag.table, remade_bag.table)
         self.assertEqual(type(remade_bag), xypath.Bag)
@@ -37,13 +31,10 @@ class Test_Bag(tcore.TCore):
     def test_bag_equality(self):
         lhs = self.table.filter("WORLD")
         rhs = self.table.filter("WORLD")
-
         self.assertEqual(lhs, rhs)
 
         rhs = self.table.filter("Variant")
-
         self.assertNotEqual(lhs, rhs)
-
 
     def test_bags_from_different_tables_are_not_equal(self):
         bag1 = self.table.filter(lambda b: True)
@@ -127,7 +118,6 @@ class Test_Bag(tcore.TCore):
 
     def test_bag_ordering(self):
 
-
         # The purpose of this test is to have a "reasonably pathological" bag
         # so that the sort test is meaningful
 
@@ -150,7 +140,7 @@ class Test_Bag(tcore.TCore):
         bet = self.table.between(b1, b2)
         bet.filter("Index").assert_one()
         bet.filter("WORLD").assert_one()
-        assert len(bet)>2
+        assert len(bet) == 6
 
     def test_assert_one_with_zero(self):
         bag = self.table.filter('No Such Cell')
@@ -183,6 +173,3 @@ class Test_Bag(tcore.TCore):
     def test_has_table(self):
         self.assertEqual(xypath.Table, type(self.table))
         self.assertIsInstance(self.table, xypath.Bag)
-
-
-
