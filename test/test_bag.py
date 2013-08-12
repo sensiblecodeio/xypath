@@ -45,15 +45,34 @@ class Test_Bag(tcore.TCore):
         self.assertEqual(265, len(bag))
         self.assertEqual(len(bag), len(list(bag)))
 
-    def test_corebag_iterator_size_squared(self):
+    def test_corebag_iterator_nonduplicate(self):
+        """
+        Ensure that each call of CoreBag.__iter__ returns a new iterator
+
+        Supercedes _test_corebag_iterator_size_squared
+        """
+
+        bag = self.table.filter('Estimates')
+        assert iter(bag) is not iter(bag)
+
+    def _test_corebag_iterator_size_squared(self):
         """Worry: that iterating twice over bag doesn't work property.
         Test: that every pair of cells from the bags is present."""
         bag = self.table.filter('Estimates')
+
+        SIZE = 4
+        # Limit bag size so that test isn't slow
+        bag = bag.from_list([cell for cell in bag][:SIZE])
+
+        n_bag = len(bag)
+        assert n_bag == SIZE
+
         count = 0
         for i in bag:
             for j in bag:
                 count = count + 1
-        self.assertEqual(count, 265*265)
+
+        self.assertEqual(count, n_bag * n_bag)
 
     def test_corebag_iterator_returns_bags(self):
         """Check the iterator returns bags, not _XYCells"""
