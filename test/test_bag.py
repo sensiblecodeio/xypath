@@ -88,7 +88,7 @@ class Test_Bag(tcore.TCore):
                           lambda: self.table.filter("Estimates").value)
 
     def test_messytables_has_properties(self):
-        for bag in self.table:
+        for bag in self.table.unordered:
             self.assertIsInstance(bag.properties, dict)
 
     def test_from_bag(self):

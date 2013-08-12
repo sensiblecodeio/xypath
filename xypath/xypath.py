@@ -316,10 +316,10 @@ class Bag(CoreBag):
         TODO: Don't do a piece-by-piece insertion, just slap the whole listed
               iterable in, because this is slow.
         """ # TODO
-        bag=Bag(table=None)
+        bag = Bag(table=None)
         for i, cell_bag in enumerate(cells):
             bag.add(cell_bag._cell)
-            if i==0:
+            if i == 0:
                 bag.table = cell_bag.table
             else:
                 assert bag.table == cell_bag.table
@@ -340,10 +340,17 @@ class Bag(CoreBag):
             raise TypeError(
                 "Bag.junction() called with invalid type {}, must be "
                 "(Core)Bag".format(other.__class__))
-        for self_cell in self:
-            for other_cell in other:
+
+        # Generate ordered lists of dimension cells exactly once (avoid doing
+        # it in the inner loop because of the sorted() in __iter__)
+        self_cells = list(self)
+        other_cells = list(other)
+
+        for self_cell in self_cells:
+            for other_cell in other_cells:
 
                 assert self_cell._cell.__class__ == other_cell._cell.__class__
+
                 for triple in self_cell._cell.junction(other_cell._cell, *args, **kwargs):
                     yield triple
 
@@ -367,9 +374,9 @@ class Bag(CoreBag):
                 "Bag.shift: x=%r not integer and y=%r specified" % (x, y)
             return self.shift(x[0], x[1])
         bag = Bag(table=self.table)
-        for b_cell in self:
-            for t_cell in self.table.get_at(b_cell.x + x, b_cell.y + y):
-                bag.add(t_cell._cell)
+        for b_cell in self.unordered:
+            t_cell = self.table.get_at(b_cell.x + x, b_cell.y + y).assert_one()
+            bag.add(t_cell._cell)
         return bag
 
 
@@ -445,6 +452,6 @@ class Table(Bag):
     @staticmethod
     def from_bag(bag):
         new_table = Table()
-        for bag_cell in bag:
+        for bag_cell in bag.unordered:
             new_table.add(bag_cell._cell.copy(new_table))
         return new_table
