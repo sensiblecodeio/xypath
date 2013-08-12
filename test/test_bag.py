@@ -14,7 +14,7 @@ import tcore
 
 class Test_Bag(tcore.TCore):
     def test_bag_from_list(self):
-        "That it works and table is preserved"
+        "That Bag.from_list works and table is preserved"
         true_bag = self.table.filter(lambda b: b.value > "F")
         fake_bag = list(true_bag.table)
         self.assertEqual(type(fake_bag), list)

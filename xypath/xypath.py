@@ -8,6 +8,7 @@ is outer loop y first."""
 import re
 import messytables
 import os
+import sys
 try:
     import hamcrest
     have_ham = True
@@ -16,6 +17,7 @@ except:
 
 from collections import defaultdict
 from copy import copy
+from itertools import product
 
 UP = (0, -1)
 RIGHT = (1, 0)
@@ -277,6 +279,16 @@ class CoreBag(object):
     def properties(self):
         return self._cell.properties
 
+def base26(n):
+    """
+    Excel's column counting convention, counting from A at n=1
+    """
+    def inner(n):
+        if n <= 0: return []
+        if not n: return [0]
+        div, mod = divmod(n - 1, 26)
+        return inner(div) + [mod]
+    return "".join(chr(ord("A") + i) for i in inner(n))
 
 class Bag(CoreBag):
 
@@ -297,6 +309,95 @@ class Bag(CoreBag):
             else:
                 assert bag.table == cell_bag.table
         return bag
+
+    def as_list(self, collapse_empty=False, excel_labels=False):
+        """
+        Generate a rectangular 2D list representing the bag, where the contents
+        are the values of the cells, or None if there is no cell present at a
+        particular location.
+
+        collapse_empty: Remove empty rows and columns for a more compact
+            representation
+
+        excel_labels: Put "excel-like" row/column labels around the table
+        """
+        cells = list(self)
+        cxs = [cell.x for cell in cells]
+        cys = [cell.y for cell in cells]
+        xmin, xmax = min(cxs), max(cxs)
+        ymin, ymax = min(cys), max(cys)
+
+        width, height = xmax-xmin+1, ymax-ymin+1
+
+        result = [[None]*width for i in xrange(height)]
+
+        for x, y in product(xrange(xmin, xmax+1), xrange(ymin, ymax+1)):
+            cell = self.table.get_at(x, y)
+            result[y-ymin][x-xmin] = cell.value if cell in self else None
+
+        row_indices = list(range(ymin+1, ymax+1+1))
+        col_indices = list(range(xmin+1, xmax+1+1))
+
+        if collapse_empty:
+            # Note, we're using the dreaded "delete from thing you're iterating over"
+            # pattern here. Hence `reversed`.
+
+
+            # Remove empty rows
+            for j, y in reversed(list(enumerate(result))):
+                if not any(y):
+                    del result[j]
+                    del row_indices[j]
+
+            search_indices = list(range(width))
+            remove_indices = []
+            # Find empty columns
+            for y in result:
+                for i, search_index in reversed(list(enumerate(search_indices))):
+                    if y[search_index]:
+                        # We've found a thing. Don't need to search it anymore.
+                        del search_indices[i]
+
+            # If a search_index made it this far, it's empty, delete it from all rows
+            for y in result:
+                for i in reversed(search_indices):
+                    del y[i]
+                    del col_indices[i]
+
+        if excel_labels:
+            # Add row numbers to each row
+            for j, row in zip(row_indices, result):
+                row[0:0] = [j]
+
+            # Add column labels to the headers
+            header = [None] + [base26(i) for i in col_indices]
+            result[0:0] = [header]
+
+        return result
+
+    def pprint(self, collapse_empty=False, excel_labels=True, stream=sys.stdout):
+        result = self.as_list(collapse_empty, excel_labels)
+
+        try:
+            import tabulate
+        except ImportError:
+            # pprint is intended for debugging, and so is an optional package.
+            # If you encounter this error, `pip install tabulate`
+            print >>sys.stderr, "Tabulate not available, you should use `pip install tabulate`"
+            raise
+
+        for row in result:
+            for i, cell in enumerate(row):
+                if cell is None:
+                    cell = "/"
+                cell = str(cell)
+                row[i] = cell
+
+        if excel_labels:
+            print >>stream, tabulate.tabulate(result[1:], headers=result[0])
+        else:
+            print >>stream, tabulate.tabulate(result)
+
 
     def fill(self, direction):
         if direction not in (UP, RIGHT, DOWN, LEFT, UP_RIGHT, DOWN_RIGHT,
