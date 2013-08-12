@@ -353,13 +353,13 @@ class Bag(CoreBag):
             cell = self.table.get_at(x, y)
             result[y-ymin][x-xmin] = cell.value if cell in self else None
 
+        # Indices of the rows/columns that are present, starting at (1, 1)
         row_indices = list(range(ymin+1, ymax+1+1))
         col_indices = list(range(xmin+1, xmax+1+1))
 
         if collapse_empty:
             # Note, we're using the dreaded "delete from thing you're iterating over"
             # pattern here. Hence `reversed`.
-
 
             # Remove empty rows
             for j, y in reversed(list(enumerate(result))):
@@ -380,7 +380,10 @@ class Bag(CoreBag):
             for y in result:
                 for i in reversed(search_indices):
                     del y[i]
-                    del col_indices[i]
+
+            # Fix the set of column indices which remain
+            for i in reversed(search_indices):
+                del col_indices[i]
 
         if excel_labels:
             # Add row numbers to each row
