@@ -467,6 +467,24 @@ class Bag(CoreBag):
                 bag.add(t_cell._cell)
         return bag
 
+    def extrude(self, x, y):
+
+        if x < 0:
+            xs = range(0, x - 1, -1)
+        else:
+            xs = range(0, x + 1, +1)
+
+        if y < 0:
+            ys = range(0, y - 1, -1)
+        else:
+            ys = range(0, y + 1, +1)
+
+        bag = Bag(table=self.table)
+        for cell in self.unordered_cells:
+            for i, j in product(xs, ys):
+                bag.add(self.table.get_at(cell.x + i, cell.y + j)._cell)
+
+        return bag
 
 class Table(Bag):
     """A bag which represents an entire sheet"""
