@@ -212,6 +212,24 @@ class CoreBag(object):
                     break
         return newbag
 
+    def same_row(self, singleton_bag):
+        """
+        Select cells in this bag which are in the same
+        row as `singleton_bag`
+        """
+        cell = singleton_bag._cell
+        this_y = cell.y
+        return self.filter(lambda c: c.y == this_y)
+
+    def same_col(self, singleton_bag):
+        """
+        Select cells in this bag which are in the same
+        column as `singleton_bag`
+        """
+        cell = singleton_bag._cell
+        this_x = cell.x
+        return self.filter(lambda c: c.x == this_x)
+
     def filter(self, filter_by):
         """
         Returns a new bag containing only cells which match
