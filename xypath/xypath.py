@@ -468,6 +468,22 @@ class Bag(CoreBag):
         return bag
 
     def extrude(self, x, y):
+        """
+        Extrude all cells in the bag by (x, y)
+
+        For example, given the bag with a cell at (0, 0):
+
+            {(0, 0)}
+
+        .extrude(2, 0) gives the bag with the cells:
+
+            {(0, 0), (1, 0), (2, 0)}
+
+        .extrude(0, -2) gives the bag with the cells:
+
+            {(0, 0), (0, -1), (0, -2)}
+
+        """
 
         if x < 0:
             xs = range(0, x - 1, -1)
