@@ -163,17 +163,44 @@ class CoreBag(object):
     def __repr__(self):
         return repr(self.__store)
 
+    @classmethod
+    def singleton(cls, cell, table, name=None):
+        """
+        Construct a bag with one cell in it
+        """
+        bag = cls(table=table, name=name)
+        bag.add(cell)
+        return bag
+
+    @property
+    def unordered(self):
+        """
+        Obtain an unordered iterator over this bag. iter(bag) is sorted on
+        demand, and therefore inefficient if being done repeatedly where order
+        does not matter.
+        """
+        return (Bag.singleton(c, table=self.table) for c in self.__store)
+
+    @property
+    def unordered_cells(self):
+        """
+        Analogous to the `unordered` property, except that it returns _XYCells
+        instead of Bags.
+        """
+        return iter(self.__store)
+
     def __iter__(self):
         """
         Return a view of the cells in this back in left-right, top-bottom order
+        Note: this is expensive for large bags (when done repeatedly). If you
+        don't care about order, use `bag.unordered`, which gives an unordered
+        iterator.
         """
         def yx(cell):
             return cell.y, cell.x
 
         for cell in sorted(self.__store, key=yx):
-            newbag = Bag(table=self.table, name=None)
-            newbag.add(cell)
-            yield newbag
+            yield Bag.singleton(cell, table=self.table)
 
     def __sub__(self, rhs):
         return self.difference(rhs)
