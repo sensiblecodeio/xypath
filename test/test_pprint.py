@@ -3,6 +3,7 @@ import xypath
 from textwrap import dedent
 from cStringIO import StringIO
 
+
 class TestPPrint(tcore.TCore):
 
     def test_pprint(self):

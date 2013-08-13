@@ -19,6 +19,8 @@ from collections import defaultdict
 from copy import copy
 from itertools import product
 
+from .extern.tabulate import tabulate
+
 UP = (0, -1)
 RIGHT = (1, 0)
 DOWN = (0, 1)
@@ -382,14 +384,6 @@ class Bag(CoreBag):
     def pprint(self, collapse_empty=False, excel_labels=True, stream=sys.stdout):
         result = self.as_list(collapse_empty, excel_labels)
 
-        try:
-            import tabulate
-        except ImportError:
-            # pprint is intended for debugging, and so is an optional package.
-            # If you encounter this error, `pip install tabulate`
-            print >>sys.stderr, "Tabulate not available, you should use `pip install tabulate`"
-            raise
-
         for row in result:
             for i, cell in enumerate(row):
                 if cell is None:
@@ -398,9 +392,9 @@ class Bag(CoreBag):
                 row[i] = cell
 
         if excel_labels:
-            print >>stream, tabulate.tabulate(result[1:], headers=result[0])
+            print >>stream, tabulate(result[1:], headers=result[0])
         else:
-            print >>stream, tabulate.tabulate(result)
+            print >>stream, tabulate(result)
 
 
     def fill(self, direction):
