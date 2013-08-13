@@ -173,4 +173,3 @@ class TestPPrint(tcore.TCore):
         # Collapse empty removes the empty column
         cells.pprint(collapse_empty=True, stream=stream)
         self.assertEqual(EXPECTED_TABLE, stream.getvalue())
-

@@ -43,6 +43,18 @@ class MultipleCellsAssertionError(AssertionError):
     pass
 
 
+def excel_column_label(n):
+    """
+    Excel's column counting convention, counting from A at n=1
+    """
+    def inner(n):
+        if n <= 0: return []
+        if not n: return [0]
+        div, mod = divmod(n - 1, 26)
+        return inner(div) + [mod]
+    return "".join(chr(ord("A") + i) for i in inner(n))
+
+
 def junction_coord(cells, direction=DOWN):
     """
     >>> cells_dr = (_XYCell(0,1,2,None), _XYCell(0,3,4,None))
@@ -212,24 +224,6 @@ class CoreBag(object):
                     break
         return newbag
 
-    def same_row(self, singleton_bag):
-        """
-        Select cells in this bag which are in the same
-        row as `singleton_bag`
-        """
-        cell = singleton_bag._cell
-        this_y = cell.y
-        return self.filter(lambda c: c.y == this_y)
-
-    def same_col(self, singleton_bag):
-        """
-        Select cells in this bag which are in the same
-        column as `singleton_bag`
-        """
-        cell = singleton_bag._cell
-        this_x = cell.x
-        return self.filter(lambda c: c.x == this_x)
-
     def filter(self, filter_by):
         """
         Returns a new bag containing only cells which match
@@ -296,17 +290,6 @@ class CoreBag(object):
     @property
     def properties(self):
         return self._cell.properties
-
-def base26(n):
-    """
-    Excel's column counting convention, counting from A at n=1
-    """
-    def inner(n):
-        if n <= 0: return []
-        if not n: return [0]
-        div, mod = divmod(n - 1, 26)
-        return inner(div) + [mod]
-    return "".join(chr(ord("A") + i) for i in inner(n))
 
 class Bag(CoreBag):
 
@@ -391,7 +374,7 @@ class Bag(CoreBag):
                 row[0:0] = [j]
 
             # Add column labels to the headers
-            header = [None] + [base26(i) for i in col_indices]
+            header = [None] + [excel_column_label(i) for i in col_indices]
             result[0:0] = [header]
 
         return result
@@ -467,40 +450,58 @@ class Bag(CoreBag):
                 bag.add(t_cell._cell)
         return bag
 
-    def extrude(self, x, y):
+    def extrude(self, dx, dy):
         """
-        Extrude all cells in the bag by (x, y)
+        Extrude all cells in the bag by (dx, dy), by looking
 
         For example, given the bag with a cell at (0, 0):
 
             {(0, 0)}
 
-        .extrude(2, 0) gives the bag with the cells:
+        .extrude(2, 0) gives the bag with the cells (to the right):
 
             {(0, 0), (1, 0), (2, 0)}
 
-        .extrude(0, -2) gives the bag with the cells:
+        .extrude(0, -2) gives the bag with the cells (up):
 
             {(0, 0), (0, -1), (0, -2)}
 
         """
 
-        if x < 0:
-            xs = range(0, x - 1, -1)
+        if dx < 0:
+            dxs = range(0, dx - 1, -1)
         else:
-            xs = range(0, x + 1, +1)
+            dxs = range(0, dx + 1, +1)
 
-        if y < 0:
-            ys = range(0, y - 1, -1)
+        if dy < 0:
+            dys = range(0, dy - 1, -1)
         else:
-            ys = range(0, y + 1, +1)
+            dys = range(0, dy + 1, +1)
 
         bag = Bag(table=self.table)
         for cell in self.unordered_cells:
-            for i, j in product(xs, ys):
+            for i, j in product(dxs, dys):
                 bag.add(self.table.get_at(cell.x + i, cell.y + j)._cell)
 
         return bag
+
+    def same_row(self, singleton_bag):
+        """
+        Select cells in this bag which are in the same
+        row as `singleton_bag`
+        """
+        cell = singleton_bag._cell
+        this_y = cell.y
+        return self.filter(lambda c: c.y == this_y)
+
+    def same_col(self, singleton_bag):
+        """
+        Select cells in this bag which are in the same
+        column as `singleton_bag`
+        """
+        cell = singleton_bag._cell
+        this_x = cell.x
+        return self.filter(lambda c: c.x == this_x)
 
 class Table(Bag):
     """A bag which represents an entire sheet"""
