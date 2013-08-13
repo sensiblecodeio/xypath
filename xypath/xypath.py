@@ -8,6 +8,7 @@ is outer loop y first."""
 import re
 import messytables
 import os
+import sys
 try:
     import hamcrest
     have_ham = True
@@ -16,6 +17,9 @@ except:
 
 from collections import defaultdict
 from copy import copy
+from itertools import product
+
+from .extern.tabulate import tabulate
 
 UP = (0, -1)
 RIGHT = (1, 0)
@@ -39,6 +43,18 @@ class NoCellsAssertionError(AssertionError):
 class MultipleCellsAssertionError(AssertionError):
     """Raised by Bag.assert_one() if the bag contains multiple cells."""
     pass
+
+
+def excel_column_label(n):
+    """
+    Excel's column counting convention, counting from A at n=1
+    """
+    def inner(n):
+        if n <= 0: return []
+        if not n: return [0]
+        div, mod = divmod(n - 1, 26)
+        return inner(div) + [mod]
+    return "".join(chr(ord("A") + i) for i in inner(n))
 
 
 def junction_coord(cells, direction=DOWN):
@@ -304,7 +320,6 @@ class CoreBag(object):
     def properties(self):
         return self._cell.properties
 
-
 class Bag(CoreBag):
 
     @staticmethod
@@ -324,6 +339,90 @@ class Bag(CoreBag):
             else:
                 assert bag.table == cell_bag.table
         return bag
+
+    def as_list(self, collapse_empty=False, excel_labels=False):
+        """
+        Generate a rectangular 2D list representing the bag, where the contents
+        are the values of the cells, or None if there is no cell present at a
+        particular location.
+
+        collapse_empty: Remove empty rows and columns for a more compact
+            representation
+
+        excel_labels: Put "excel-like" row/column labels around the table
+        """
+        cells = list(self)
+        cxs = [cell.x for cell in cells]
+        cys = [cell.y for cell in cells]
+        xmin, xmax = min(cxs), max(cxs)
+        ymin, ymax = min(cys), max(cys)
+
+        width, height = xmax-xmin+1, ymax-ymin+1
+
+        result = [[None]*width for i in xrange(height)]
+
+        for x, y in product(xrange(xmin, xmax+1), xrange(ymin, ymax+1)):
+            cell = self.table.get_at(x, y)
+            result[y-ymin][x-xmin] = cell.value if cell in self else None
+
+        # Indices of the rows/columns that are present, starting at (1, 1)
+        row_indices = list(range(ymin+1, ymax+1+1))
+        col_indices = list(range(xmin+1, xmax+1+1))
+
+        if collapse_empty:
+            # Note, we're using the dreaded "delete from thing you're iterating over"
+            # pattern here. Hence `reversed`.
+
+            # Remove empty rows
+            for j, y in reversed(list(enumerate(result))):
+                if not any(y):
+                    del result[j]
+                    del row_indices[j]
+
+            search_indices = list(range(width))
+            remove_indices = []
+            # Find empty columns
+            for y in result:
+                for i, search_index in reversed(list(enumerate(search_indices))):
+                    if y[search_index]:
+                        # We've found a thing. Don't need to search it anymore.
+                        del search_indices[i]
+
+            # If a search_index made it this far, it's empty, delete it from all rows
+            for y in result:
+                for i in reversed(search_indices):
+                    del y[i]
+
+            # Fix the set of column indices which remain
+            for i in reversed(search_indices):
+                del col_indices[i]
+
+        if excel_labels:
+            # Add row numbers to each row
+            for j, row in zip(row_indices, result):
+                row[0:0] = [j]
+
+            # Add column labels to the headers
+            header = [None] + [excel_column_label(i) for i in col_indices]
+            result[0:0] = [header]
+
+        return result
+
+    def pprint(self, collapse_empty=False, excel_labels=True, stream=sys.stdout):
+        result = self.as_list(collapse_empty, excel_labels)
+
+        for row in result:
+            for i, cell in enumerate(row):
+                if cell is None:
+                    cell = "/"
+                cell = str(cell)
+                row[i] = cell
+
+        if excel_labels:
+            print >>stream, tabulate(result[1:], headers=result[0])
+        else:
+            print >>stream, tabulate(result)
+
 
     def fill(self, direction):
         if direction not in (UP, RIGHT, DOWN, LEFT, UP_RIGHT, DOWN_RIGHT,
@@ -379,6 +478,58 @@ class Bag(CoreBag):
             bag.add(t_cell._cell)
         return bag
 
+    def extrude(self, dx, dy):
+        """
+        Extrude all cells in the bag by (dx, dy), by looking
+
+        For example, given the bag with a cell at (0, 0):
+
+            {(0, 0)}
+
+        .extrude(2, 0) gives the bag with the cells (to the right):
+
+            {(0, 0), (1, 0), (2, 0)}
+
+        .extrude(0, -2) gives the bag with the cells (up):
+
+            {(0, 0), (0, -1), (0, -2)}
+
+        """
+
+        if dx < 0:
+            dxs = range(0, dx - 1, -1)
+        else:
+            dxs = range(0, dx + 1, +1)
+
+        if dy < 0:
+            dys = range(0, dy - 1, -1)
+        else:
+            dys = range(0, dy + 1, +1)
+
+        bag = Bag(table=self.table)
+        for cell in self.unordered_cells:
+            for i, j in product(dxs, dys):
+                bag.add(self.table.get_at(cell.x + i, cell.y + j)._cell)
+
+        return bag
+
+    def same_row(self, singleton_bag):
+        """
+        Select cells in this bag which are in the same
+        row as `singleton_bag`
+        """
+        cell = singleton_bag._cell
+        this_y = cell.y
+        return self.filter(lambda c: c.y == this_y)
+
+    def same_col(self, singleton_bag):
+        """
+        Select cells in this bag which are in the same
+        column as `singleton_bag`
+        """
+        cell = singleton_bag._cell
+        this_x = cell.x
+        return self.filter(lambda c: c.x == this_x)
 
 class Table(Bag):
     """A bag which represents an entire sheet"""
