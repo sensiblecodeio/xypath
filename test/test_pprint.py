@@ -109,31 +109,6 @@ class TestPPrint(tcore.TCore):
         self.assertEqual(EXPECTED_TABLE, stream.getvalue())
 
     def test_pprint_collapsed_column(self):
-        EXPECTED_TABLE = dedent('''
-              /  C                            E
-            ---  -------------------------  ---
-            274  American Samoa              16
-            275  Cook Islands               184
-            276  French Polynesia           258
-            277  Niue                       570
-            278  Samoa                      882
-            279  Tokelau                    772
-            280  Tonga                      776
-            281  Tuvalu                     798
-            282  Wallis and Futuna Islands  876
-            ''').lstrip('\n')
-
-        # Below the word "Polynesia", there are a set of islands
-        cells = self.table.filter('Polynesia').assert_one().fill(xypath.DOWN)
-        # Right of this column, there is an empty column followed by numbers.
-        cells = cells.extrude(2, 0)
-
-        stream = StringIO()
-        # Collapse empty removes the empty column
-        cells.pprint(collapse_empty=True, stream=stream)
-        self.assertEqual(EXPECTED_TABLE, stream.getvalue())
-
-    def test_pprint_collapsed_column(self):
         """
         test_pprint_collapsed_column: check empty column removal
         """
