@@ -154,6 +154,9 @@ class _XYCell(object):
         other_bag.add(other)
         yield (self_bag, other_bag, junction_bag)
 
+    def shift(self, x, y):
+        return self.table.get_at(self.x + x, self.y + y)._cell
+
 
 class CoreBag(object):
     """Has a collection of _XYCells"""
@@ -277,9 +280,9 @@ class CoreBag(object):
 
     def _filter_internal(self, function):
         newbag = Bag(table=self.table)
-        for bag_cell in self:
+        for bag_cell in self.unordered_cells:
             if function(bag_cell):
-                newbag.add(bag_cell._cell)
+                newbag.add(bag_cell)
         return newbag
 
     def assert_one(self, message="assert_one() : {} cells in bag, not 1"):
