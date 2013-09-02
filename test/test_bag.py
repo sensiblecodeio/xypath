@@ -89,7 +89,7 @@ class Test_Bag(tcore.TCore):
 
     def test_messytables_has_properties(self):
         for bag in self.table.unordered:
-            self.assertIsInstance(bag.properties, dict)
+            bag.properties.get("jam")  # is vaguely dict-like
 
     def test_from_bag(self):
         world_pops_bag = self.table.filter(lambda b: b.y >= 16 and
