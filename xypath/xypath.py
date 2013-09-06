@@ -50,8 +50,10 @@ def excel_column_label(n):
     Excel's column counting convention, counting from A at n=1
     """
     def inner(n):
-        if n <= 0: return []
-        if not n: return [0]
+        if n <= 0:
+            return []
+        if not n:
+            return [0]
         div, mod = divmod(n - 1, 26)
         return inner(div) + [mod]
     return "".join(chr(ord("A") + i) for i in inner(n))
@@ -115,7 +117,6 @@ class _XYCell(object):
 
     def __eq__(self, rhs):
         return hash(self) == hash(rhs)
-
 
     def copy(self, new_table=None):
         if new_table:
@@ -225,7 +226,8 @@ class CoreBag(object):
         return self.difference(rhs)
 
     def difference(self, rhs):
-        assert self.table is rhs.table, "Can't difference bags from separate tables"
+        assert self.table is rhs.table,\
+            "Can't difference bags from separate tables"
         new = copy(self)
         new.__store = self.__store.difference(rhs.__store)
         return new
@@ -323,6 +325,7 @@ class CoreBag(object):
     def properties(self):
         return self._cell.properties
 
+
 class Bag(CoreBag):
 
     @staticmethod
@@ -333,7 +336,7 @@ class Bag(CoreBag):
         TODO: This should probably be part of the core __init__ class.
         TODO: Don't do a piece-by-piece insertion, just slap the whole listed
               iterable in, because this is slow.
-        """ # TODO
+        """  # TODO
         bag = Bag(table=None)
         for i, cell_bag in enumerate(cells):
             bag.add(cell_bag._cell)
@@ -373,7 +376,7 @@ class Bag(CoreBag):
         col_indices = list(range(xmin+1, xmax+1+1))
 
         if collapse_empty:
-            # Note, we're using the dreaded "delete from thing you're iterating over"
+            # Note the dreaded "delete from thing you're iterating over"
             # pattern here. Hence `reversed`.
 
             # Remove empty rows
@@ -383,15 +386,14 @@ class Bag(CoreBag):
                     del row_indices[j]
 
             search_indices = list(range(width))
-            remove_indices = []
             # Find empty columns
             for y in result:
-                for i, search_index in reversed(list(enumerate(search_indices))):
-                    if y[search_index]:
+                for i, s_index in reversed(list(enumerate(search_indices))):
+                    if y[s_index]:
                         # We've found a thing. Don't need to search it anymore.
                         del search_indices[i]
 
-            # If a search_index made it this far, it's empty, delete it from all rows
+            # A search_index making it here, is empty, delete it from all rows
             for y in result:
                 for i in reversed(search_indices):
                     del y[i]
@@ -411,7 +413,8 @@ class Bag(CoreBag):
 
         return result
 
-    def pprint(self, collapse_empty=False, excel_labels=True, stream=sys.stdout):
+    def pprint(self, collapse_empty=False,
+               excel_labels=True, stream=sys.stdout):
         result = self.as_list(collapse_empty, excel_labels)
 
         for row in result:
@@ -425,7 +428,6 @@ class Bag(CoreBag):
             print >>stream, tabulate(result[1:], headers=result[0])
         else:
             print >>stream, tabulate(result)
-
 
     def fill(self, direction):
         if direction not in (UP, RIGHT, DOWN, LEFT, UP_RIGHT, DOWN_RIGHT,
@@ -453,7 +455,8 @@ class Bag(CoreBag):
 
                 assert self_cell._cell.__class__ == other_cell._cell.__class__
 
-                for triple in self_cell._cell.junction(other_cell._cell, *args, **kwargs):
+                for triple in self_cell._cell.junction(other_cell._cell,
+                                                       *args, **kwargs):
                     yield triple
 
     def junction_overlap(self, other, *args, **kwargs):
@@ -534,6 +537,7 @@ class Bag(CoreBag):
         this_x = cell.x
         return self.filter(lambda c: c.x == this_x)
 
+
 class Table(Bag):
     """A bag which represents an entire sheet"""
     def __init__(self, name=""):
@@ -579,7 +583,8 @@ class Table(Bag):
                                           table_index=table_index)
 
     @staticmethod
-    def from_file_object(fobj, extension, table_name=None, table_index=None):
+    def from_file_object(fobj, extension='',
+                         table_name=None, table_index=None):
         if (table_name is not None and table_index is not None) or \
                 (table_name is None and table_index is None):
             raise TypeError("Must give exactly one of table_name, table_index")
@@ -593,7 +598,8 @@ class Table(Bag):
 
     @staticmethod
     def from_messy(messy_rowset):
-        assert isinstance(messy_rowset, messytables.core.RowSet), "Expected a RowSet, got a %r"%type(messy_rowset)
+        assert isinstance(messy_rowset, messytables.core.RowSet),\
+            "Expected a RowSet, got a %r" % type(messy_rowset)
         new_table = Table()
         if hasattr(messy_rowset, 'sheet'):
             new_table.sheet = messy_rowset.sheet
