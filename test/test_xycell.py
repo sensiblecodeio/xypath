@@ -77,4 +77,9 @@ class XYCellTests(unittest.TestCase):
         self.assertNotEqual(hash(cell_a), hash(not_cell_a))
         self.assertEqual(2, len(set([cell_a, not_cell_a])))
 
+    def test_cell_shift_takes_tuples(self):
+        table = xypath.Table()
+        cell = xypath._XYCell("foo", 1, 3, table)
+        table.add(cell)
+        cell.shift([0,0])
 

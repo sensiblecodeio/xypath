@@ -155,7 +155,11 @@ class _XYCell(object):
         other_bag.add(other)
         yield (self_bag, other_bag, junction_bag)
 
-    def shift(self, x, y):
+    def shift(self, x=0, y=0):
+        if not isinstance(x, int):
+            assert y == 0, \
+                "_XYCell.shift: x=%r not integer and y=%r specified" % (x, y)
+            return self.shift(x[0], x[1])
         return self.table.get_at(self.x + x, self.y + y)._cell
 
 
@@ -304,7 +308,8 @@ class CoreBag(object):
         try:
             xycell = list(self.assert_one().__store)[0]
         except AssertionError:
-            raise ValueError("Can't get cell properties of non-singleton Bag.")
+            l = len(list(self.__store))
+            raise ValueError("Can't get cell properties of non-singleton Bag (length: %r)" % l)
         else:
             assert isinstance(xycell, _XYCell)
             return xycell
