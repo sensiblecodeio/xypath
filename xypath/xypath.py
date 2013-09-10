@@ -98,6 +98,7 @@ def junction_coord(cells, direction=DOWN):
 
 class _XYCell(object):
     """needs to contain: value, position (x,y), parent bag"""
+    __slots__ = ['value', 'x', 'y', 'table', 'properties']
     def __init__(self, value, x, y, table, properties=None):
         self.value = value  # of appropriate type
         self.x = x  # column number
