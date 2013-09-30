@@ -602,13 +602,28 @@ class Table(Bag):
     def from_messy(messy_rowset):
         assert isinstance(messy_rowset, messytables.core.RowSet),\
             "Expected a RowSet, got a %r" % type(messy_rowset)
-        new_table = Table()
+        new_table = Table.from_iterable(
+            messy_rowset,
+            value_func=lambda cell: cell.value,
+            properties_func=lambda cell: cell.properties)
+
         if hasattr(messy_rowset, 'sheet'):
             new_table.sheet = messy_rowset.sheet
-        for y, row in enumerate(messy_rowset):
+        return new_table
+
+    @staticmethod
+    def from_iterable(table, value_func=lambda cell: cell,
+                      properties_func=lambda cell: {}):
+        new_table = Table()
+        for y, row in enumerate(table):
             for x, cell in enumerate(row):
-                new_table.add(_XYCell(cell.value, x, y,
-                                      new_table, cell.properties))
+                new_table.add(
+                    _XYCell(
+                        value_func(cell),
+                        x,
+                        y,
+                        new_table,
+                        properties_func(cell)))
         return new_table
 
     @staticmethod
