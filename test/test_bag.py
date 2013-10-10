@@ -109,6 +109,18 @@ class Test_Bag(tcore.TCore):
         filties_col = fifties.fill(xypath.DOWN)
         self.assertEqual(6, len(filties_col))
 
+    def test_fill_down_without_termination(self):
+        world_cell = self.table.filter('WORLD').assert_one()
+        filled_down = world_cell.fill(xypath.DOWN)
+        assert world_cell not in filled_down
+        self.assertEqual(264, len(filled_down))
+
+    def test_fill_right_without_termination(self):
+        world_cell = self.table.filter('WORLD').assert_one()
+        filled_right = world_cell.fill(xypath.RIGHT)
+        assert world_cell not in filled_right
+        self.assertEqual(14, len(filled_right))
+
     def test_bag_union(self):
         bag = self.table.filter('Estimates')
         another_bag = self.table.filter("WORLD")
