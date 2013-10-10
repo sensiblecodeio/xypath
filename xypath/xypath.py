@@ -178,6 +178,7 @@ class CoreBag(object):
         self.__store.add(cell)
 
     def __eq__(self, other):
+        assert isinstance(other, CoreBag)
         return (self.name == other.name and
                 self.table is other.table and
                 self.__store == other.__store)
@@ -431,15 +432,42 @@ class Bag(CoreBag):
         else:
             print >>stream, tabulate(result)
 
-    def fill(self, direction):
+    def fill(self, direction, stop_before=None):
+        """
+        If the bag contains only one cell, select all cells in the direction
+        given, excluding the original cell. For example, from a column heading
+        cell, you can "fill down" to get all the values underneath it.
+
+        If you provide a stop_before function, it will be called on each cell
+        as a stop condition. For example, if you provide a stop_before function
+        which tests cell.value for an empty string. This would stop the fill
+        function before it reaches the bottom of the sheet, for example.
+        """
         if direction not in (UP, RIGHT, DOWN, LEFT, UP_RIGHT, DOWN_RIGHT,
                              UP_LEFT, DOWN_LEFT):
             raise ValueError("Invalid direction! Use one of UP, RIGHT, "
                              "DOWN_RIGHT etc")
-        (x, y) = direction
-        return self.select(
-            lambda t, b: cmp(t.x, b.x) == x and cmp(t.y, b.y) == y
+
+        (left_right, up_down) = direction
+        bag = self.select(
+            lambda table, bag: cmp(table.x, bag.x) == left_right
+            and cmp(table.y, bag.y) == up_down
         )
+
+        if stop_before is not None:
+            if direction not in (DOWN, RIGHT):
+                raise ValueError("Oops, stop_before only works down or right!")
+            self.assert_one("You can't use stop_before for bags with more than"
+                            " one cell inside.")
+
+            # NOTE(PMF): This isn't the right implementation. BUT with the
+            # above "magic" cmp code I can't think of an elegant general way of
+            # doing this.
+
+            for i, cell in enumerate(bag):
+                if stop_before(cell):
+                    return Bag.from_list(list(bag)[0:i])
+        return bag
 
     def junction(self, other, *args, **kwargs):
         if not isinstance(other, CoreBag):
