@@ -1,25 +1,18 @@
 #!/usr/bin/env python
 import sys
-import unittest
 sys.path.append('xypath')
 import xypath
-import messytables
-try:
-    import hamcrest
-except:
-    pass
-import re
 import tcore
 
 
 class TestJunctionMissing(tcore.TMissing):
-    def test_cell_missing(self): 
+    def test_cell_missing(self):
         a = self.table.filter("2").assert_one()
         b = self.table.filter("4").assert_one()
         junction_result = list(a.junction(b))
         self.assertEqual(len(junction_result), 0)
 
-    
+
 class TestJunction(tcore.TCore):
     def test_cell_junction(self):
         a = self.table.filter("WORLD").assert_one()
@@ -39,9 +32,9 @@ class TestJunction(tcore.TCore):
         b = self.table.filter("1990-1995")
         topleft = "Major area, region, country or area"
         cases = {xypath.RIGHT: 1.523,
-                xypath.LEFT: topleft,
-                xypath.DOWN: 1.523,
-                xypath.UP: topleft}
+                 xypath.LEFT: topleft,
+                 xypath.DOWN: 1.523,
+                 xypath.UP: topleft}
         for i in cases:
             jcell = a.junction_overlap(b, i)
             self.assertEqual(cases[i], jcell.value)
@@ -68,5 +61,3 @@ class TestJunction(tcore.TCore):
         a = self.table.filter('WORLD')
         b = self.table.filter('AFRICA')  # is below WORLD
         self.assertRaises(xypath.JunctionError, lambda: list(a.junction(b)))
-
-        
