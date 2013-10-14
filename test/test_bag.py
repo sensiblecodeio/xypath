@@ -1,14 +1,7 @@
 #!/usr/bin/env python
 import sys
-import unittest
 sys.path.append('xypath')
 import xypath
-import messytables
-try:
-    import hamcrest
-except:
-    pass
-import re
 import tcore
 
 
@@ -32,7 +25,6 @@ class Test_Bag(tcore.TCore):
         rhs = self.table.filter("Variant")
 
         self.assertNotEqual(lhs, rhs)
-
 
     def test_bags_from_different_tables_are_not_equal(self):
         bag1 = self.table.filter(lambda b: True)
