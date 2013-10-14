@@ -1,14 +1,7 @@
 #!/usr/bin/env python
 import sys
-import unittest
 sys.path.append('xypath')
 import xypath
-import messytables
-try:
-    import hamcrest
-except:
-    pass
-import re
 import tcore
 
 
