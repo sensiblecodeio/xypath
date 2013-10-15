@@ -27,7 +27,7 @@ def magic(table, rows, columns):
     lookup = [(row_index, True) for row_index in rows] +\
              [(column_index, False) for column_index in columns]
 
-    description = [headers(table, x) for x in lookup]
+    description = [header(table, x) for x in lookup]
     description_dict = {'%s' % i: x for i, x in enumerate(description)}
     return xypath.xyzzy.xyzzy(table, description)
 
