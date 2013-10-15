@@ -23,15 +23,14 @@ def header(table, dimension, **kwargs):
     return {k: header[k].fill(direction) for k in header}
 
 
-def magic(table, rows, columns):
+def xtract_by_numbers(table, rows, columns):
     lookup = [(row_index, True) for row_index in rows] +\
              [(column_index, False) for column_index in columns]
+    descriptions = [header(table, x) for x in lookup]
+    description_dict = OrderedDict(('dim_%s' % (i+1), x) for i, x in enumerate(descriptions))
+    return xypath.xyzzy.xyzzy(table, description_dict)
 
-    description = [header(table, x) for x in lookup]
-    description_dict = {'%s' % i: x for i, x in enumerate(description)}
-    return xypath.xyzzy.xyzzy(table, description)
-
-for thing in magic(xy, dimensions_horizontal, dimensions_vertical):
+for thing in xtract_by_numbers(xy, dimensions_horizontal, dimensions_vertical):
     print thing
 
 
