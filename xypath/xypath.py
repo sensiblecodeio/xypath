@@ -17,7 +17,7 @@ except:
 
 from collections import defaultdict
 from copy import copy
-from itertools import product
+from itertools import product, takewhile
 
 from .extern.tabulate import tabulate
 
@@ -455,18 +455,20 @@ class Bag(CoreBag):
         )
 
         if stop_before is not None:
+            # NOTE(PMF): stop_before is limited to singleton bags, in the DOWN
+            # or RIGHT direction. This isn't ideal, but with the above "magic"
+            # cmp code I can't think of an elegant general way of doing this. I
+            # also can't imagine what it means to run fill in multiple
+            # directions, or with non singleton bags. TODO: Constrain?
+
             if direction not in (DOWN, RIGHT):
                 raise ValueError("Oops, stop_before only works down or right!")
             self.assert_one("You can't use stop_before for bags with more than"
                             " one cell inside.")
 
-            # NOTE(PMF): This isn't the right implementation. BUT with the
-            # above "magic" cmp code I can't think of an elegant general way of
-            # doing this.
+            return Bag.from_list(list(
+                takewhile(lambda c: not stop_before(c), bag)))
 
-            for i, cell in enumerate(bag):
-                if stop_before(cell):
-                    return Bag.from_list(list(bag)[0:i])
         return bag
 
     def junction(self, other, *args, **kwargs):
