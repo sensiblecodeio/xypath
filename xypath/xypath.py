@@ -178,7 +178,8 @@ class CoreBag(object):
         self.__store.add(cell)
 
     def __eq__(self, other):
-        assert isinstance(other, CoreBag)
+        if not isinstance(other, CoreBag):
+            return False
         return (self.name == other.name and
                 self.table is other.table and
                 self.__store == other.__store)
