@@ -33,7 +33,7 @@ Tables are simply specialised bags, which have the property that their table is 
     bag.filter("kitten")                 # value is exactly 'kitten'
     table.filter(re.compile(".a.*e"))        # regular expression of value
     table.filter(hamcrest.ends_with("c"))  # any pyhamcrest matcher
-    table.filter(lambda cell: cell.x == 2)   # explicit lambda function on each cell   
+    table.filter(lambda cell: cell.x == 2)   # explicit lambda function on each cell
 ```
    All but the last act exclusively on the value; the lambda can act on the
    properties of the individual cells.
