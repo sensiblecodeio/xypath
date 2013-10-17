@@ -8,7 +8,7 @@ navigating around and extracting values from tabular data.
 
 setup(
     name='xypath',
-    version='1.0.1',
+    version='1.0.2',
     description="Extract fields from tabular data with complex expressions.",
     long_description=long_desc,
     classifiers=[
