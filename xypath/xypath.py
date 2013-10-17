@@ -147,7 +147,7 @@ class _XYCell(object):
                 " to one of the input cells.\n"
                 "  self: {}\n  other: {}\n  x: {}\n  y: {}".format(
                     self, other, x, y))
-        junction_bag = self.table.get_at(x, y)  # TODO: test
+        junction_bag = self.table.get_at(x, y)
         if len(junction_bag) == 0:
             return
         self_bag = Bag(self.table)
@@ -599,13 +599,15 @@ class Table(Bag):
         super(Table, self).add(cell)
 
     def get_at(self, x=None, y=None):
+        # we use .get() here to avoid new empty Bags being inserted
+        # into the index stores when a non-existant coordinate is requested.
         if x is None and y is None:
             raise TypeError('get_at requires at least one x or y value')
         if x is None:
-            return self.y_index[y]
+            return self.y_index.get(y, Bag(self))
         if y is None:
-            return self.x_index[x]
-        return self.xy_index[(x, y)]
+            return self.x_index.get(x, Bag(self))
+        return self.xy_index.get((x, y), Bag(self))
 
     @staticmethod
     def from_filename(filename, table_name=None, table_index=None):
