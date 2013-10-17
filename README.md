@@ -50,8 +50,8 @@ Tables are simply specialised bags, which have the property that their table is 
     dollars = table.filter("Amount").assert_one().fill(xypath.DOWN).filter(re.search("$"))
 ```
 
-5) Get the value (if there's only one cell) or get cells which are at the intersection of two other cells
+5) Get the value (of a bag containing only one cell) or get cells which are at the intersection of two other cells
 ```python
-    lonely_cell.value()
+    lonely_cell.value
     triplets = row_header_bag.junction(column_header_bag)
 ```
