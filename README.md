@@ -66,19 +66,19 @@ This would print:
 zebra : population in 2012 : 20M
 baboon : population in 2012 : 35M
 narwhal : population in 2012 : 1M
-zebra : Population in 2012 : 21M
-baboon : Population in 2012 : 40M
-narwhal : Population in 2012 : 500,000
+zebra : Population in 2013 : 21M
+baboon : Population in 2013 : 40M
+narwhal : Population in 2013 : 500,000
 ```
 
 You can ``junction`` two Bags of header cells together the intersection between each pair of cells. Junction always yields a three-long tuple, in this case containing ``(animal, year, population)``.
 
-It's left up to the reader to the year from the population string and convert the millions to reasonable numbers!
+It's left up to the reader to extract the year from the population string and convert the millions to reasonable numbers!
 
 ## Loading tables
 
 ```python
-table = xypath.Table.from_filename("mysheet.xls")
+table = xypath.Table.from_filename("mysheet.xls", table_name="Sheet 1")
 ```
 
 By using a file-object:
