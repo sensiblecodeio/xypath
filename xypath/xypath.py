@@ -32,6 +32,8 @@ DOWN_LEFT = (-1, 1)
 
 
 class JunctionError(RuntimeError):
+    """Raised if paranoid _XYCell.junction finds it is returning one of the
+       input cells - i.e. the input cells are in the same row or column"""
     pass
 
 
@@ -61,6 +63,19 @@ def excel_column_label(n):
 
 def junction_coord(cells, direction=DOWN):
     """
+    Under the hood: given two cells and a favoured direction, get the
+    position of the cell with the column of one and the row of the other:
+
+    A---->+
+    |     ^
+    |     |
+    |     |
+    v     |
+    *<----B
+
+    Both + and * are candidates for the junction of A and B - we take the
+    one furthest down by default (specified by direction)
+
     >>> cells_dr = (_XYCell(0,1,2,None), _XYCell(0,3,4,None))
     >>> junction_coord(cells_dr, DOWN)
     (1, 4)
@@ -79,10 +94,7 @@ def junction_coord(cells, direction=DOWN):
     (1, 2)
     >>> junction_coord(cells_tr, RIGHT)
     (3, 4)
-
-    there are only two possible cells for the junction:
-    return the one which is most UP/DOWN etc."""
-
+    """
     new_cells = (
                 (cells[0].x, cells[1].y),
                 (cells[1].x, cells[0].y)
@@ -111,15 +123,21 @@ class _XYCell(object):
 
     def __hash__(self):
         """
+        In order to make a set of cells (used in Bag), they *must* be hashable.
         An _XYCell is uniquely identified (by sets, etc) through its position,
         content, and parent table.
+        Note that properties is ignored (since dicts are unhashable);
+        value may be redundant.
         """
         return hash((self.value, self.x, self.y, self.table))
 
     def __eq__(self, rhs):
+        """See _XYCell.__hash__ for equality conditions"""
         return hash(self) == hash(rhs)
 
     def copy(self, new_table=None):
+        """Make a copy of the cell.
+           Its table will be new_table, if specified"""
         if new_table:
             return _XYCell(self.value, self.x, self.y,
                            new_table, self.properties)
@@ -157,6 +175,7 @@ class _XYCell(object):
         yield (self_bag, other_bag, junction_bag)
 
     def shift(self, x=0, y=0):
+        """Get the cell which is offset from this cell by x columns, y rows"""
         if not isinstance(x, int):
             assert y == 0, \
                 "_XYCell.shift: x=%r not integer and y=%r specified" % (x, y)
@@ -172,12 +191,19 @@ class CoreBag(object):
         self.table = table
 
     def add(self, cell):
+        """Add a cell to a bag"""
         if not isinstance(cell, _XYCell):
             raise TypeError("Can only add _XYCell types to Bags: {}".format(
                             cell.__class__))
         self.__store.add(cell)
 
     def __eq__(self, other):
+        """Compare two bags:
+           They are equal only if:
+           * the names are the same (value)
+           * their tables are the same table (object)
+           * the set of cells they contain are the same"""
+
         if not isinstance(other, CoreBag):
             return False
         return (self.name == other.name and
@@ -230,9 +256,11 @@ class CoreBag(object):
             yield Bag.singleton(cell, table=self.table)
 
     def __sub__(self, rhs):
+        """Bags quack like sets. Implements - operator."""
         return self.difference(rhs)
 
     def difference(self, rhs):
+        """Bags quack like sets"""
         assert self.table is rhs.table,\
             "Can't difference bags from separate tables"
         new = copy(self)
@@ -240,18 +268,30 @@ class CoreBag(object):
         return new
 
     def __or__(self, rhs):
+        """Bags quack like sets. Implements | operator.
+           For mathematical purity, the + (__add__) operator isn't appropriate."""
         return self.union(rhs)
 
     def union(self, rhs):
+        """Bags quack like sets"""
         assert self.table is rhs.table, "Can't union bags from separate tables"
         new = copy(self)
         new.__store = self.__store.union(rhs.__store)
         return new
 
     def select(self, function):
+        """Select cells from this bag's table based on
+           the cells in this bag.
+           e.g.
+           bag.select(lambda bag_cell, table_cell: bag_cell.y == table_cell.y and
+               bag_cell.value == table_cell.value)
+           would give cells in the table with the same name on the same row as a
+           cell in the bag"""
         return self.table.select_other(function, self)
 
     def select_other(self, function, other):
+        """A more general version of select, where another bag to select from
+           is explicitly specified rather than using the original bag's table"""
         """note: self.select(f) = self.table.select_other(f, self)"""
         newbag = Bag(table=self.table)
         for bag_cell in self.__store:
@@ -266,10 +306,14 @@ class CoreBag(object):
         Returns a new bag containing only cells which match
         the filter_by predicate.
 
-        filter_by can be either a) a callable, which takes a
-        cell as a parameter, and returns whether or not to
-        include the cell, or b) a hamcrest match rule, such
-        as hamcrest.equal_to
+        filter_by can be:
+            a) a callable, which takes a cell as a parameter
+               and returns True if the cell should be returned
+               such as lambda cell: cell.value = "dog"
+            b) a string, which will be matched exactly: e.g. u'dog'
+            c) a hamcrest match rule, such as hamcrest.equal_to("dog")
+               (requires hamcrest to be available)
+            d) a compiled regular expression, such as re.compile('dog')
         """
         if callable(filter_by):
             return self._filter_internal(filter_by)
@@ -281,6 +325,7 @@ class CoreBag(object):
             return self._filter_internal(
                 lambda cell: re.match(filter_by, unicode(cell.value)))
         else:
+            # TODO hamcrest may not be installed which will raise this error
             raise ValueError("filter_by must be callable or a hamcrest filter")
 
     def _filter_internal(self, function):
@@ -291,6 +336,9 @@ class CoreBag(object):
         return newbag
 
     def assert_one(self, message="assert_one() : {} cells in bag, not 1"):
+        """Chainable; raise an error if the bag passed contains 0, 2 or more
+           cells. Otherwise returns the original (singleton) bag unchanged."""
+
         if len(self.__store) == 1:
             return self
 
@@ -304,6 +352,8 @@ class CoreBag(object):
 
     @property
     def _cell(self):
+        """Under the hood: get the cell inside a singleton bag - i.e. a bag
+           which contains precisely one cell."""
         try:
             xycell = list(self.assert_one().__store)[0]
         except AssertionError:
@@ -315,18 +365,22 @@ class CoreBag(object):
 
     @property
     def value(self):
+        """getter for singleton's cell value"""
         return self._cell.value
 
     @property
     def x(self):
+        """getter for singleton's cell column number"""
         return self._cell.x
 
     @property
     def y(self):
+        """getter for singleton's cell row number"""
         return self._cell.y
 
     @property
     def properties(self):
+        """getter for singleton's cell properties"""
         return self._cell.properties
 
 
@@ -419,6 +473,7 @@ class Bag(CoreBag):
 
     def pprint(self, collapse_empty=False,
                excel_labels=True, stream=sys.stdout):
+        """ Print the table nicely (to stdout, by default)"""
         result = self.as_list(collapse_empty, excel_labels)
 
         for row in result:
@@ -473,6 +528,10 @@ class Bag(CoreBag):
         return bag
 
     def junction(self, other, *args, **kwargs):
+        """For every combination of pairs of cells from this bag and the other bag,
+           get the cell that is at the same row as one of them, and column as the other.
+           There are two: so we specify a direction to say which one wins (in the
+           cell-based version of this function) - defaulting to the one furthest down"""
         if not isinstance(other, CoreBag):
             raise TypeError(
                 "Bag.junction() called with invalid type {}, must be "
@@ -493,7 +552,7 @@ class Bag(CoreBag):
                     yield triple
 
     def junction_overlap(self, other, *args, **kwargs):
-        """ returns only the overlap cell """
+        """as junction, but returns only the overlap cell"""
         bag = Bag(table=self.table)
         for triple in self.junction(other, *args, **kwargs):
             bag.add(triple[2]._cell)
@@ -557,6 +616,7 @@ class Bag(CoreBag):
         Select cells in this bag which are in the same
         row as `singleton_bag`
         """
+        # TODO why are we not using self.table.y_index[cell.y]?
         cell = singleton_bag._cell
         this_y = cell.y
         return self.filter(lambda c: c.y == this_y)
@@ -566,13 +626,16 @@ class Bag(CoreBag):
         Select cells in this bag which are in the same
         column as `singleton_bag`
         """
+        # TODO why are we not using self.table.x_index[cell.x]?
         cell = singleton_bag._cell
         this_x = cell.x
         return self.filter(lambda c: c.x == this_x)
 
 
 class Table(Bag):
-    """A bag which represents an entire sheet"""
+    """A bag which represents an entire sheet.
+       Features indices to speed retrieval by coordinate.
+       Also includes functions for importing tables into XYPath"""
     def __init__(self, name=""):
         super(Table, self).__init__(table=self, name=name)
         self.x_index = defaultdict(lambda: Bag(self))
@@ -583,14 +646,19 @@ class Table(Bag):
         self.sheet = None
 
     def rows(self):
+        """Get bags containing each row's cells, in order"""
         for row_num in range(0, self._max_y + 1):  # inclusive
             yield self.y_index[row_num]
 
     def cols(self):
+        """Get bags containing each column's cells, in order"""
         for col_num in range(0, self._max_x + 1):  # inclusive
             yield self.x_index[col_num]
 
     def add(self, cell):
+        """Under the hood: add a cell to a table and the table's indices.
+           Used in the construction of a table.
+           """
         self.x_index[cell.x].add(cell)
         self.y_index[cell.y].add(cell)
         self.xy_index[(cell.x, cell.y)].add(cell)
@@ -599,6 +667,8 @@ class Table(Bag):
         super(Table, self).add(cell)
 
     def get_at(self, x=None, y=None):
+        """Directly get a singleton bag, via the indices.
+           Faster than Bag.filter"""
         # we use .get() here to avoid new empty Bags being inserted
         # into the index stores when a non-existant coordinate is requested.
         if x is None and y is None:
@@ -611,6 +681,8 @@ class Table(Bag):
 
     @staticmethod
     def from_filename(filename, table_name=None, table_index=None):
+        """Wrapper around from_file_object, automatically handles
+         extracting extension"""
         extension = os.path.splitext(filename)[1].strip('.')
         with open(filename, 'rb') as f:
             return Table.from_file_object(f, extension,
@@ -620,6 +692,8 @@ class Table(Bag):
     @staticmethod
     def from_file_object(fobj, extension='',
                          table_name=None, table_index=None):
+        """Load table from file object. You must specify a single table's name or
+           its position number. If you don't know these, try from_messy"""
         if (table_name is not None and table_index is not None) or \
                 (table_name is None and table_index is None):
             raise TypeError("Must give exactly one of table_name, table_index")
@@ -633,6 +707,12 @@ class Table(Bag):
 
     @staticmethod
     def from_messy(messy_rowset):
+        """Import a rowset (table) from messytables, e.g. to work with each
+           table in turn:
+               tables = messytables.any.any_tableset(fobj)
+               for mt_table in tables:
+                   xy_table = xypath.Table.from_messy(mt_table)
+                   ..."""
         assert isinstance(messy_rowset, messytables.core.RowSet),\
             "Expected a RowSet, got a %r" % type(messy_rowset)
         new_table = Table.from_iterable(
@@ -647,6 +727,13 @@ class Table(Bag):
     @staticmethod
     def from_iterable(table, value_func=lambda cell: cell,
                       properties_func=lambda cell: {}):
+        """Make a table from a pythonic table structure.
+           The table must be an iterable which returns rows (in top-to-bottom order),
+           which in turn are iterables which returns cells (in left-to-right order).
+           value_func and properties_func specify how the cell maps onto an _XYCell's
+           value and properties. The defaults assume that you have a straight-forward
+           list of lists of values."""
+
         new_table = Table()
         for y, row in enumerate(table):
             for x, cell in enumerate(row):
@@ -661,6 +748,8 @@ class Table(Bag):
 
     @staticmethod
     def from_bag(bag):
+        """Make a copy of a bag which is its own table.
+           Useful when a single imported table is two logical tables"""
         new_table = Table()
         for bag_cell in bag.unordered:
             new_table.add(bag_cell._cell.copy(new_table))
