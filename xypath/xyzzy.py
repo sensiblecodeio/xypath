@@ -25,12 +25,23 @@ def headerheader(self, dir1, dir2, **kwargs):  # XYZZY
     header = group(self.fill(dir1), **kwargs)
     return {k: header[k].fill(dir2) for k in header}
 
+def are_distinct(fields):
+    allbags = set()
+    bagcount = 0
+    for field in fields:
+        for bag in field.values():
+            allbags = allbags.union(bag)
+            bagcount = bagcount + len(bag)
+    return len(allbags) == bagcount
+
 def xyzzy(self, fields, valuename='_value'):  # XYZZY
+    assert are_distinct(fields.values())
     fieldkeys = fields.keys()
     assert valuename not in fieldkeys
     # TODO: test at this stage that fieldvalue bags don't overlap:
     # i.e. len(union of all bags) = sum(length of each bag) for each field.
     # instead of checking all combinations have no more than one match
+    # DONE, use are_distinct. Still need to remove existing expensive code.
 
     for cell in self:
         path = OrderedDict()
