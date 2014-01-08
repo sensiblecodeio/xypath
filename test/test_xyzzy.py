@@ -48,3 +48,13 @@ def test_xyzzy_kinda_works():
     things = xtract_by_numbers(xy, dimensions_horizontal, dimensions_vertical)
     sorted_things = [thing.values() for thing in sorted(things)]
     assert sorted_things == output
+
+
+def test_plugh_kinda_works():
+    all_c = [lambda bag: bag.table.filter("K").fill(xypath.DOWN).dimension(None),
+             lambda bag: bag.move(xypath.RIGHT).dimension(None),
+             lambda bag: bag.table.filter("Q").fill(xypath.RIGHT).dimension(None),
+             lambda bag: bag.move(xypath.DOWN).dimension(xypath.DOWN)]
+    #things = plugh(xy, all_c)
+    #sorted_things = [thing.values() for thing in sorted(things)]
+    #assert sorted_things == output
