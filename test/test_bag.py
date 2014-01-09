@@ -113,6 +113,13 @@ class Test_Bag(tcore.TCore):
         assert world_cell not in filled_right
         self.assertEqual(14, len(filled_right))
 
+    def test_bag_intersection(self):
+        bag = self.table.filter('Estimates')
+        another_bag = self.table.filter("WORLD")
+        union = bag | another_bag
+        intersection = union & another_bag
+        assert intersection.value == "WORLD"
+
     def test_bag_union(self):
         bag = self.table.filter('Estimates')
         another_bag = self.table.filter("WORLD")

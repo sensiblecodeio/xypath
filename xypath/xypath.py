@@ -248,6 +248,15 @@ class CoreBag(object):
         new.__store = self.__store.union(rhs.__store)
         return new
 
+    def __and__(self, rhs):
+        return self.intersection(rhs)
+
+    def intersection(self, rhs):
+        assert self.table is rhs.table, "Can't take intersection of  bags from separate tables"
+        new = copy(self)
+        new.__store = self.__store.intersection(rhs.__store)
+        return new
+
     def select(self, function):
         return self.table.select_other(function, self)
 
