@@ -58,38 +58,30 @@ def labellize(bag):
     for label, group in itertools.groupby(sorted(bag, key=sort), sort):
         yield label, xypath.Bag.from_list(group)
 
+
 def plugh(bag, all_c, labels=None, value_bag=None):
-#s    print "+", labels
     if value_bag is None:
         value_bag = bag.table
     if labels is None:
         labels = []
     if not all_c:
-        yield labels, [x.value for x in value_bag]
+        yield labels, value_bag.value
         return
     current_function = all_c.pop(0)
     if current_function:
         label_cells = current_function(bag)
-    #    print "("
         for label, bag in labellize(label_cells):
             new_labels = list(labels)
             new_labels.append(label)
-    #        print "*", new_labels
             p = plugh(bag, list(all_c), new_labels, value_bag)
             for item in p:
                 yield item
     else:
         value_function = all_c.pop(0)
-        new_value_bag = value_function(bag)
-        new_value_bag.union(value_bag) # valuebag: existing, valuecells: new.
+        new_value_bag = value_function(bag).intersection(value_bag)
         p = plugh(bag, list(all_c), labels, new_value_bag)
         for item in p:
             yield item
-
-    #        print z
-    #        print ">>"
-    #     print ")"
-    # TODO handle value cells
 
 
 def test_plugh_kinda_works():
@@ -104,6 +96,6 @@ def test_plugh_kinda_works():
     things = plugh(xy, all_c)
     print list(things)
 
-    #sorted_things = [thing.values() for thing in sorted(things)]
-    #assert sorted_things == output
-    assert False
+    sorted_things = [thing.values() for thing in sorted(things)]
+    for i, o in zip(sorted_things, output):
+        assert (i[0][1], i[0][2], i[0][3], i[1]) == o, (i, o)
