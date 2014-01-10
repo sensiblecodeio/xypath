@@ -20,6 +20,7 @@ output = [['A', 'a', 'x', '5'],
 xy = xypath.Table.from_iterable(table)
 dimensions_horizontal = [0, 1]
 dimensions_vertical = [1]
+wb = xypath.Table.from_filename('fixtures/pakdate.xls', table_index=0)
 
 
 def get_value_bags_for_dimension(table, header_index_and_direction, **kwargs):
@@ -50,7 +51,7 @@ def test_xyzzy_kinda_works():
     assert sorted_things == output
 
 
-def test_plugh_kinda_works():
+def test_ravel_kinda_works():
     all_c = [lambda bag: bag.table.filter("K").fill(xypath.DOWN),
              lambda bag: bag.shift(xypath.RIGHT),
              None,
@@ -66,3 +67,18 @@ def test_plugh_kinda_works():
     sorted_things = [thing.values() for thing in sorted(things)]
     for i, o in zip(sorted_things, output):
         assert (i[0][1], i[0][2], i[0][3], i[1]) == o, (i, o)
+
+
+def test_ravel_worldbank():
+    code = wb.filter("Indicator Code").assert_one()
+    # TODO check faster than replacing code with that string.
+    all_c = [lambda bag: code.fastfill(xypath.DOWN).filter(lambda cell: cell.y<100),
+             None,
+             lambda bag: bag.fastfill(xypath.RIGHT),
+             lambda bag: code.fastfill(xypath.RIGHT).filter(lambda cell: cell.x<20),
+             None,
+             lambda bag: bag.fastfill(xypath.DOWN)
+             ]
+    things = xypath.ravel(wb, all_c)
+    for thing in things:
+        print thing
