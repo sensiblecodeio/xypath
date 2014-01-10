@@ -442,6 +442,45 @@ class Bag(CoreBag):
         else:
             print >>stream, tabulate(result)
 
+    def fastfill(self, direction, stop_before=None):
+        """Should give the same direction as fill, except it
+        doesn't support non-cardinal directions or stop_before"""
+        if stop_before:
+            print "WOOP"
+            raise SyntaxError
+
+        def what_to_get(cell):
+            """converts bag coordinates into thing to pass to get_at"""
+            cell_coord = (cell.x, cell.y)
+            retval = []
+            for cell_coord, direction_coord in zip(cell_coord, direction):
+                if direction_coord != 0:
+                    retval.append(None)
+                else:
+                    retval.append(cell_coord)
+            return tuple(retval)  # TODO yuck
+
+        if direction not in (UP, RIGHT, DOWN, LEFT):
+            raise ValueError("Must be a cardinal direction!")
+
+        ### this is what same_row/col should look like!
+        small_table = None
+        for cell in self.unordered_cells:
+            got_rowcol = self.table.get_at(*what_to_get(cell))
+            if small_table:
+                small_table = small_table.union(got_rowcol)
+            else:
+                small_table = got_rowcol
+
+        # now we use the small_table as if it was the table.
+        (left_right, up_down) = direction
+        bag = small_table.select_other(
+            lambda table, bag: cmp(table.x, bag.x) == left_right
+            and cmp(table.y, bag.y) == up_down,
+            self
+        )
+        return bag
+
     def fill(self, direction, stop_before=None):
         """
         If the bag contains only one cell, select all cells in the direction
@@ -561,23 +600,27 @@ class Bag(CoreBag):
 
         return bag
 
-    def same_row(self, singleton_bag):
+    def same_row(self, bag):
         """
         Select cells in this bag which are in the same
-        row as `singleton_bag`
+        row as a cell in the other `bag`.
         """
-        cell = singleton_bag._cell
-        this_y = cell.y
-        return self.filter(lambda c: c.y == this_y)
+        # TODO: make less crap - use Table.get_at()
+        all_y = set()
+        for cell in bag.unordered_cells:
+            all_y.add(cell.y)
+        return self.filter(lambda c: c.y in all_y)
 
-    def same_col(self, singleton_bag):
+    def same_col(self, bag):
         """
         Select cells in this bag which are in the same
-        column as `singleton_bag`
+        row as a cell in the other `bag`.
         """
-        cell = singleton_bag._cell
-        this_x = cell.x
-        return self.filter(lambda c: c.x == this_x)
+        # TODO: make less crap
+        all_x = set()
+        for cell in bag.unordered_cells:
+            all_x.add(cell.x)
+        return self.filter(lambda c: c.x in all_x)
 
 
 class Table(Bag):
