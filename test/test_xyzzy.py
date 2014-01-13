@@ -52,11 +52,12 @@ def test_xyzzy_kinda_works():
 
 
 def test_ravel_kinda_works():
+    Q = xy.filter("Q").fill(xypath.RIGHT)
     all_c = [lambda bag: bag.table.filter("K").fill(xypath.DOWN),
              lambda bag: bag.shift(xypath.RIGHT),
              None,
              lambda bag: bag.fill(xypath.RIGHT),
-             lambda bag: bag.table.filter("Q").fill(xypath.RIGHT),
+             lambda bag: Q,
              lambda bag: bag.shift(xypath.DOWN),
              None,
              lambda bag: bag.fill(xypath.DOWN),
@@ -71,11 +72,14 @@ def test_ravel_kinda_works():
 
 def test_ravel_worldbank():
     code = wb.filter("Indicator Code").assert_one()
+    codedown = code.fill(xypath.DOWN).filter(lambda cell: cell.y < 100)
+    coderight = code.fill(xypath.RIGHT).filter(lambda cell: cell.x < 20)
+    # turns out the above doesn't massively increase speed
     # TODO check faster than replacing code with that string.
-    all_c = [lambda bag: code.fill(xypath.DOWN).filter(lambda cell: cell.y<100),
+    all_c = [lambda bag: codedown,
              None,
              lambda bag: bag.fill(xypath.RIGHT),
-             lambda bag: code.fill(xypath.RIGHT).filter(lambda cell: cell.x<20),
+             lambda bag: coderight,
              None,
              lambda bag: bag.fill(xypath.DOWN)
              ]

@@ -9,21 +9,14 @@ def ravel(in_bag, all_c, labels=None, value_bag=None):
        not be specified in the function call.
        Almost, but not entirely, like xyzzy"""
 
-    def labellize(bag):
-        # for now, just groupby,
-        # in future, need to be smarter (e.g. gap recognition)
-        # might want to allow
-        import itertools
-        sort = lambda cell: cell.value
-        for label, group in itertools.groupby(sorted(bag, key=sort), sort):
-            yield label, xypath.Bag.from_list(group)
-
     # Initialise some defaults for the first pass.
     # (these are explicitly passed for future passes)
     if value_bag is None:
         value_bag = in_bag.table
     if labels is None:
         labels = []
+
+    all_c = list(all_c)
 
     if not all_c:
         # we've bottomed out with a full set of labels and - hopefully -
@@ -32,6 +25,15 @@ def ravel(in_bag, all_c, labels=None, value_bag=None):
         if value_bag:
             yield labels, value_bag.value
         return
+
+    def labellize(bag):
+        # for now, just groupby,
+        # in future, need to be smarter (e.g. gap recognition)
+        # might want to allow
+        import itertools
+        sort = lambda cell: cell.value
+        for label, group in itertools.groupby(sorted(bag, key=sort), sort):
+            yield label, xypath.Bag.from_list(group)
 
     current_function = all_c.pop(0)
     if current_function:
