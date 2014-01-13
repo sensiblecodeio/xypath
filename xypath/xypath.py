@@ -99,6 +99,7 @@ def junction_coord(cells, direction=DOWN):
 class _XYCell(object):
     """needs to contain: value, position (x,y), parent bag"""
     __slots__ = ['value', 'x', 'y', 'table', 'properties']
+
     def __init__(self, value, x, y, table, properties=None):
         self.value = value  # of appropriate type
         self.x = x  # column number
@@ -252,7 +253,8 @@ class CoreBag(object):
         return self.intersection(rhs)
 
     def intersection(self, rhs):
-        assert self.table is rhs.table, "Can't take intersection of  bags from separate tables"
+        assert self.table is rhs.table, \
+            "Can't take intersection of bags from separate tables"
         new = copy(self)
         new.__store = self.__store.intersection(rhs.__store)
         return new
@@ -317,7 +319,7 @@ class CoreBag(object):
             xycell = list(self.assert_one().__store)[0]
         except AssertionError:
             l = len(list(self.__store))
-            raise ValueError("Can't get cell properties of non-singleton Bag (length: %r)" % l)
+            raise ValueError("Can't treat multicell bag as cell (len: %r)" % l)
         else:
             assert isinstance(xycell, _XYCell)
             return xycell
@@ -442,12 +444,13 @@ class Bag(CoreBag):
         else:
             print >>stream, tabulate(result)
 
-    def fastfill(self, direction, stop_before=None):
-        """Should give the same direction as fill, except it
-        doesn't support non-cardinal directions or stop_before"""
-        if stop_before:
-            print "WOOP"
-            raise SyntaxError
+    def fill(self, direction, stop_before=None):
+        """Should give the same output as fill, except it
+        doesn't support non-cardinal directions or stop_before.
+        Twenty times faster than fill in test_ravel."""
+        if stop_before or direction in (UP_RIGHT, DOWN_RIGHT, UP_LEFT,
+                                        UP_RIGHT):
+            return self._fill(direction, stop_before)
 
         def what_to_get(cell):
             """converts bag coordinates into thing to pass to get_at"""
@@ -481,7 +484,7 @@ class Bag(CoreBag):
         )
         return bag
 
-    def fill(self, direction, stop_before=None):
+    def _fill(self, direction, stop_before=None):
         """
         If the bag contains only one cell, select all cells in the direction
         given, excluding the original cell. For example, from a column heading

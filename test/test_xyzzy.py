@@ -72,12 +72,12 @@ def test_ravel_kinda_works():
 def test_ravel_worldbank():
     code = wb.filter("Indicator Code").assert_one()
     # TODO check faster than replacing code with that string.
-    all_c = [lambda bag: code.fastfill(xypath.DOWN).filter(lambda cell: cell.y<100),
+    all_c = [lambda bag: code.fill(xypath.DOWN).filter(lambda cell: cell.y<100),
              None,
-             lambda bag: bag.fastfill(xypath.RIGHT),
-             lambda bag: code.fastfill(xypath.RIGHT).filter(lambda cell: cell.x<20),
+             lambda bag: bag.fill(xypath.RIGHT),
+             lambda bag: code.fill(xypath.RIGHT).filter(lambda cell: cell.x<20),
              None,
-             lambda bag: bag.fastfill(xypath.DOWN)
+             lambda bag: bag.fill(xypath.DOWN)
              ]
     things = list(xypath.ravel(wb, all_c))
     assert ([u'AG.LND.CREL.HA', u'1968'], 9536763.0) in things
