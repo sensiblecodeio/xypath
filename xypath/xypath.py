@@ -448,7 +448,7 @@ class Bag(CoreBag):
         """Should give the same output as fill, except it
         doesn't support non-cardinal directions or stop_before.
         Twenty times faster than fill in test_ravel."""
-        if stop_before or direction in (UP_RIGHT, DOWN_RIGHT, UP_LEFT,
+        if direction in (UP_RIGHT, DOWN_RIGHT, UP_LEFT,
                                         UP_RIGHT):
             return self._fill(direction, stop_before)
 
@@ -482,7 +482,18 @@ class Bag(CoreBag):
             and cmp(table.y, bag.y) == up_down,
             self
         )
-        return bag
+        if stop_before:
+            return bag.stop_before(stop_before)
+        else:
+            return bag
+
+    def stop_before(self, stop_function):
+        """Assumes the data is:
+           * in a single row or column
+           * proceeding either downwards or rightwards
+        """
+        return Bag.from_list(list(
+            takewhile(lambda c: not stop_function(c), self)))
 
     def _fill(self, direction, stop_before=None):
         """
@@ -495,6 +506,7 @@ class Bag(CoreBag):
         which tests cell.value for an empty string. This would stop the fill
         function before it reaches the bottom of the sheet, for example.
         """
+        raise DeprecationWarning("2D fill is deprecated. Yell if you need it.")
         if direction not in (UP, RIGHT, DOWN, LEFT, UP_RIGHT, DOWN_RIGHT,
                              UP_LEFT, DOWN_LEFT):
             raise ValueError("Invalid direction! Use one of UP, RIGHT, "
