@@ -79,6 +79,6 @@ def test_ravel_worldbank():
              None,
              lambda bag: bag.fastfill(xypath.DOWN)
              ]
-    things = xypath.ravel(wb, all_c)
-    for thing in things:
-        print thing
+    things = list(xypath.ravel(wb, all_c))
+    assert ([u'AG.LND.CREL.HA', u'1968'], 9536763.0) in things
+
