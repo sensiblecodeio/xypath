@@ -20,6 +20,7 @@ output = [['A', 'a', 'x', '5'],
 xy = xypath.Table.from_iterable(table)
 dimensions_horizontal = [0, 1]
 dimensions_vertical = [1]
+wb = xypath.Table.from_filename('fixtures/pakdate.xls', table_index=0)
 
 
 def get_value_bags_for_dimension(table, header_index_and_direction, **kwargs):
@@ -48,3 +49,40 @@ def test_xyzzy_kinda_works():
     things = xtract_by_numbers(xy, dimensions_horizontal, dimensions_vertical)
     sorted_things = [thing.values() for thing in sorted(things)]
     assert sorted_things == output
+
+
+def test_ravel_kinda_works():
+    Q = xy.filter("Q").fill(xypath.RIGHT)
+    all_c = [lambda bag: bag.table.filter("K").fill(xypath.DOWN),
+             lambda bag: bag.shift(xypath.RIGHT),
+             None,
+             lambda bag: bag.fill(xypath.RIGHT),
+             lambda bag: Q,
+             lambda bag: bag.shift(xypath.DOWN),
+             None,
+             lambda bag: bag.fill(xypath.DOWN),
+             ]
+    things = xypath.ravel(xy, all_c)
+    print list(things)
+
+    sorted_things = [thing.values() for thing in sorted(things)]
+    for i, o in zip(sorted_things, output):
+        assert (i[0][1], i[0][2], i[0][3], i[1]) == o, (i, o)
+
+
+def test_ravel_worldbank():
+    code = wb.filter("Indicator Code").assert_one()
+    codedown = code.fill(xypath.DOWN).filter(lambda cell: cell.y < 100)
+    coderight = code.fill(xypath.RIGHT).filter(lambda cell: cell.x < 20)
+    # turns out the above doesn't massively increase speed
+    # TODO check faster than replacing code with that string.
+    all_c = [lambda bag: codedown,
+             None,
+             lambda bag: bag.fill(xypath.RIGHT),
+             lambda bag: coderight,
+             None,
+             lambda bag: bag.fill(xypath.DOWN)
+             ]
+    things = list(xypath.ravel(wb, all_c))
+    assert ([u'AG.LND.CREL.HA', u'1968'], 9536763.0) in things
+
