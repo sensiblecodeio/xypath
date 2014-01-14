@@ -1,13 +1,14 @@
 import xypath
 import time
 
-timing_instructions = [lambda bag: bag.table.get_at(0, 0).fill(xypath.DOWN),
-                       None,
-                       lambda bag: bag.fill(xypath.DOWN),
-                       lambda bag: bag.table.get_at(0, 0).fill(xypath.RIGHT),
-                       None,
-                       lambda bag: bag.fill(xypath.RIGHT),
-                       ]
+timing_instructions = [
+  lambda bag: bag.table.get_at(0, 0).fill(xypath.DOWN),
+  None,
+  lambda bag: bag.fill(xypath.DOWN),
+  lambda bag: bag.table.get_at(0, 0).fill(xypath.RIGHT),
+  None,
+  lambda bag: bag.fill(xypath.RIGHT),
+]
 
 
 def long_table(n):
@@ -21,9 +22,9 @@ def long_table(n):
 
 def ravel_time(n):
     bigtable = long_table(n)
-    t = time.clock()
+    t = time.time()
     print len(list(xypath.ravel(bigtable, timing_instructions)))
-    elapsed = time.clock()-t
+    elapsed = time.time() - t
     print n, elapsed, elapsed/n
 
 

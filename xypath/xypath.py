@@ -263,6 +263,7 @@ class CoreBag(object):
         return self.table.select_other(function, self)
 
     def select_other(self, function, other):
+        raise RuntimeError
         """note: self.select(f) = self.table.select_other(f, self)"""
         newbag = Bag(table=self.table)
         for bag_cell in self.__store:
@@ -448,9 +449,39 @@ class Bag(CoreBag):
         """Should give the same output as fill, except it
         doesn't support non-cardinal directions or stop_before.
         Twenty times faster than fill in test_ravel."""
-        if direction in (UP_RIGHT, DOWN_RIGHT, UP_LEFT,
-                                        UP_RIGHT):
+
+
+        if direction in (UP_RIGHT, DOWN_RIGHT, UP_LEFT, UP_RIGHT):
+            raise RuntimeError
             return self._fill(direction, stop_before)
+
+        if direction not in (UP, RIGHT, DOWN, LEFT):
+            raise ValueError("Must be a cardinal direction!")
+
+        orig_cell = self._cell
+
+        if direction == UP:
+            selected = lambda c: c.y < orig_cell.y
+        elif direction == DOWN:
+            selected = lambda c: c.y > orig_cell.y
+        elif direction == LEFT:
+            selected = lambda c: c.x < orig_cell.x
+        elif direction == RIGHT:
+            selected = lambda c: c.x > orig_cell.x
+
+        if direction == UP or direction == DOWN:
+            search_cells = self.table.get_at(x=orig_cell.x)
+
+        if direction == LEFT or direction == RIGHT:
+            search_cells = self.table.get_at(y=orig_cell.y)
+
+        bag = Bag(self.table)
+        for cell in search_cells.unordered_cells:
+            if selected(cell):
+                bag.add(cell)
+
+        return bag
+
 
         def what_to_get(cell):
             """converts bag coordinates into thing to pass to get_at"""
@@ -463,8 +494,7 @@ class Bag(CoreBag):
                     retval.append(cell_coord)
             return tuple(retval)  # TODO yuck
 
-        if direction not in (UP, RIGHT, DOWN, LEFT):
-            raise ValueError("Must be a cardinal direction!")
+
 
         ### this is what same_row/col should look like!
         small_table = None
@@ -474,6 +504,7 @@ class Bag(CoreBag):
                 small_table = small_table.union(got_rowcol)
             else:
                 small_table = got_rowcol
+
 
         # now we use the small_table as if it was the table.
         (left_right, up_down) = direction

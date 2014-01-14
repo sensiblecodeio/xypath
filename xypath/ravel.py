@@ -38,27 +38,33 @@ def ravel(in_bag, instructions, labels=None, value_bag=None):
         # a singleton bag which we just want the value from.
         # If there's nothing in the bag, that's fine.
         if value_bag:
-            yield labels, value_bag.value
-        return
+            return labels, value_bag.value
+            # yield labels, value_bag.value
+        return []
 
     current_function = instructions.pop(0)
     if current_function:
         # we're looking at a function to get the next set of headers.
         # note the use of list to ensure that we're working with copies
         # of the things we're mutating.
+
+        result = []
+
         label_cells = current_function(in_bag)
         for label, bag in _labellize(label_cells):
             new_labels = list(labels)
-            new_labels.append(label)
-            p = ravel(bag, instructions, new_labels, value_bag)
-            for item in p:
-                yield item
+            new_labels.append(label)            
+            result.append(ravel(bag, instructions, new_labels, value_bag))
+
+        # for item in p:
+            # yield item
+        return result
     else:
         # there was a None, which indicates that the next item is a
         # function to get a pile of values.
         value_function = instructions.pop(0)
         new_value_bag = value_function(in_bag).intersection(value_bag)
-        p = ravel(in_bag, instructions, labels, new_value_bag)
-        for item in p:
-            yield item
+        return ravel(in_bag, instructions, labels, new_value_bag)
+        # for item in p:
+            # yield item
 
