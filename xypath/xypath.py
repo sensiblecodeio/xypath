@@ -99,6 +99,7 @@ def junction_coord(cells, direction=DOWN):
 class _XYCell(object):
     """needs to contain: value, position (x,y), parent bag"""
     __slots__ = ['value', 'x', 'y', 'table', 'properties']
+
     def __init__(self, value, x, y, table, properties=None):
         self.value = value  # of appropriate type
         self.x = x  # column number
@@ -248,6 +249,16 @@ class CoreBag(object):
         new.__store = self.__store.union(rhs.__store)
         return new
 
+    def __and__(self, rhs):
+        return self.intersection(rhs)
+
+    def intersection(self, rhs):
+        assert self.table is rhs.table, \
+            "Can't take intersection of bags from separate tables"
+        new = copy(self)
+        new.__store = self.__store.intersection(rhs.__store)
+        return new
+
     def select(self, function):
         return self.table.select_other(function, self)
 
@@ -308,7 +319,7 @@ class CoreBag(object):
             xycell = list(self.assert_one().__store)[0]
         except AssertionError:
             l = len(list(self.__store))
-            raise ValueError("Can't get cell properties of non-singleton Bag (length: %r)" % l)
+            raise ValueError("Can't treat multicell bag as cell (len: %r)" % l)
         else:
             assert isinstance(xycell, _XYCell)
             return xycell
@@ -434,6 +445,57 @@ class Bag(CoreBag):
             print >>stream, tabulate(result)
 
     def fill(self, direction, stop_before=None):
+        """Should give the same output as fill, except it
+        doesn't support non-cardinal directions or stop_before.
+        Twenty times faster than fill in test_ravel."""
+        if direction in (UP_RIGHT, DOWN_RIGHT, UP_LEFT,
+                                        UP_RIGHT):
+            return self._fill(direction, stop_before)
+
+        def what_to_get(cell):
+            """converts bag coordinates into thing to pass to get_at"""
+            cell_coord = (cell.x, cell.y)
+            retval = []
+            for cell_coord, direction_coord in zip(cell_coord, direction):
+                if direction_coord != 0:
+                    retval.append(None)
+                else:
+                    retval.append(cell_coord)
+            return tuple(retval)  # TODO yuck
+
+        if direction not in (UP, RIGHT, DOWN, LEFT):
+            raise ValueError("Must be a cardinal direction!")
+
+        ### this is what same_row/col should look like!
+        small_table = None
+        for cell in self.unordered_cells:
+            got_rowcol = self.table.get_at(*what_to_get(cell))
+            if small_table:
+                small_table = small_table.union(got_rowcol)
+            else:
+                small_table = got_rowcol
+
+        # now we use the small_table as if it was the table.
+        (left_right, up_down) = direction
+        bag = small_table.select_other(
+            lambda table, bag: cmp(table.x, bag.x) == left_right
+            and cmp(table.y, bag.y) == up_down,
+            self
+        )
+        if stop_before:
+            return bag.stop_before(stop_before)
+        else:
+            return bag
+
+    def stop_before(self, stop_function):
+        """Assumes the data is:
+           * in a single row or column
+           * proceeding either downwards or rightwards
+        """
+        return Bag.from_list(list(
+            takewhile(lambda c: not stop_function(c), self)))
+
+    def _fill(self, direction, stop_before=None):
         """
         If the bag contains only one cell, select all cells in the direction
         given, excluding the original cell. For example, from a column heading
@@ -444,6 +506,7 @@ class Bag(CoreBag):
         which tests cell.value for an empty string. This would stop the fill
         function before it reaches the bottom of the sheet, for example.
         """
+        raise DeprecationWarning("2D fill is deprecated. Yell if you need it.")
         if direction not in (UP, RIGHT, DOWN, LEFT, UP_RIGHT, DOWN_RIGHT,
                              UP_LEFT, DOWN_LEFT):
             raise ValueError("Invalid direction! Use one of UP, RIGHT, "
@@ -552,23 +615,27 @@ class Bag(CoreBag):
 
         return bag
 
-    def same_row(self, singleton_bag):
+    def same_row(self, bag):
         """
         Select cells in this bag which are in the same
-        row as `singleton_bag`
+        row as a cell in the other `bag`.
         """
-        cell = singleton_bag._cell
-        this_y = cell.y
-        return self.filter(lambda c: c.y == this_y)
+        # TODO: make less crap - use Table.get_at()
+        all_y = set()
+        for cell in bag.unordered_cells:
+            all_y.add(cell.y)
+        return self.filter(lambda c: c.y in all_y)
 
-    def same_col(self, singleton_bag):
+    def same_col(self, bag):
         """
         Select cells in this bag which are in the same
-        column as `singleton_bag`
+        row as a cell in the other `bag`.
         """
-        cell = singleton_bag._cell
-        this_x = cell.x
-        return self.filter(lambda c: c.x == this_x)
+        # TODO: make less crap
+        all_x = set()
+        for cell in bag.unordered_cells:
+            all_x.add(cell.x)
+        return self.filter(lambda c: c.x in all_x)
 
 
 class Table(Bag):

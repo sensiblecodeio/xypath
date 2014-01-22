@@ -34,7 +34,7 @@ class TestFilter(tcore.TCore):
 
     def test_text_exact_match_hamcrest(self):
         if hamcrest is None:
-            raise unittest.SkipTest
+            raise unittest.SkipTest("Requires Hamcrest")
         self.table.filter(hamcrest.equal_to("Country code")).assert_one()
 
     def test_regex_match(self):
