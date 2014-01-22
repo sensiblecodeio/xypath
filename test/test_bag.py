@@ -76,7 +76,7 @@ class Test_Bag(tcore.TCore):
         self.assertEqual(
             "Country code",
             self.table.filter("Country code").value)
-        self.assertRaises(ValueError,
+        self.assertRaises(xypath.XYPathError,
                           lambda: self.table.filter("Estimates").value)
 
     def test_messytables_has_properties(self):

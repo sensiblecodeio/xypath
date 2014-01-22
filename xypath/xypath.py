@@ -31,16 +31,22 @@ UP_LEFT = (-1, -1)
 DOWN_LEFT = (-1, 1)
 
 
-class JunctionError(RuntimeError):
+class XYPathError(Exception):
+    """Errors caused by problems with spreadsheet layouts should descend from this."""
     pass
 
 
-class NoCellsAssertionError(AssertionError):
+class JunctionError(RuntimeError, XYPathError):
+    """Junction area overlaps an input cell, and 'paranoid' isn't disabled."""
+    pass
+
+
+class NoCellsAssertionError(AssertionError, XYPathError):
     """Raised by Bag.assert_one() if the bag contains zero cells."""
     pass
 
 
-class MultipleCellsAssertionError(AssertionError):
+class MultipleCellsAssertionError(AssertionError, XYPathError):
     """Raised by Bag.assert_one() if the bag contains multiple cells."""
     pass
 
@@ -319,7 +325,7 @@ class CoreBag(object):
             xycell = list(self.assert_one().__store)[0]
         except AssertionError:
             l = len(list(self.__store))
-            raise ValueError("Can't treat multicell bag as cell (len: %r)" % l)
+            raise XYPathError("Can't use multicell bag as cell: (len %r)" % l)
         else:
             assert isinstance(xycell, _XYCell)
             return xycell
