@@ -101,6 +101,17 @@ def junction_coord(cells, direction=DOWN):
         else:
             return new_cells[1]
 
+def describe_filter_method(filter_by)
+        if callable(filter_by):
+            return "matching a function called {}".format(filter_by.__name__)
+        if isinstance(filter_by, basestring):
+            return "containing the string {!r}".format(filter_by)
+        if have_ham and isinstance(filter_by, hamcrest.matcher.Matcher):
+            return "containing "+str(filter_by)
+        if isinstance(filter_by, re._pattern_type):
+            return "matching the regex {!r}".format(filter_by.pattern)
+        else:
+            return "which we're surprised we found at all"
 
 class _XYCell(object):
     """needs to contain: value, position (x,y), parent bag"""
@@ -298,7 +309,7 @@ class CoreBag(object):
             return self._filter_internal(
                 lambda cell: re.match(filter_by, unicode(cell.value)))
         else:
-            raise ValueError("filter_by must be callable or a hamcrest filter")
+            raise ValueError("filter_by must be function, hamcrest filter, compiled regex or string.")
 
     def _filter_internal(self, function):
         newbag = Bag(table=self.table)
@@ -306,6 +317,21 @@ class CoreBag(object):
             if function(bag_cell):
                 newbag.add(bag_cell)
         return newbag
+
+    def filter_one(self, filter_by):
+        errormsg = "We expected to find one cell {}, but we found {}"
+        filtered = self.filter(filter_by)
+        if len(filtered.__store) == 1:
+            return filtered
+        elif len(filtered.__store) == 0:
+            raise NoCellsAssertionError(errormsg.format(describe_filter_method(filter_by),
+                                                        'none.')
+        else:
+            ending = "{}: {}".format(len(filtered.__store),
+                                     filtered.excel_locations(filtered)
+            raise MultipleCellsAssertionError(errormsg.format(describe_filter_method(filter_by),
+                                                              ending))
+
 
     def assert_one(self, message="assert_one() : {} cells in bag, not 1"):
         """We expected to find one cell (containing {}|like {}|matching {}) but we found none."""
