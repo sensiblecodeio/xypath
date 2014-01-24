@@ -308,6 +308,8 @@ class CoreBag(object):
         return newbag
 
     def assert_one(self, message="assert_one() : {} cells in bag, not 1"):
+        """We expected to find one cell (containing {}|like {}|matching {}) but we found none."""
+        """                           ... but we found {}: (A1, N7, IV65535...)"""
         if len(self.__store) == 1:
             return self
 
@@ -642,6 +644,20 @@ class Bag(CoreBag):
         for cell in bag.unordered_cells:
             all_x.add(cell.x)
         return self.filter(lambda c: c.x in all_x)
+
+    def excel_locations(self, limit=3):
+        def _excel_location(self):
+            excelcol=excel_column_label(self.x + 1)
+            assert excelcol
+            return "{}{}".format(excelcol,
+                                 self.y)
+        builder = []
+        for i, singleton in enumerate(self.unordered):
+            if i >= limit:
+                builder.append("...")
+                break
+            builder.append(_excel_location(singleton))
+        return ', '.join(builder)
 
 
 class Table(Bag):

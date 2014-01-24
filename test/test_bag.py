@@ -26,6 +26,14 @@ class Test_Bag(tcore.TCore):
 
         self.assertNotEqual(lhs, rhs)
 
+    def test_bag_locations(self):
+        world=self.table.filter("WORLD")
+        empty=self.table.filter(lambda cell: False)
+
+        self.assertEqual(world.excel_locations(), "C17")
+        self.assertEqual(empty.excel_locations(), "")
+        self.assertIn(", ...", self.table.excel_locations())
+
     def test_bags_from_different_tables_are_not_equal(self):
         bag1 = self.table.filter(lambda b: True)
         bag2 = xypath.Table.from_bag(bag1)
