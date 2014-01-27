@@ -319,29 +319,24 @@ class CoreBag(object):
         return newbag
 
     def filter_one(self, filter_by):
-        errormsg = "We expected to find one cell {}, but we found {}"
+        errormsg = "We expected to find one cell {}, but we found {}."
+        foundmsg = 'one'
         filtered = self.filter(filter_by)
-        if len(filtered.__store) == 1:
-            return filtered
-        elif len(filtered.__store) == 0:
-            raise NoCellsAssertionError(
-                errormsg.format(
-                    describe_filter_method(filter_by),
-                    'none.'
-                )
-            )
-        else:
-            ending = "{}: {}".format(
+
+        if len(filtered.__store) == 0:
+            foundmsg = 'none'
+        elif len(filtered.__store) > 1:
+            foundmsg = "{}: {}".format(
                 len(filtered.__store),
                 filtered.excel_locations(filtered)
             )
-            raise MultipleCellsAssertionError(
-                errormsg.format(
-                    describe_filter_method(filter_by),
-                    ending
-                )
-            )
 
+        return filtered.assert_one(
+            errormsg.format(
+                describe_filter_method(filter_by),
+                foundmsg
+            )
+        )
 
     def assert_one(self, message="assert_one() : {} cells in bag, not 1"):
         if len(self.__store) == 1:
