@@ -142,7 +142,7 @@ Select different cells in the table based on those currently in the bag
 ```python
 def has_same_text(table_cell, bag_cell):
     return table_cell.value == bag_cell.value
-    
+
 bag.select(has_same_text)  # cells with same value
 bag.shift(x=-2)            # cells two to the left of the current cells
 bag_b = bag_a.fill(xypath.LEFT)      # cells to the LEFT (RIGHT, UP, DOWN, UP_RIGHT ...) excluding bag_a
@@ -159,7 +159,7 @@ dollars = table.filter("Amount").assert_one().fill(xypath.DOWN).filter(re.search
 
 When a Bag contains only one cell (a *singleton* Bag), you can call ``bag.value`` and get the value of the single cell inside the bag. This is also true for ``cell.x``, ``cell.y`` etc.
 
-Get the value (of a bag containing only one cell) or 
+Get the value (of a bag containing only one cell) or
 ```python
 lonely_cell.value
 ```
@@ -167,4 +167,24 @@ lonely_cell.value
 Get cells which are at the intersection of two other cells:
 ```
 triplets = row_header_bag.junction(column_header_bag)
+```
+
+
+------
+
+## Running the tests
+
+Set up a virtual environment, and install `requirements.txt`:
+
+```shell
+virtualenv venv
+. venv/bin/activate
+pip install -r requirements.txt
+```
+
+Then run the tests using `nosetests`:
+
+```shell
+nosetests # runs all tests
+nosetests test/test_bag.py # runs a single test
 ```
