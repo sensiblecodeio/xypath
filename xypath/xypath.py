@@ -101,7 +101,7 @@ def junction_coord(cells, direction=DOWN):
         else:
             return new_cells[1]
 
-def describe_filter_method(filter_by)
+def describe_filter_method(filter_by):
         if callable(filter_by):
             return "matching a function called {}".format(filter_by.__name__)
         if isinstance(filter_by, basestring):
@@ -324,28 +324,42 @@ class CoreBag(object):
         if len(filtered.__store) == 1:
             return filtered
         elif len(filtered.__store) == 0:
-            raise NoCellsAssertionError(errormsg.format(describe_filter_method(filter_by),
-                                                        'none.')
+            raise NoCellsAssertionError(
+                errormsg.format(
+                    describe_filter_method(filter_by),
+                    'none.'
+                )
+            )
         else:
-            ending = "{}: {}".format(len(filtered.__store),
-                                     filtered.excel_locations(filtered)
-            raise MultipleCellsAssertionError(errormsg.format(describe_filter_method(filter_by),
-                                                              ending))
+            ending = "{}: {}".format(
+                len(filtered.__store),
+                filtered.excel_locations(filtered)
+            )
+            raise MultipleCellsAssertionError(
+                errormsg.format(
+                    describe_filter_method(filter_by),
+                    ending
+                )
+            )
 
 
     def assert_one(self, message="assert_one() : {} cells in bag, not 1"):
-        """We expected to find one cell (containing {}|like {}|matching {}) but we found none."""
-        """                           ... but we found {}: (A1, N7, IV65535...)"""
         if len(self.__store) == 1:
             return self
 
         elif len(self.__store) == 0:
             raise NoCellsAssertionError(
-                message.format(len(self.__store)))
+                message.format(
+                    len(self.__store)
+                )
+            )
 
         elif len(self.__store) > 1:
             raise MultipleCellsAssertionError(
-                message.format(len(self.__store)))
+                message.format(
+                    len(self.__store)
+                )
+            )
 
     @property
     def _cell(self):
