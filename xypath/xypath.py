@@ -101,6 +101,17 @@ def junction_coord(cells, direction=DOWN):
         else:
             return new_cells[1]
 
+def describe_filter_method(filter_by):
+        if callable(filter_by):
+            return "matching a function called {}".format(filter_by.__name__)
+        if isinstance(filter_by, basestring):
+            return "containing the string {!r}".format(filter_by)
+        if have_ham and isinstance(filter_by, hamcrest.matcher.Matcher):
+            return "containing "+str(filter_by)
+        if isinstance(filter_by, re._pattern_type):
+            return "matching the regex {!r}".format(filter_by.pattern)
+        else:
+            return "which we're surprised we found at all"
 
 class _XYCell(object):
     """needs to contain: value, position (x,y), parent bag"""
@@ -298,7 +309,7 @@ class CoreBag(object):
             return self._filter_internal(
                 lambda cell: re.match(filter_by, unicode(cell.value)))
         else:
-            raise ValueError("filter_by must be callable or a hamcrest filter")
+            raise ValueError("filter_by must be function, hamcrest filter, compiled regex or string.")
 
     def _filter_internal(self, function):
         newbag = Bag(table=self.table)
@@ -307,17 +318,43 @@ class CoreBag(object):
                 newbag.add(bag_cell)
         return newbag
 
+    def filter_one(self, filter_by):
+        errormsg = "We expected to find one cell {}, but we found {}."
+        foundmsg = 'one'
+        filtered = self.filter(filter_by)
+
+        if len(filtered.__store) == 0:
+            foundmsg = 'none'
+        elif len(filtered.__store) > 1:
+            foundmsg = "{}: {}".format(
+                len(filtered.__store),
+                filtered.excel_locations(filtered)
+            )
+
+        return filtered.assert_one(
+            errormsg.format(
+                describe_filter_method(filter_by),
+                foundmsg
+            )
+        )
+
     def assert_one(self, message="assert_one() : {} cells in bag, not 1"):
         if len(self.__store) == 1:
             return self
 
         elif len(self.__store) == 0:
             raise NoCellsAssertionError(
-                message.format(len(self.__store)))
+                message.format(
+                    len(self.__store)
+                )
+            )
 
         elif len(self.__store) > 1:
             raise MultipleCellsAssertionError(
-                message.format(len(self.__store)))
+                message.format(
+                    len(self.__store)
+                )
+            )
 
     @property
     def _cell(self):
@@ -642,6 +679,20 @@ class Bag(CoreBag):
         for cell in bag.unordered_cells:
             all_x.add(cell.x)
         return self.filter(lambda c: c.x in all_x)
+
+    def excel_locations(self, limit=3):
+        def _excel_location(self):
+            excelcol=excel_column_label(self.x + 1)
+            assert excelcol
+            return "{}{}".format(excelcol,
+                                 self.y)
+        builder = []
+        for i, singleton in enumerate(self.unordered):
+            if i >= limit:
+                builder.append("...")
+                break
+            builder.append(_excel_location(singleton))
+        return ', '.join(builder)
 
 
 class Table(Bag):

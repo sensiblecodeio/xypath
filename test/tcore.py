@@ -23,7 +23,7 @@ def get_messytables_fixture(name, table_index=0, memoized={}):
     """
     Memoized function for loading fixtures
     """
-    
+
     if name not in memoized:
         with open(name, "rb") as fd:
             messy = messytables.any.any_tableset(fd)
@@ -40,6 +40,17 @@ class TCore(unittest.TestCase):
 
     def setUp(self):
         pass
+
+    # A special version of assertRaises() that tests both the
+    # exception class, and the exception message. Based on:
+    # http://stackoverflow.com/questions/8672754
+    def assertRaisesWithMessage(self, func, exception_type, msg, *args, **kwargs):
+        try:
+            func(*args, **kwargs)
+            self.fail('No exception was raised')
+        except Exception as inst:
+            self.assertIsInstance(inst, exception_type)
+            self.assertEqual(inst.message, msg)
 
 class TMissing(unittest.TestCase):
     @classmethod
