@@ -525,7 +525,7 @@ class Bag(CoreBag):
             and cmp(table.y, bag.y) == up_down,
             self
         )
-        if stop_before:
+        if stop_before is not None:
             return bag.stop_before(stop_before)
         else:
             return bag
