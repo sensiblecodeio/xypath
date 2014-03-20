@@ -65,42 +65,6 @@ def excel_column_label(n):
     return "".join(chr(ord("A") + i) for i in inner(n))
 
 
-def junction_coord(cells, direction=DOWN):
-    """
-    >>> cells_dr = (_XYCell(0,1,2,None), _XYCell(0,3,4,None))
-    >>> junction_coord(cells_dr, DOWN)
-    (1, 4)
-    >>> junction_coord(cells_dr, UP)
-    (3, 2)
-    >>> junction_coord(cells_dr, LEFT)
-    (1, 4)
-    >>> junction_coord(cells_dr, RIGHT)
-    (3, 2)
-    >>> cells_tr = (_XYCell(0,1,4,None), _XYCell(0,3,2,None))
-    >>> junction_coord(cells_tr, DOWN)
-    (3, 4)
-    >>> junction_coord(cells_tr, UP)
-    (1, 2)
-    >>> junction_coord(cells_tr, LEFT)
-    (1, 2)
-    >>> junction_coord(cells_tr, RIGHT)
-    (3, 4)
-
-    there are only two possible cells for the junction:
-    return the one which is most UP/DOWN etc."""
-
-    new_cells = (
-                (cells[0].x, cells[1].y),
-                (cells[1].x, cells[0].y)
-    )
-    for index, value in enumerate(direction):
-        if value == 0:
-            continue
-        if cmp(new_cells[0][index], new_cells[1][index]) == value:
-            return new_cells[0]
-        else:
-            return new_cells[1]
-
 def describe_filter_method(filter_by):
         if callable(filter_by):
             return "matching a function called {}".format(filter_by.__name__)
@@ -112,6 +76,7 @@ def describe_filter_method(filter_by):
             return "matching the regex {!r}".format(filter_by.pattern)
         else:
             return "which we're surprised we found at all"
+
 
 class _XYCell(object):
     """needs to contain: value, position (x,y), parent bag"""
@@ -157,6 +122,43 @@ class _XYCell(object):
         column of the other.
 
         paranoid: should we panic if we're hitting one of our input cells?"""
+
+        def junction_coord(cells, direction=DOWN):
+            """
+            >>> cells_dr = (_XYCell(0,1,2,None), _XYCell(0,3,4,None))
+            >>> junction_coord(cells_dr, DOWN)
+            (1, 4)
+            >>> junction_coord(cells_dr, UP)
+            (3, 2)
+            >>> junction_coord(cells_dr, LEFT)
+            (1, 4)
+            >>> junction_coord(cells_dr, RIGHT)
+            (3, 2)
+            >>> cells_tr = (_XYCell(0,1,4,None), _XYCell(0,3,2,None))
+            >>> junction_coord(cells_tr, DOWN)
+            (3, 4)
+            >>> junction_coord(cells_tr, UP)
+            (1, 2)
+            >>> junction_coord(cells_tr, LEFT)
+            (1, 2)
+            >>> junction_coord(cells_tr, RIGHT)
+            (3, 4)
+
+            there are only two possible cells for the junction:
+            return the one which is most UP/DOWN etc."""
+
+            new_cells = (
+                        (cells[0].x, cells[1].y),
+                        (cells[1].x, cells[0].y)
+            )
+            for index, value in enumerate(direction):
+                if value == 0:
+                    continue
+                if cmp(new_cells[0][index], new_cells[1][index]) == value:
+                    return new_cells[0]
+                else:
+                    return new_cells[1]
+
         (x, y) = junction_coord((self, other), direction)
         if paranoid and (x, y) == (self.x, self.y) or \
                         (x, y) == (other.x, other.y):
