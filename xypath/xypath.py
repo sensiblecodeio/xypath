@@ -20,6 +20,7 @@ from copy import copy
 from itertools import product, takewhile
 
 from .extern.tabulate import tabulate
+from .contrib.excel import excel_column_label
 
 UP = (0, -1)
 RIGHT = (1, 0)
@@ -50,19 +51,6 @@ class MultipleCellsAssertionError(AssertionError, XYPathError):
     """Raised by Bag.assert_one() if the bag contains multiple cells."""
     pass
 
-
-def excel_column_label(n):
-    """
-    Excel's column counting convention, counting from A at n=1
-    """
-    def inner(n):
-        if n <= 0:
-            return []
-        if not n:
-            return [0]
-        div, mod = divmod(n - 1, 26)
-        return inner(div) + [mod]
-    return "".join(chr(ord("A") + i) for i in inner(n))
 
 
 def describe_filter_method(filter_by):
