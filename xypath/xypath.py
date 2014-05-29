@@ -183,9 +183,8 @@ class CoreBag(object):
         return contrib.excel.excel_locations(self, *args, **kwargs)
 
     """Has a collection of _XYCells"""
-    def __init__(self, table, name=None):
+    def __init__(self, table):
         self.__store = set()
-        self.name = name
         self.table = table
 
     def add(self, cell):
@@ -211,7 +210,7 @@ class CoreBag(object):
         """
         Construct a bag with one cell in it
         """
-        bag = cls(table=table, name=name)
+        bag = cls(table=table)
         bag.add(cell)
         return bag
 
@@ -572,7 +571,7 @@ class Bag(CoreBag):
 class Table(Bag):
     """A bag which represents an entire sheet"""
     def __init__(self, name=""):
-        super(Table, self).__init__(table=self, name=name)
+        super(Table, self).__init__(table=self)
         self._x_index = defaultdict(lambda: Bag(self))
         self._y_index = defaultdict(lambda: Bag(self))
         self._xy_index = defaultdict(lambda: Bag(self))
