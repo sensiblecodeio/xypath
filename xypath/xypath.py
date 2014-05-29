@@ -96,8 +96,8 @@ class _XYCell(object):
                            self.table, self.properties)
 
     def __repr__(self):
-        return "_XYCell(%r, %r, %r, %r)" % \
-            (self.value, self.x, self.y, self.table.name)
+        return "_XYCell(%r, %r, %r)" % \
+            (self.value, self.x, self.y)
 
     def __unicode__(self):
         return unicode(self.value)
