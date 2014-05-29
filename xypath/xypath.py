@@ -206,7 +206,7 @@ class CoreBag(object):
         return repr(self.__store)
 
     @classmethod
-    def singleton(cls, cell, table, name=None):
+    def singleton(cls, cell, table):
         """
         Construct a bag with one cell in it
         """
@@ -364,7 +364,7 @@ class CoreBag(object):
 class Bag(CoreBag):
 
     @staticmethod
-    def from_list(cells, name=None):
+    def from_list(cells):
         """
         Make a non-bag iterable of cells into a Bag. Some magic may be lost,
         especially if it's zero length.
