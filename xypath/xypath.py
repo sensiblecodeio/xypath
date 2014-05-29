@@ -197,8 +197,7 @@ class CoreBag(object):
     def __eq__(self, other):
         if not isinstance(other, CoreBag):
             return False
-        return (self.name == other.name and
-                self.table is other.table and
+        return (self.table is other.table and
                 self.__store == other.__store)
 
     def __len__(self):
