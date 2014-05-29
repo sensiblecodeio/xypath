@@ -600,13 +600,6 @@ class Bag(CoreBag):
                                                        *args, **kwargs):
                     yield triple
 
-    def junction_overlap(self, other, *args, **kwargs):
-        """ returns only the overlap cell """
-        bag = Bag(table=self.table)
-        for triple in self.junction(other, *args, **kwargs):
-            bag.add(triple[2]._cell)
-        return bag
-
     def shift(self, x=0, y=0):
         """
         Return a bag in which each cell is offset from the source bag by the
