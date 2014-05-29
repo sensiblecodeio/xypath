@@ -608,6 +608,7 @@ class Table(Bag):
 
     @staticmethod
     def from_filename(filename, table_name=None, table_index=None):
+        # NOTE: this is a messytables table name
         extension = os.path.splitext(filename)[1].strip('.')
         with open(filename, 'rb') as f:
             return Table.from_file_object(f, extension,
@@ -617,6 +618,7 @@ class Table(Bag):
     @staticmethod
     def from_file_object(fobj, extension='',
                          table_name=None, table_index=None):
+        # NOTE this is a messytables table name
         if (table_name is not None and table_index is not None) or \
                 (table_name is None and table_index is None):
             raise TypeError("Must give exactly one of table_name, table_index")
