@@ -574,25 +574,25 @@ class Table(Bag):
     """A bag which represents an entire sheet"""
     def __init__(self, name=""):
         super(Table, self).__init__(table=self, name=name)
-        self.x_index = defaultdict(lambda: Bag(self))
-        self.y_index = defaultdict(lambda: Bag(self))
-        self.xy_index = defaultdict(lambda: Bag(self))
+        self._x_index = defaultdict(lambda: Bag(self))
+        self._y_index = defaultdict(lambda: Bag(self))
+        self._xy_index = defaultdict(lambda: Bag(self))
         self._max_x = -1
         self._max_y = -1
         self.sheet = None
 
     def rows(self):
         for row_num in range(0, self._max_y + 1):  # inclusive
-            yield self.y_index[row_num]
+            yield self._y_index[row_num]
 
     def cols(self):
         for col_num in range(0, self._max_x + 1):  # inclusive
-            yield self.x_index[col_num]
+            yield self._x_index[col_num]
 
     def add(self, cell):
-        self.x_index[cell.x].add(cell)
-        self.y_index[cell.y].add(cell)
-        self.xy_index[(cell.x, cell.y)].add(cell)
+        self._x_index[cell.x].add(cell)
+        self._y_index[cell.y].add(cell)
+        self._xy_index[(cell.x, cell.y)].add(cell)
         self._max_x = max(self._max_x, cell.x)
         self._max_y = max(self._max_y, cell.y)
         super(Table, self).add(cell)
@@ -603,10 +603,10 @@ class Table(Bag):
         if x is None and y is None:
             raise TypeError('get_at requires at least one x or y value')
         if x is None:
-            return self.y_index.get(y, Bag(self))
+            return self._y_index.get(y, Bag(self))
         if y is None:
-            return self.x_index.get(x, Bag(self))
-        return self.xy_index.get((x, y), Bag(self))
+            return self._x_index.get(x, Bag(self))
+        return self._xy_index.get((x, y), Bag(self))
 
     @staticmethod
     def from_filename(filename, table_name=None, table_index=None):
