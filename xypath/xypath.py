@@ -96,8 +96,8 @@ class _XYCell(object):
                            self.table, self.properties)
 
     def __repr__(self):
-        return "_XYCell(%r, %r, %r, %r)" % \
-            (self.value, self.x, self.y, self.table.name)
+        return "_XYCell(%r, %r, %r)" % \
+            (self.value, self.x, self.y)
 
     def __unicode__(self):
         return unicode(self.value)
@@ -183,9 +183,8 @@ class CoreBag(object):
         return contrib.excel.excel_locations(self, *args, **kwargs)
 
     """Has a collection of _XYCells"""
-    def __init__(self, table, name=None):
+    def __init__(self, table):
         self.__store = set()
-        self.name = name
         self.table = table
 
     def add(self, cell):
@@ -197,8 +196,7 @@ class CoreBag(object):
     def __eq__(self, other):
         if not isinstance(other, CoreBag):
             return False
-        return (self.name == other.name and
-                self.table is other.table and
+        return (self.table is other.table and
                 self.__store == other.__store)
 
     def __len__(self):
@@ -208,11 +206,11 @@ class CoreBag(object):
         return repr(self.__store)
 
     @classmethod
-    def singleton(cls, cell, table, name=None):
+    def singleton(cls, cell, table):
         """
         Construct a bag with one cell in it
         """
-        bag = cls(table=table, name=name)
+        bag = cls(table=table)
         bag.add(cell)
         return bag
 
@@ -366,7 +364,7 @@ class CoreBag(object):
 class Bag(CoreBag):
 
     @staticmethod
-    def from_list(cells, name=None):
+    def from_list(cells):
         """
         Make a non-bag iterable of cells into a Bag. Some magic may be lost,
         especially if it's zero length.
@@ -573,7 +571,7 @@ class Bag(CoreBag):
 class Table(Bag):
     """A bag which represents an entire sheet"""
     def __init__(self, name=""):
-        super(Table, self).__init__(table=self, name=name)
+        super(Table, self).__init__(table=self)
         self._x_index = defaultdict(lambda: Bag(self))
         self._y_index = defaultdict(lambda: Bag(self))
         self._xy_index = defaultdict(lambda: Bag(self))
@@ -610,6 +608,7 @@ class Table(Bag):
 
     @staticmethod
     def from_filename(filename, table_name=None, table_index=None):
+        # NOTE: this is a messytables table name
         extension = os.path.splitext(filename)[1].strip('.')
         with open(filename, 'rb') as f:
             return Table.from_file_object(f, extension,
@@ -619,6 +618,7 @@ class Table(Bag):
     @staticmethod
     def from_file_object(fobj, extension='',
                          table_name=None, table_index=None):
+        # NOTE this is a messytables table name
         if (table_name is not None and table_index is not None) or \
                 (table_name is None and table_index is None):
             raise TypeError("Must give exactly one of table_name, table_index")
