@@ -8,7 +8,6 @@ is outer loop y first."""
 import re
 import messytables
 import os
-import sys
 try:
     import hamcrest
     have_ham = True
@@ -19,7 +18,7 @@ from collections import defaultdict
 from copy import copy
 from itertools import product, takewhile
 
-from .extern.tabulate import tabulate
+import contrib.excel
 
 UP = (0, -1)
 RIGHT = (1, 0)
@@ -49,20 +48,6 @@ class NoCellsAssertionError(AssertionError, XYPathError):
 class MultipleCellsAssertionError(AssertionError, XYPathError):
     """Raised by Bag.assert_one() if the bag contains multiple cells."""
     pass
-
-
-def excel_column_label(n):
-    """
-    Excel's column counting convention, counting from A at n=1
-    """
-    def inner(n):
-        if n <= 0:
-            return []
-        if not n:
-            return [0]
-        div, mod = divmod(n - 1, 26)
-        return inner(div) + [mod]
-    return "".join(chr(ord("A") + i) for i in inner(n))
 
 
 def describe_filter_method(filter_by):
@@ -185,6 +170,18 @@ class _XYCell(object):
 
 
 class CoreBag(object):
+    def pprint(self, *args, **kwargs):
+        return contrib.excel.pprint(self, *args, **kwargs)
+
+    def as_list(self, *args, **kwargs):
+        return contrib.excel.as_list(self, *args, **kwargs)
+
+    def filter_one(self, filter_by):
+        return contrib.excel.filter_one(self, filter_by)
+
+    def excel_locations(self, *args, **kwargs):
+        return contrib.excel.excel_locations(self, *args, **kwargs)
+
     """Has a collection of _XYCells"""
     def __init__(self, table, name=None):
         self.__store = set()
@@ -320,26 +317,6 @@ class CoreBag(object):
                 newbag.add(bag_cell)
         return newbag
 
-    def filter_one(self, filter_by):
-        errormsg = "We expected to find one cell {}, but we found {}."
-        foundmsg = 'one'
-        filtered = self.filter(filter_by)
-
-        if len(filtered.__store) == 0:
-            foundmsg = 'none'
-        elif len(filtered.__store) > 1:
-            foundmsg = "{}: {}".format(
-                len(filtered.__store),
-                filtered.excel_locations(filtered)
-            )
-
-        return filtered.assert_one(
-            errormsg.format(
-                describe_filter_method(filter_by),
-                foundmsg
-            )
-        )
-
     def assert_one(self, message="assert_one() : {} cells in bag, not 1"):
         if len(self.__store) == 1:
             return self
@@ -405,89 +382,6 @@ class Bag(CoreBag):
             else:
                 assert bag.table == cell_bag.table
         return bag
-
-    def as_list(self, collapse_empty=False, excel_labels=False):
-        """
-        Generate a rectangular 2D list representing the bag, where the contents
-        are the values of the cells, or None if there is no cell present at a
-        particular location.
-
-        collapse_empty: Remove empty rows and columns for a more compact
-            representation
-
-        excel_labels: Put "excel-like" row/column labels around the table
-        """
-        cells = list(self)
-        cxs = [cell.x for cell in cells]
-        cys = [cell.y for cell in cells]
-        xmin, xmax = min(cxs), max(cxs)
-        ymin, ymax = min(cys), max(cys)
-
-        width, height = xmax-xmin+1, ymax-ymin+1
-
-        result = [[None]*width for i in xrange(height)]
-
-        for x, y in product(xrange(xmin, xmax+1), xrange(ymin, ymax+1)):
-            cell = self.table.get_at(x, y)
-            result[y-ymin][x-xmin] = cell.value if cell in self else None
-
-        # Indices of the rows/columns that are present, starting at (1, 1)
-        row_indices = list(range(ymin+1, ymax+1+1))
-        col_indices = list(range(xmin+1, xmax+1+1))
-
-        if collapse_empty:
-            # Note the dreaded "delete from thing you're iterating over"
-            # pattern here. Hence `reversed`.
-
-            # Remove empty rows
-            for j, y in reversed(list(enumerate(result))):
-                if not any(y):
-                    del result[j]
-                    del row_indices[j]
-
-            search_indices = list(range(width))
-            # Find empty columns
-            for y in result:
-                for i, s_index in reversed(list(enumerate(search_indices))):
-                    if y[s_index]:
-                        # We've found a thing. Don't need to search it anymore.
-                        del search_indices[i]
-
-            # A search_index making it here, is empty, delete it from all rows
-            for y in result:
-                for i in reversed(search_indices):
-                    del y[i]
-
-            # Fix the set of column indices which remain
-            for i in reversed(search_indices):
-                del col_indices[i]
-
-        if excel_labels:
-            # Add row numbers to each row
-            for j, row in zip(row_indices, result):
-                row[0:0] = [j]
-
-            # Add column labels to the headers
-            header = [None] + [excel_column_label(i) for i in col_indices]
-            result[0:0] = [header]
-
-        return result
-
-    def pprint(self, collapse_empty=False,
-               excel_labels=True, stream=sys.stdout):
-        result = self.as_list(collapse_empty, excel_labels)
-
-        for row in result:
-            for i, cell in enumerate(row):
-                if cell is None:
-                    cell = "/"
-                cell = str(cell)
-                row[i] = cell
-
-        if excel_labels:
-            print >>stream, tabulate(result[1:], headers=result[0])
-        else:
-            print >>stream, tabulate(result)
 
     def fill(self, direction, stop_before=None):
         """Should give the same output as fill, except it
@@ -674,20 +568,6 @@ class Bag(CoreBag):
         for cell in bag.unordered_cells:
             all_x.add(cell.x)
         return self.filter(lambda c: c.x in all_x)
-
-    def excel_locations(self, limit=3):
-        def _excel_location(self):
-            excelcol=excel_column_label(self.x + 1)
-            assert excelcol
-            return "{}{}".format(excelcol,
-                                 self.y)
-        builder = []
-        for i, singleton in enumerate(self.unordered):
-            if i >= limit:
-                builder.append("...")
-                break
-            builder.append(_excel_location(singleton))
-        return ', '.join(builder)
 
 
 class Table(Bag):
