@@ -632,7 +632,6 @@ class Table(Bag):
         super(Table, self).__init__(table=self)
         self._x_index = defaultdict(lambda: Bag(self))
         self._y_index = defaultdict(lambda: Bag(self))
-        self._xy_index = defaultdict(lambda: Bag(self))
         self._max_x = -1
         self._max_y = -1
         self.sheet = None
@@ -652,7 +651,6 @@ class Table(Bag):
            Used in the construction of a table."""
         self._x_index[cell.x].add(cell)
         self._y_index[cell.y].add(cell)
-        self._xy_index[(cell.x, cell.y)].add(cell)
         self._max_x = max(self._max_x, cell.x)
         self._max_y = max(self._max_y, cell.y)
         super(Table, self).add(cell)
@@ -667,7 +665,7 @@ class Table(Bag):
             return self._y_index.get(y, Bag(self))
         if y is None:
             return self._x_index.get(x, Bag(self))
-        return self._xy_index.get((x, y), Bag(self))
+        return self._y_index.get((y), Bag(self)).filter(lambda cell: cell.x==x)
 
     @staticmethod
     def from_filename(filename, table_name=None, table_index=None):
