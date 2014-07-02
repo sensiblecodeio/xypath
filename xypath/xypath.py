@@ -11,7 +11,7 @@ import os
 try:
     import hamcrest
     have_ham = True
-except:
+except ImportError:
     have_ham = False
 
 from collections import defaultdict
