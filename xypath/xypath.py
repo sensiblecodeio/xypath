@@ -95,12 +95,10 @@ class _XYCell(object):
     def copy(self, new_table=None):
         """Make a copy of the cell.
            Its table will be new_table, if specified"""
-        if new_table:
-            return _XYCell(self.value, self.x, self.y,
-                           new_table, self.properties)
-        else:
-            return _XYCell(self.value, self.x, self.y,
-                           self.table, self.properties)
+        if new_table is None:
+            new_table = self.table
+        return _XYCell(self.value, self.x, self.y,
+                       new_table, self.properties)
 
     def __repr__(self):
         return "_XYCell(%r, %r, %r)" % \
