@@ -408,6 +408,41 @@ class CoreBag(object):
         """Getter for singleton's cell properties"""
         return self._cell.properties
 
+    def lookup(value_cell, header_bag, direction, strict=False):
+        # TODO doesn't handle same_row same_col
+        """
+        Given a single cell (usually a value), a bag containing the headers
+        of a particular type for that cell, and the direction in which to
+        search for the relevant header
+
+        e.g. for value cell V, searching up:
+
+         [ ]
+                                     [ ]
+                                                [ ]
+                   ---> [ ]
+                                      V
+                                     [ ]
+                             [ ]
+
+        the cell with the arrow will be returned."""
+        def mult(cell):
+            return (cell.x * direction[0],
+                    cell.y * direction[1])
+
+        def same_row_col(a, b, direction):
+            delta = (a.x - b.x, a.y - b.y)
+            return  (delta[0] == 0 and direction[0] == 0) or \
+                    (delta[1] == 0 and direction[1] == 0)
+
+        best_cell = None
+        for target_cell in header_bag:#
+            if mult(value_cell) <= mult(target_cell):
+                if not best_cell or mult(target_cell) <= mult(best_cell):
+                    if not strict or same_row_col(value_cell, target_cell, direction):
+                        best_cell = target_cell
+        return best_cell
+
 
 class Bag(CoreBag):
 
