@@ -417,15 +417,18 @@ class CoreBag(object):
 
         e.g. for value cell V, searching up:
 
-         [ ]
-                                     [ ]
+         [ ]                         [ ]
+                                     [O]
                                                 [ ]
                    ---> [ ]
                                       V
                                      [ ]
                              [ ]
 
-        the cell with the arrow will be returned."""
+        the cell with the arrow will be returned.
+
+        Strict restricts the selection to cells in the same row/column as
+        the value, so O is selected instead."""
         def mult(cell):
             return (cell.x * direction[0],
                     cell.y * direction[1])
