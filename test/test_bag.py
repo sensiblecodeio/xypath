@@ -16,7 +16,7 @@ class Test_Lookup(unittest.TestCase):
         v = self.table.filter("V").assert_one()
         a = self.table.filter("A")
         b = self.table.filter("B")
-        assert v.lookup(a, xypath.UP).shift(1,0).value == '6'
+        assert v.lookup(a, xypath.UP).shift(1,0).value == '5'
         assert v.lookup(a, xypath.UP, strict=True).shift(1,0).value == '4'
         assert v.lookup(a, xypath.DOWN).shift(1,0).value == '7'
         assert v.lookup(a, xypath.DOWN, strict=True).shift(1,0).value == '9'

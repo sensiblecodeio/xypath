@@ -436,7 +436,7 @@ class CoreBag(object):
                     (delta[1] == 0 and direction[1] == 0)
 
         best_cell = None
-        for target_cell in header_bag:#
+        for target_cell in header_bag.unordered:
             if mult(value_cell) <= mult(target_cell):
                 if not best_cell or mult(target_cell) <= mult(best_cell):
                     if not strict or same_row_col(value_cell, target_cell, direction):
