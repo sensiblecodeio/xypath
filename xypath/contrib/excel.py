@@ -3,6 +3,22 @@ from itertools import product
 from ..extern.tabulate import tabulate
 import xypath
 
+def excel_column_number(raw_column_name, index=1):
+     """Given a column name, give me the column number
+     A=1
+     Z=26
+     AA=27
+     AZ=52
+     BA=53 etc"""
+
+     def char_value(c):
+         return ord(c)-64
+
+     value = 0
+     for char in raw_column_name.upper():
+         value = value * 26
+         value = value + char_value(char)
+     return value - 1 + index
 
 def excel_column_label(n):
 

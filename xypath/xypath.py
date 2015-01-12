@@ -682,6 +682,14 @@ class Table(Bag):
         for col_num in range(0, self._max_x + 1):  # inclusive
             yield self._x_index[col_num]
 
+    def col(self, column):
+        if isinstance(column, basestring):
+            c_num = contrib.excel.excel_column_number(column, index=0)
+            return self.col(c_num)
+        else:
+            assert isinstance(column, int)
+            return self._x_index[column]
+
     def add(self, cell):
         """Under the hood: add a cell to a table and the table's indices.
            Used in the construction of a table."""
