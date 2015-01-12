@@ -1,0 +1,23 @@
+_,_,_,_,_,B,1,_,_
+_,_,_,_,A,1,_,_,_
+_,_,_,_,_,_,A,2,_
+_,_,A,3,_,_,B,2,_
+_,_,_,_,A,4,_,_,_
+_,A,5,_,_,_,_,Z,6
+_,_,_,_,V,_,_,B,4
+B,0,A,7,_,_,B,3,_
+_,A,8,_,A,9,A,0,_
+_,_,_,_,A,a,_,_,"
+notes:
+
+V @ 4,6
+loose UP should be A5
+strict UP should be A4
+loose down should be A7
+strict down should be A9
+
+strict left should be none
+loose left should be B0
+strict right should be B4
+loose right should be B1
+"
