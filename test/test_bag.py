@@ -3,6 +3,27 @@ import sys
 sys.path.append('xypath')
 import xypath
 import tcore
+import unittest
+
+class Test_Lookup(unittest.TestCase):
+    @classmethod
+    def setup_class(cls):
+        cls.wpp_filename = tcore.get_fixture_filename("lookup.csv")
+        cls.messy, cls.table = tcore.get_messytables_fixture(cls.wpp_filename)
+
+    def test_false(self):
+        print self.table
+        v = self.table.filter("V").assert_one()
+        a = self.table.filter("A")
+        b = self.table.filter("B")
+        assert v.lookup(a, xypath.UP).shift(1,0).value == '6'
+        assert v.lookup(a, xypath.UP, strict=True).shift(1,0).value == '4'
+        assert v.lookup(a, xypath.DOWN).shift(1,0).value == '7'
+        assert v.lookup(a, xypath.DOWN, strict=True).shift(1,0).value == '9'
+        assert v.lookup(b, xypath.LEFT).shift(1,0).value == '0'
+        assert v.lookup(b, xypath.LEFT, strict=True) is None
+        assert v.lookup(b, xypath.RIGHT).shift(1,0).value == '1'
+        assert v.lookup(b, xypath.RIGHT, strict=True).shift(1,0).value == '4'
 
 
 class Test_Bag(tcore.TCore):
