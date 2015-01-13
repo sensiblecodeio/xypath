@@ -51,6 +51,13 @@ class MultipleCellsAssertionError(AssertionError, XYPathError):
     """Raised by Bag.assert_one() if the bag contains multiple cells."""
     pass
 
+class LookupConfusionError(AssertionError, XYPathError):
+    """Lookup found multiple equally-close headers"""
+    pass
+
+class NoLookupError(AssertionError, XYPathError):
+    """Lookup found no valid header"""
+    pass
 
 def describe_filter_method(filter_by):
         if callable(filter_by):
@@ -136,11 +143,18 @@ class _XYCell(object):
                     (a.y - b.y  == 0 and direction[1] == 0)
 
         best_cell = None
+        second_best_cell = None
         for target_cell in header_bag.unordered_cells:
             if mult(self) <= mult(target_cell):
                 if not best_cell or mult(target_cell) <= mult(best_cell):
                     if not strict or same_row_col(self, target_cell, direction):
+                        second_best_cell = best_cell
                         best_cell = target_cell
+        if second_best_cell and mult(best_cell) == mult(second_best_cell):
+            raise LookupConfusionError("{!r} is as good as {!r} for {!r}".format(
+                best_cell, second_best_cell, self))
+        if best_cell is None:
+            raise NoLookupError("No lookup for {!r}".format(self))
         return best_cell
 
 
