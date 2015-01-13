@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 """ musings on order of variables, x/y vs. col/row
 Everyone agrees that col 2, row 1 is (2,1) which is xy ordered.
 This works well with the name.
@@ -50,6 +51,13 @@ class MultipleCellsAssertionError(AssertionError, XYPathError):
     """Raised by Bag.assert_one() if the bag contains multiple cells."""
     pass
 
+class LookupConfusionError(AssertionError, XYPathError):
+    """Lookup found multiple equally-close headers"""
+    pass
+
+class NoLookupError(AssertionError, XYPathError):
+    """Lookup found no valid header"""
+    pass
 
 def describe_filter_method(filter_by):
         if callable(filter_by):
@@ -106,6 +114,49 @@ class _XYCell(object):
 
     def __unicode__(self):
         return unicode(self.value)
+
+    def lookup(self, header_bag, direction, strict=False):
+        """
+        Given a single cell (usually a value), a bag containing the headers
+        of a particular type for that cell, and the direction in which to
+        search for the relevant header
+
+        e.g. for value cell V, searching up:
+
+         [ ]                         [ ]
+                                     [O]
+                                                [ ]
+                   ---> [ ]
+                                      V
+                                     [ ]
+                             [ ]
+
+        the cell with the arrow will be returned.
+
+        Strict restricts the selection to cells in the same row/column as
+        the value, so O is selected instead."""
+        def mult(cell):
+            return cell.x * direction[0] + cell.y * direction[1]
+
+        def same_row_col(a, b, direction):
+            return  (a.x - b.x  == 0 and direction[0] == 0) or \
+                    (a.y - b.y  == 0 and direction[1] == 0)
+
+        best_cell = None
+        second_best_cell = None
+        for target_cell in header_bag.unordered_cells:
+            if mult(self) <= mult(target_cell):
+                if not best_cell or mult(target_cell) <= mult(best_cell):
+                    if not strict or same_row_col(self, target_cell, direction):
+                        second_best_cell = best_cell
+                        best_cell = target_cell
+        if second_best_cell and mult(best_cell) == mult(second_best_cell):
+            raise LookupConfusionError("{!r} is as good as {!r} for {!r}".format(
+                best_cell, second_best_cell, self))
+        if best_cell is None:
+            raise NoLookupError("No lookup for {!r}".format(self))
+        return best_cell
+
 
     def junction(self, other, direction=DOWN, paranoid=True):
         """ gets the lower-right intersection of the row of one, and the
@@ -408,43 +459,6 @@ class CoreBag(object):
         """Getter for singleton's cell properties"""
         return self._cell.properties
 
-    def lookup(value_cell, header_bag, direction, strict=False):
-        # TODO doesn't handle same_row same_col
-        """
-        Given a single cell (usually a value), a bag containing the headers
-        of a particular type for that cell, and the direction in which to
-        search for the relevant header
-
-        e.g. for value cell V, searching up:
-
-         [ ]                         [ ]
-                                     [O]
-                                                [ ]
-                   ---> [ ]
-                                      V
-                                     [ ]
-                             [ ]
-
-        the cell with the arrow will be returned.
-
-        Strict restricts the selection to cells in the same row/column as
-        the value, so O is selected instead."""
-        def mult(cell):
-            return (cell.x * direction[0],
-                    cell.y * direction[1])
-
-        def same_row_col(a, b, direction):
-            delta = (a.x - b.x, a.y - b.y)
-            return  (delta[0] == 0 and direction[0] == 0) or \
-                    (delta[1] == 0 and direction[1] == 0)
-
-        best_cell = None
-        for target_cell in header_bag.unordered:
-            if mult(value_cell) <= mult(target_cell):
-                if not best_cell or mult(target_cell) <= mult(best_cell):
-                    if not strict or same_row_col(value_cell, target_cell, direction):
-                        best_cell = target_cell
-        return best_cell
 
 
 class Bag(CoreBag):
@@ -681,6 +695,14 @@ class Table(Bag):
         """Get bags containing each column's cells, in order"""
         for col_num in range(0, self._max_x + 1):  # inclusive
             yield self._x_index[col_num]
+
+    def col(self, column):
+        if isinstance(column, basestring):
+            c_num = contrib.excel.excel_column_number(column, index=0)
+            return self.col(c_num)
+        else:
+            assert isinstance(column, int)
+            return self._x_index[column]
 
     def add(self, cell):
         """Under the hood: add a cell to a table and the table's indices.
