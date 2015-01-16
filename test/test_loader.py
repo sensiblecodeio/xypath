@@ -13,5 +13,8 @@ assert one.value == 'one' and three.value == 'three', (one, three)
 all_sheets = xypath.loader.get_sheets(tables, 'table')
 assert len(list(all_sheets)) == 4
 
+all_sheets = xypath.loader.get_sheets(tables, '*')
+assert len(list(all_sheets)) == 4
+
 two, = xypath.loader.get_sheets(tables, lambda sheet: sheet.filter("two"))
 assert two.value == 'two'

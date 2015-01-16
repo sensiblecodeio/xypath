@@ -7,6 +7,10 @@ def table_set(filename):
     return mt_tableset
 
 def get_sheets(mt_tableset, ids):
+    if ids == '*':
+        for mt_table in mt_tableset.tables:
+            yield xypath.Table.from_messy(mt_table)
+        return
     if isinstance(ids, int) or isinstance(ids, basestring) or callable(ids):
         # it's a single thing, listify it
         ids = (ids, )
