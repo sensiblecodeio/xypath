@@ -1,7 +1,7 @@
 import messytables
 import xypath
 
-def _table_set(filename):
+def table_set(filename):
     with open(filename, 'rb') as f:
         mt_tableset = messytables.any.any_tableset(f)
     return mt_tableset
