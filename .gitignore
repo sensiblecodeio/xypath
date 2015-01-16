@@ -1,6 +1,6 @@
 *.py[cod]
 fixtures/.*
-
+src
 # C extensions
 *.so
 
