@@ -2,11 +2,27 @@ import messytables
 import xypath
 
 def table_set(filename):
+    """get all the tables for a single spreadsheet"""
     with open(filename, 'rb') as f:
         mt_tableset = messytables.any.any_tableset(f)
     return mt_tableset
 
 def get_sheets(mt_tableset, ids):
+    """get a subset of the tables from a tableset.
+    Select them via a list or single item from:
+
+    a string: tables with that name
+    a number: the table with that index
+    "*": get all of them
+    a function: tables for which f(table) is truthy.
+        i.e. you can use this with XYPath expressions.
+
+    [5, 'kitten',
+    lambda table: table.get_at(0,0).value == 'dog']
+    will get you the 6th tab, all tabs named 'kitten'
+    and all tabs where the top-left cell contains 'dog'.
+    Note ["*"] will get you tables named asterisk."""
+
     if ids == '*':
         for mt_table in mt_tableset.tables:
             yield xypath.Table.from_messy(mt_table)
