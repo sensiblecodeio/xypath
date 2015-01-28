@@ -673,6 +673,17 @@ class Bag(CoreBag):
             all_x.add(cell.x)
         return self.filter(lambda c: c.x in all_x)
 
+    def __getattr__(self, name):
+        if name.startswith("is_not_"):
+            return self.filter(lambda cell: not cell.properties[name[7:]])
+        if name.startswith("is_"):  # might need additional layer of indirection
+            return self.filter(lambda cell: cell.properties[name[3:]])
+        if name.endswith("_is_not"):
+            return lambda value: self.filter(lambda cell: not cell.properties[name[:-7]] == value)
+        if name.endswith("_is"):
+            return lambda value: self.filter(lambda cell: cell.properties[name[:-3]] == value)
+        raise AttributeError, "Bag has no attribute {!r}".format(name)
+
 
 class Table(Bag):
     """A bag which represents an entire sheet.
