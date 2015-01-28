@@ -1,10 +1,10 @@
 import messytables
 import xypath
 
-def table_set(filename):
+def table_set(filename, *args, **kwargs):
     """get all the tables for a single spreadsheet"""
     with open(filename, 'rb') as f:
-        mt_tableset = messytables.any.any_tableset(f)
+        mt_tableset = messytables.any.any_tableset(f, *args, **kwargs)
     return mt_tableset
 
 def get_sheets(mt_tableset, ids):
