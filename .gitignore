@@ -41,3 +41,5 @@ nosetests.xml
 docs/_build/doctrees/*
 docs/_build/html/*
 
+# Vim
+*.swp
