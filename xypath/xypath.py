@@ -696,6 +696,7 @@ class Table(Bag):
         self._max_x = -1
         self._max_y = -1
         self.sheet = None
+        self.name = name
 
     def rows(self):
         """Get bags containing each row's cells, in order"""
@@ -779,7 +780,8 @@ class Table(Bag):
         new_table = Table.from_iterable(
             messy_rowset,
             value_func=lambda cell: cell.value,
-            properties_func=lambda cell: cell.properties)
+            properties_func=lambda cell: cell.properties,
+            name=messy_rowset.name)
 
         if hasattr(messy_rowset, 'sheet'):
             new_table.sheet = messy_rowset.sheet
@@ -787,7 +789,8 @@ class Table(Bag):
 
     @staticmethod
     def from_iterable(table, value_func=lambda cell: cell,
-                      properties_func=lambda cell: {}):
+                      properties_func=lambda cell: {},
+                      name=None):
         """Make a table from a pythonic table structure.
            The table must be an iterable which returns rows (in top-to-bottom
            order), which in turn are iterables which returns cells (in
@@ -795,7 +798,7 @@ class Table(Bag):
            value_func and properties_func specify how the cell maps onto an
            _XYCell's value and properties. The defaults assume that you have a
            straight-forward list of lists of values."""
-        new_table = Table()
+        new_table = Table(name=name)
         for y, row in enumerate(table):
             for x, cell in enumerate(row):
                 new_table.add(
@@ -808,10 +811,12 @@ class Table(Bag):
         return new_table
 
     @staticmethod
-    def from_bag(bag):
+    def from_bag(bag, name=None):
         """Make a copy of a bag which is its own table.
            Useful when a single imported table is two logical tables"""
-        new_table = Table()
+        if name is None:
+            name=bag.table.name
+        new_table = Table(name=name)
         for bag_cell in bag.unordered:
             new_table.add(bag_cell._cell.copy(new_table))
         return new_table
