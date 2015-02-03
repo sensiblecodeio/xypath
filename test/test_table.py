@@ -23,3 +23,8 @@ class TestTable(tcore.TCore):
 
     def test_get_at_complains_nicely(self):
         assert_raises(AssertionError, self.table.get_at, 'kitten')
+
+    def test_table_has_name(self):
+        assert self.table.name == u'ESTIMATES'
+        copy = xypath.Table.from_bag(self.table)
+        assert copy.name == u'ESTIMATES'
