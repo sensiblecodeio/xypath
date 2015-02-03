@@ -2,6 +2,19 @@ import sys
 from itertools import product
 from ..extern.tabulate import tabulate
 import xypath
+import re
+
+class InvalidExcelReference(Exception):
+    pass
+
+def excel_address_coordinate(address):
+    """Given a cell reference, return a tuple suitable for inserting into Table.get_at()"""
+    match = re.match("([A-Za-z]+)([0-9]+)$", address)
+    if not match:
+        raise InvalidExcelReference(address)
+    row_name, col_num = match.groups()
+    return (excel_column_number(row_name, index=0), int(col_num)-1)
+
 
 def excel_column_number(raw_column_name, index=1):
      """Given a column name, give me the column number
