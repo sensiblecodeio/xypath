@@ -3,6 +3,7 @@ import sys
 sys.path.append('xypath')
 import xypath
 import tcore
+from nose.tools import assert_raises
 
 # Inheriting from tcore.TCore means that self.table contains an
 # example table automatically, without us having to open a file
@@ -23,3 +24,6 @@ class TestTable(tcore.TCore):
         assert isinstance(cells, xypath.xypath.Bag)
         assert len(cells) == 0
         assert index_size_before == index_size_after
+
+    def test_get_at_complains_nicely(self):
+        assert_raises(AssertionError, self.table.get_at, 'kitten')
