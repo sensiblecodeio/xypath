@@ -69,12 +69,13 @@ def filter_one(self, filter_by):
     errormsg = "We expected to find one cell {}, but we found {}."
     foundmsg = 'one'
     filtered = self.filter(filter_by)
+    filter_length = len(filtered)
 
-    if len(filtered.__store) == 0:
+    if filter_length == 0:
         foundmsg = 'none'
-    elif len(filtered.__store) > 1:
+    elif filter_length > 1:
         foundmsg = "{}: {}".format(
-            len(filtered.__store),
+            filter_length,
             filtered.excel_locations(filtered)
         )
 

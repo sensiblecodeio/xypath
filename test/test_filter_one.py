@@ -23,9 +23,13 @@ class TestFilterOne(tcore.TCore):
         )
 
     def test_filter_one_raises_error_if_more_than_one_cell_matches(self):
-        self.assertRaisesWithMessage(
-            self.table.filter_one,
-            xypath.MultipleCellsAssertionError,
-            "We expected to find one cell matching the regex '.*Europe.*', but we found 4: C157, C146, C171, C188.",
-            re.compile(r'.*Europe.*')
-        )
+        try:
+            self.table.filter_one(re.compile(r'.*Europe.*'))
+        except xypath.MultipleCellsAssertionError as e:
+            pass
+        else:
+            assert False, "Didn't get a MultipleCellsAssertionError"
+
+        assert "We expected to find one cell matching the regex '.*Europe.*', but we found 4: " in str(e)
+        for cell in "C157, C146, C171, C188".split(', '):
+            assert cell in str(e)
