@@ -728,6 +728,8 @@ class Table(Bag):
         """Directly get a singleton bag via indices. Faster than Bag.filter"""
         # we use .get() here to avoid new empty Bags being inserted
         # into the index stores when a non-existant coordinate is requested.
+        assert isinstance(x, int) or x is None, "get_at takes integers (got {!r})".format(x)
+        assert isinstance(y, int) or y is None, "get_at takes integers (got {!r})".format(y)
         if x is None and y is None:
             raise TypeError('get_at requires at least one x or y value')
         if x is None:
