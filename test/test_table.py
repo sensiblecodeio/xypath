@@ -17,13 +17,9 @@ class TestTable(tcore.TCore):
         assert cells.value == 900
 
     def test_get_at_returns_empty_bag_for_invalid_coordinates(self):
-        index_size_before = len(self.table.xy_index)
         cells = self.table.get_at(9999,9999)
-        index_size_after = len(self.table.xy_index)
-
         assert isinstance(cells, xypath.xypath.Bag)
         assert len(cells) == 0
-        assert index_size_before == index_size_after
 
     def test_get_at_complains_nicely(self):
         assert_raises(AssertionError, self.table.get_at, 'kitten')
