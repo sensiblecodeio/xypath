@@ -481,6 +481,9 @@ class Bag(CoreBag):
                 assert bag.table == cell_bag.table
         return bag
 
+    def expand(self, direction, stop_before=None):
+        return self.fill(direction, stop_before=stop_before) | self
+
     def fill(self, direction, stop_before=None):
         """Should give the same output as fill, except it
         doesn't support non-cardinal directions or stop_before.

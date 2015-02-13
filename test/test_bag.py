@@ -115,6 +115,12 @@ class Test_Bag(tcore.TCore):
         assert world_cell not in filled_down
         self.assertEqual(264, len(filled_down))
 
+    def test_expand_down_without_termination(self):
+        world_cell = self.table.filter('WORLD').assert_one()
+        expand_down = world_cell.expand(xypath.DOWN)
+        assert world_cell in expand_down
+        self.assertEqual(265, len(expand_down))
+
     def test_fill_right_without_termination(self):
         world_cell = self.table.filter('WORLD').assert_one()
         filled_right = world_cell.fill(xypath.RIGHT)
