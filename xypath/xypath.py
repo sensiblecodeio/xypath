@@ -684,9 +684,9 @@ class Bag(CoreBag):
 
     def __getattr__(self, name):
         if name.startswith("is_not_"):
-            return self.filter(lambda cell: not cell.properties[name[7:]])
+            return lambda: self.filter(lambda cell: not cell.properties[name[7:]])
         if name.startswith("is_"):  # might need additional layer of indirection
-            return self.filter(lambda cell: cell.properties[name[3:]])
+            return lambda: self.filter(lambda cell: cell.properties[name[3:]])
         if name.endswith("_is_not"):
             return lambda value: self.filter(lambda cell: not cell.properties[name[:-7]] == value)
         if name.endswith("_is"):
