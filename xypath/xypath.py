@@ -601,6 +601,12 @@ class Bag(CoreBag):
                                                        *args, **kwargs):
                     yield triple
 
+    def waffle(self, other, *args, **kwargs):
+        bag = Bag(table=self.table)
+        for (selfbag, otherbag, junction_cell) in self.junction(other, *args, **kwargs):
+            bag.add(junction_cell._cell)
+        return bag
+
     def shift(self, x=0, y=0):
         """
         Return a bag in which each cell is offset from the source bag by the

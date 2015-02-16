@@ -43,3 +43,12 @@ class TestJunction(tcore.TCore):
         a = self.table.filter('WORLD')
         b = self.table.filter('AFRICA')  # is below WORLD
         self.assertRaises(xypath.JunctionError, lambda: list(a.junction(b)))
+
+    def test_waffle(self):
+        a = self.table.filter("WORLD")
+        b = self.table.filter("1990-1995")
+        j = a.waffle(b, direction=(0,1), paranoid=True)
+        self.assertIsInstance(j, xypath.Bag)
+        self.assertEqual(1, len(j))
+        for item in j:
+            self.assertEqual(1.523, item.value)
