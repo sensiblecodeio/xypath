@@ -600,14 +600,7 @@ class Bag(CoreBag):
 
     def waffle(self, other, *args, **kwargs):
         bag = Bag(table=self.table)
-        for (
-                selfbag,
-                otherbag,
-                junction_cell) in self.junction(
-                other,
-                *
-                args,
-                **kwargs):
+        for (selfbag, otherbag, junction_cell) in self.junction(other, *args, **kwargs):
             bag.add(junction_cell._cell)
         return bag
 

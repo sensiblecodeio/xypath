@@ -52,4 +52,3 @@ class TestJunction(tcore.TCore):
         self.assertEqual(1, len(j))
         for item in j:
             self.assertEqual(1.523, item.value)
-        
