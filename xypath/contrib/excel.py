@@ -60,20 +60,22 @@ def excel_column_label(n):
     return "".join(chr(ord("A") + i) for i in inner(n))
 
 
+def excel_location(cell):
+    excelcol = excel_column_label(cell.x + 1)
+    assert excelcol
+    return "{}{}".format(excelcol,
+                         cell.y)
+
+
 def excel_locations(bag, limit=3):
     """describe the locations of cells in a bag
        in Excel notation"""
-    def _excel_location(cell):
-        excelcol = excel_column_label(cell.x + 1)
-        assert excelcol
-        return "{}{}".format(excelcol,
-                             cell.y)
     builder = []
     for i, singleton in enumerate(bag.unordered):
         if i >= limit:
             builder.append("...")
             break
-        builder.append(_excel_location(singleton))
+        builder.append(excel_location(singleton))
     return ', '.join(builder)
 
 
