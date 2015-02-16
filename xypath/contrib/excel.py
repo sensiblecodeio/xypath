@@ -7,13 +7,25 @@ import re
 class InvalidExcelReference(Exception):
     pass
 
-def excel_address_coordinate(address):
+def excel_address_coordinate(address, partial=False):
     """Given a cell reference, return a tuple suitable for inserting into Table.get_at()"""
-    match = re.match("([A-Za-z]+)([0-9]+)$", address)
+    match = re.match("([A-Za-z]*)([0-9]*)$", address)
     if not match:
         raise InvalidExcelReference(address)
-    row_name, col_num = match.groups()
-    return (excel_column_number(row_name, index=0), int(col_num)-1)
+    col_name, row_num = match.groups()
+    if col_name:
+        col = excel_column_number(col_name, index=0)
+    else:
+        col = None
+    if row_num:
+        row = int(row_num) - 1
+    else:
+        row = None
+    if row is None and col is None:
+        raise InvalidExcelReference(address)
+    if (row is None or col is None) and not partial:
+        raise InvalidExcelReference("{!r} is partial".format(address))
+    return (col, row)
 
 
 def excel_column_number(raw_column_name, index=1):
