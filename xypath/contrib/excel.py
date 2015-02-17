@@ -7,6 +7,12 @@ import re
 class InvalidExcelReference(Exception):
     pass
 
+def excel_range(address):
+    """Given a range, return two tuples for the corners"""
+    address1, address2 = address.split(':')
+    return (excel_address_coordinate(address1, partial=True),
+            excel_address_coordinate(address2, partial=True))
+
 def excel_address_coordinate(address, partial=False):
     """Given a cell reference, return a tuple suitable for inserting into Table.get_at()"""
     match = re.match("([A-Za-z]*)([0-9]*)$", address)
