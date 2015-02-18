@@ -30,7 +30,7 @@ class Test_Bag(tcore.TCore):
         world=self.table.filter("WORLD")
         empty=self.table.filter(lambda cell: False)
 
-        self.assertEqual(world.excel_locations(), "C17")
+        self.assertEqual(world.excel_locations(), "C18")
         self.assertEqual(empty.excel_locations(), "")
         self.assertIn(", ...", self.table.excel_locations())
 

@@ -70,7 +70,7 @@ def excel_location(cell):
     excelcol = excel_column_label(cell.x + 1)
     assert excelcol
     return "{}{}".format(excelcol,
-                         cell.y)
+                         cell.y + 1)
 
 
 def excel_locations(bag, limit=3):
