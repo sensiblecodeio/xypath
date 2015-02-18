@@ -211,3 +211,11 @@ class Test_Bag(tcore.TCore):
 
     def test_select_other(self):
         raise self.skipTest("select_other not tested")
+
+    def test_getattr(self):
+        assert self.table.filter("WORLD").is_bold()
+        assert not self.table.filter("WORLD").is_not_bold()
+        assert self.table.filter("WORLD").font_name_is("Arial")
+        assert not self.table.filter("WORLD").font_name_is_not("Arial")
+        assert self.table.filter("WORLD").font_name_is_not("Comic Sans MS")
+
