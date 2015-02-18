@@ -29,7 +29,7 @@ class TestPPrint(tcore.TCore):
         stream = StringIO()
         cells.pprint(stream=stream)
         self.assertEqual(EXPECTED_TABLE, stream.getvalue())
-        
+
     def test_pprint_removed_cell(self):
         """
         test_pprint_removed_cell: check that pprint's output is rectangular
@@ -55,7 +55,7 @@ class TestPPrint(tcore.TCore):
         stream = StringIO()
         cells_without_tonga.pprint(stream=stream)
         self.assertEqual(EXPECTED_TABLE, stream.getvalue())
-                
+
     def test_pprint_removed_cell_collapsed(self):
         """
         test_pprint_removed_cell_collapsed: check that a collapsed row works
@@ -79,7 +79,7 @@ class TestPPrint(tcore.TCore):
         stream = StringIO()
         cells_without_tonga.pprint(collapse_empty=True, stream=stream)
         self.assertEqual(EXPECTED_TABLE, stream.getvalue())
-        
+
     def test_extrude(self):
         """
         test_extrude: check 2-to-the-left extrusion against hard-coded string
@@ -103,6 +103,26 @@ class TestPPrint(tcore.TCore):
         cells = self.table.filter('Polynesia').fill(xypath.DOWN)
         # Right of this column, there is an empty column followed by numbers.
         cells = cells.extrude(2, 0)
+
+        stream = StringIO()
+        cells.pprint(stream=stream)
+
+        self.assertEqual(EXPECTED_TABLE, stream.getvalue())
+
+    def test_extrude_negative(self):
+        """
+        test_extrude_negative: check negative extrusion
+        """
+
+        EXPECTED_TABLE = dedent('''
+                              /  C        D      E
+                            ---  -------  ---  ---
+                            279  Tokelau       772
+                            280  Tonga         776
+                            281  Tuvalu        798
+                            ''').lstrip("\n")
+        cells = self.table.filter('Tuvalu').shift(2,0)
+        cells = cells.extrude(-2, -2)
 
         stream = StringIO()
         cells.pprint(stream=stream)

@@ -31,5 +31,6 @@ class TestFilterOne(tcore.TCore):
             assert False, "Didn't get a MultipleCellsAssertionError"
 
         assert "We expected to find one cell matching the regex '.*Europe.*', but we found 4: " in str(e)
-        for cell in "C157, C146, C171, C188".split(', '):
+        print e
+        for cell in "C158, C147, C172, C189".split(', '):
             assert cell in str(e)
