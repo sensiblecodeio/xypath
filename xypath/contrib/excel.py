@@ -7,13 +7,31 @@ import re
 class InvalidExcelReference(Exception):
     pass
 
-def excel_address_coordinate(address):
+def excel_range(address):
+    """Given a range, return two tuples for the corners"""
+    address1, address2 = address.split(':')
+    return (excel_address_coordinate(address1, partial=True),
+            excel_address_coordinate(address2, partial=True))
+
+def excel_address_coordinate(address, partial=False):
     """Given a cell reference, return a tuple suitable for inserting into Table.get_at()"""
-    match = re.match("([A-Za-z]+)([0-9]+)$", address)
+    match = re.match("([A-Za-z]*)([0-9]*)$", address)
     if not match:
         raise InvalidExcelReference(address)
-    row_name, col_num = match.groups()
-    return (excel_column_number(row_name, index=0), int(col_num)-1)
+    col_name, row_num = match.groups()
+    if col_name:
+        col = excel_column_number(col_name, index=0)
+    else:
+        col = None
+    if row_num:
+        row = int(row_num) - 1
+    else:
+        row = None
+    if row is None and col is None:
+        raise InvalidExcelReference(address)
+    if (row is None or col is None) and not partial:
+        raise InvalidExcelReference("{!r} is partial".format(address))
+    return (col, row)
 
 
 def excel_column_number(raw_column_name, index=1):
@@ -48,20 +66,22 @@ def excel_column_label(n):
     return "".join(chr(ord("A") + i) for i in inner(n))
 
 
+def excel_location(cell):
+    excelcol = excel_column_label(cell.x + 1)
+    assert excelcol
+    return "{}{}".format(excelcol,
+                         cell.y + 1)
+
+
 def excel_locations(bag, limit=3):
     """describe the locations of cells in a bag
        in Excel notation"""
-    def _excel_location(cell):
-        excelcol = excel_column_label(cell.x + 1)
-        assert excelcol
-        return "{}{}".format(excelcol,
-                             cell.y)
     builder = []
     for i, singleton in enumerate(bag.unordered):
         if i >= limit:
             builder.append("...")
             break
-        builder.append(_excel_location(singleton))
+        builder.append(excel_location(singleton))
     return ', '.join(builder)
 
 

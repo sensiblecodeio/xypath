@@ -18,3 +18,11 @@ class Test_Contrib(unittest.TestCase):
             assert num(case[0]) == case[1], num(case[0])
             assert let(case[1]) == case[0]
             assert num(case[0], index=0) == case[1] - 1
+
+
+    def test_excel_address_coordinate(self):
+        coord = xypath.contrib.excel.excel_address_coordinate
+        assert coord("B3") == (1, 2)
+        assert coord("B3", partial=True) == (1, 2)
+        assert coord("B", partial=True) == (1, None)
+        assert coord("3", partial=True) == (None, 2)
