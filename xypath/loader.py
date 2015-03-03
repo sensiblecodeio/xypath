@@ -39,7 +39,7 @@ def get_sheets(mt_tableset, ids):
                 if identifier == table_index:
                     yield xy()
             elif isinstance(identifier, basestring):
-                if identifier == mt_table.name:
+                if identifier.strip() == mt_table.name.strip():
                     yield xy()
             elif callable(identifier):
                 xy_table = xy()
