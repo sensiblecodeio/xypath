@@ -158,6 +158,9 @@ class Test_Bag(tcore.TCore):
         self.assertEqual(len(super_bag), len(diff))
         self.assertEqual(super_bag, diff)
 
+    def test_bag_empty_is_ok(self):
+        badbag = self.table.filter("BODGERANDBADGER").fill(xypath.RIGHT)
+
     def test_bag_ordering(self):
 
 

@@ -514,6 +514,8 @@ class Bag(CoreBag):
                 small_table = small_table.union(got_rowcol)
             else:
                 small_table = got_rowcol
+        if small_table is None:
+            small_table = Bag(table=self.table)
 
         # now we use the small_table as if it was the table.
         (left_right, up_down) = direction
