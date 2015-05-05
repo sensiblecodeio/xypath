@@ -47,5 +47,7 @@ def xtract_by_numbers(table, rows, columns):
 
 def test_xyzzy_kinda_works():
     things = xtract_by_numbers(xy, dimensions_horizontal, dimensions_vertical)
-    sorted_things = [list(thing.values()) for thing in sorted(things)]
-    assert sorted_things == output
+
+    unsorted_things = [list(thing.values()) for thing in things]
+    sorted_things = sorted(unsorted_things)
+    assert sorted_things == output, sorted_things

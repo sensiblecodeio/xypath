@@ -38,13 +38,14 @@ def are_distinct(fields):
     bagcount = 0
     for field in fields:
         for bag in list(field.values()):
-            allbags = allbags.union(bag)
+            allbags = allbags.union([cell._cell for cell in bag])
             bagcount = bagcount + len(bag)
     return len(allbags) == bagcount
 
 
 def xyzzy(self, fields, valuename='_value'):  # XYZZY
-    assert are_distinct(list(fields.values()))
+    # assert are_distinct(list(fields.values()))
+    # function fixed: wasn't distinct in first place
     fieldkeys = list(fields.keys())
     assert valuename not in fieldkeys
 
