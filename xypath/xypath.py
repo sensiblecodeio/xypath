@@ -23,7 +23,7 @@ from collections import defaultdict
 from copy import copy
 from itertools import product, takewhile
 
-from . import contrib.excel
+from xypath.contrib import excel as contrib_excel
 
 UP = (0, -1)
 RIGHT = (1, 0)
@@ -246,16 +246,16 @@ class _XYCell(object):
 class CoreBag(object):
     """Has a collection of _XYCells"""
     def pprint(self, *args, **kwargs):
-        return contrib.excel.pprint(self, *args, **kwargs)
+        return contrib_excel.pprint(self, *args, **kwargs)
 
     def as_list(self, *args, **kwargs):
-        return contrib.excel.as_list(self, *args, **kwargs)
+        return contrib_excel.as_list(self, *args, **kwargs)
 
     def filter_one(self, filter_by):
-        return contrib.excel.filter_one(self, filter_by)
+        return contrib_excel.filter_one(self, filter_by)
 
     def excel_locations(self, *args, **kwargs):
-        return contrib.excel.excel_locations(self, *args, **kwargs)
+        return contrib_excel.excel_locations(self, *args, **kwargs)
 
     def __init__(self, table):
         self.__store = set()
@@ -725,7 +725,7 @@ class Table(Bag):
 
     def col(self, column):
         if isinstance(column, six.string_types):
-            c_num = contrib.excel.excel_column_number(column, index=0)
+            c_num = contrib_excel.excel_column_number(column, index=0)
             return self.col(c_num)
         else:
             assert isinstance(column, int)

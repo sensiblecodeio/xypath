@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 import sys
 from itertools import product
-from ..extern.tabulate import tabulate
+from xypath.extern.tabulate import tabulate
 import xypath
 import re
 from six.moves import range
