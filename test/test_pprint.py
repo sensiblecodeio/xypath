@@ -2,7 +2,7 @@ from __future__ import absolute_import
 import tcore
 import xypath
 from textwrap import dedent
-from cStringIO import StringIO
+from io import StringIO
 
 
 class TestPPrint(tcore.TCore):
