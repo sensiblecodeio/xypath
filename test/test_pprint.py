@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import tcore
 import xypath
 from textwrap import dedent

@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import unittest
 from nose.tools import assert_raises, assert_equal
 import xypath.contrib.excel as exceltool

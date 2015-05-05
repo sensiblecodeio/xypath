@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 #!/usr/bin/env python
 import sys
 
@@ -31,6 +33,6 @@ class TestFilterOne(tcore.TCore):
             assert False, "Didn't get a MultipleCellsAssertionError"
 
         assert "We expected to find one cell matching the regex '.*Europe.*', but we found 4: " in str(e)
-        print e
+        print(e)
         for cell in "C158, C147, C172, C189".split(', '):
             assert cell in str(e)

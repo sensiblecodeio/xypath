@@ -1,5 +1,7 @@
+from __future__ import absolute_import
 import messytables
-import xypath
+from . import xypath
+import six
 
 def table_set(filename, *args, **kwargs):
     """get all the tables for a single spreadsheet"""
@@ -27,7 +29,7 @@ def get_sheets(mt_tableset, ids):
         xy_table.index = table_index
         return xy_table
 
-    if isinstance(ids, (int, basestring)) or callable(ids):
+    if isinstance(ids, (int, six.string_types)) or callable(ids):
         # it's a single thing, listify it
         ids = (ids, )
 
@@ -38,7 +40,7 @@ def get_sheets(mt_tableset, ids):
             elif isinstance(identifier, int):
                 if identifier == table_index:
                     yield xy()
-            elif isinstance(identifier, basestring):
+            elif isinstance(identifier, six.string_types):
                 if identifier.strip() == mt_table.name.strip():
                     yield xy()
             elif callable(identifier):

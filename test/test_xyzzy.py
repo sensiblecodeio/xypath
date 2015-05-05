@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import xypath
 import xypath.xyzzy
 from collections import OrderedDict
@@ -46,5 +47,5 @@ def xtract_by_numbers(table, rows, columns):
 
 def test_xyzzy_kinda_works():
     things = xtract_by_numbers(xy, dimensions_horizontal, dimensions_vertical)
-    sorted_things = [thing.values() for thing in sorted(things)]
+    sorted_things = [list(thing.values()) for thing in sorted(things)]
     assert sorted_things == output

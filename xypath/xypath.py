@@ -5,10 +5,14 @@ Everyone agrees that col 2, row 1 is (2,1) which is xy ordered.
 This works well with the name.
 Remember that the usual iterators (over a list-of-lists)
 is outer loop y first."""
+from __future__ import absolute_import
 
 import re
 import messytables
 import os
+import six
+from six.moves import range
+from six.moves import zip
 try:
     import hamcrest
     have_ham = True
@@ -19,7 +23,7 @@ from collections import defaultdict
 from copy import copy
 from itertools import product, takewhile
 
-import contrib.excel
+from . import contrib.excel
 
 UP = (0, -1)
 RIGHT = (1, 0)
@@ -62,7 +66,7 @@ class NoLookupError(AssertionError, XYPathError):
 def describe_filter_method(filter_by):
         if callable(filter_by):
             return "matching a function called {}".format(filter_by.__name__)
-        if isinstance(filter_by, basestring):
+        if isinstance(filter_by, six.string_types):
             return "containing the string {!r}".format(filter_by)
         if have_ham and isinstance(filter_by, hamcrest.matcher.Matcher):
             return "containing "+str(filter_by)
@@ -113,7 +117,7 @@ class _XYCell(object):
             (self.value, self.x, self.y)
 
     def __unicode__(self):
-        return unicode(self.value)
+        return six.text_type(self.value)
 
     def lookup(self, header_bag, direction, strict=False):
         """
@@ -389,13 +393,13 @@ class CoreBag(object):
         """
         if callable(filter_by):
             return self._filter_internal(filter_by)
-        elif isinstance(filter_by, basestring):
-            return self._filter_internal(lambda cell: unicode(cell.value).strip() == filter_by)
+        elif isinstance(filter_by, six.string_types):
+            return self._filter_internal(lambda cell: six.text_type(cell.value).strip() == filter_by)
         elif have_ham and isinstance(filter_by, hamcrest.matcher.Matcher):
             return self._filter_internal(lambda cell: filter_by.matches(cell.value))
         elif isinstance(filter_by, re._pattern_type):
             return self._filter_internal(
-                lambda cell: re.match(filter_by, unicode(cell.value)))
+                lambda cell: re.match(filter_by, six.text_type(cell.value)))
         else:
             raise ValueError("filter_by must be function, hamcrest filter, compiled regex or string.")
 
@@ -646,14 +650,14 @@ class Bag(CoreBag):
         """
 
         if dx < 0:
-            dxs = range(0, dx - 1, -1)
+            dxs = list(range(0, dx - 1, -1))
         else:
-            dxs = range(0, dx + 1, +1)
+            dxs = list(range(0, dx + 1, +1))
 
         if dy < 0:
-            dys = range(0, dy - 1, -1)
+            dys = list(range(0, dy - 1, -1))
         else:
-            dys = range(0, dy + 1, +1)
+            dys = list(range(0, dy + 1, +1))
 
         bag = Bag(table=self.table)
         for cell in self.unordered_cells:
@@ -693,7 +697,7 @@ class Bag(CoreBag):
             return lambda value: self.filter(lambda cell: not cell.properties[name[:-7]] == value)
         if name.endswith("_is"):
             return lambda value: self.filter(lambda cell: cell.properties[name[:-3]] == value)
-        raise AttributeError, "Bag has no attribute {!r}".format(name)
+        raise AttributeError("Bag has no attribute {!r}".format(name))
 
 
 class Table(Bag):
@@ -720,7 +724,7 @@ class Table(Bag):
             yield self._x_index[col_num]
 
     def col(self, column):
-        if isinstance(column, basestring):
+        if isinstance(column, six.string_types):
             c_num = contrib.excel.excel_column_number(column, index=0)
             return self.col(c_num)
         else:
