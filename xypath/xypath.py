@@ -34,6 +34,12 @@ DOWN_RIGHT = (1, 1)
 UP_LEFT = (-1, -1)
 DOWN_LEFT = (-1, 1)
 
+def cmp(x, y):
+    if x<y:
+        return -1
+    if x>y:
+        return 1
+    return 0
 
 class XYPathError(Exception):
     """Problems with spreadsheet layouts should raise this or a descendant."""
