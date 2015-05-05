@@ -9,7 +9,7 @@ import unittest
 class Test_Bag(tcore.TCore):
     def test_bag_from_list(self):
         "That Bag.from_list works and table is preserved"
-        true_bag = self.table.filter(lambda b: b.value > "F")
+        true_bag = self.table.filter(lambda b: b.x % 2 and b.y % 2)
         fake_bag = list(true_bag.table)
         self.assertEqual(type(fake_bag), list)
         remade_bag = xypath.Bag.from_list(fake_bag)
