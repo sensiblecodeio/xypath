@@ -28,11 +28,10 @@ class TestFilterOne(tcore.TCore):
         try:
             self.table.filter_one(re.compile(r'.*Europe.*'))
         except xypath.MultipleCellsAssertionError as e:
-            pass
+            assert "We expected to find one cell matching the regex '.*Europe.*', but we found 4: " in str(e)
+
+            cells = "C158, C147, C172, C189".split(', ')
+            assert len([cell for cell in cells if cell in str(e)]) >= 3
         else:
             assert False, "Didn't get a MultipleCellsAssertionError"
 
-        assert "We expected to find one cell matching the regex '.*Europe.*', but we found 4: " in str(e)
-        print(e)
-        for cell in "C158, C147, C172, C189".split(', '):
-            assert cell in str(e)

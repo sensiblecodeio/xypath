@@ -100,7 +100,7 @@ def filter_one(self, filter_by):
     elif filter_length > 1:
         foundmsg = "{}: {}".format(
             filter_length,
-            filtered.excel_locations(filtered)
+            filtered.excel_locations()
         )
 
     return filtered.assert_one(
