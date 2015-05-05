@@ -713,6 +713,9 @@ class Table(Bag):
         self.sheet = None
         self.name = name
 
+    def __hash__(self):
+        return id(self)
+
     def rows(self):
         """Get bags containing each row's cells, in order"""
         for row_num in range(0, self._max_y + 1):  # inclusive
