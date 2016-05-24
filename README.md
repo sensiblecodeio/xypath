@@ -23,7 +23,7 @@ Question: **What is the change in population for each type of animal between 201
 First, we need to load the spreadsheet. Supposing we've got it on disk already.
 
 ```python
-import messytables
+import xypath
 table = xypath.Table.from_filename("animals.xls", table_name='AnimalSheet')
 ```
 
