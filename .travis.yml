@@ -5,7 +5,7 @@ python:
 env:
   - REQFILE=requirements.txt
   - REQFILE=hamcrest.txt
-install: pip install -r $REQFILE --use-mirrors
+install: pip install -r $REQFILE
 # command to run tests, e.g. python setup.py test
 script:  nosetests
 matrix:
