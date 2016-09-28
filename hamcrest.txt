@@ -1,2 +1,1 @@
--e git://github.com/scraperwiki/messytables.git#egg=messytables
 pyhamcrest
