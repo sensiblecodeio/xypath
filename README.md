@@ -2,7 +2,7 @@
 
 Select different parts of a spreadsheet via functions.
 
-[![Build Status](https://travis-ci.org/scraperwiki/xypath.png?branch=master)](https://travis-ci.org/scraperwiki/xypath)
+[![Build Status](https://travis-ci.org/sensiblecodeio/xypath.png?branch=master)](https://travis-ci.org/sensiblecodeio/xypath)
 
 
 ```
