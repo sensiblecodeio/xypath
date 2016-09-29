@@ -28,7 +28,7 @@ setup(
     include_package_data=False,
     zip_safe=False,
     install_requires=[
-        'messytables==0.15',
+        'messytables==0.15.1',
     ],
     tests_require=[],
     entry_points=\
