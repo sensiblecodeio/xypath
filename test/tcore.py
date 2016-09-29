@@ -51,7 +51,7 @@ class TCore(unittest.TestCase):
             self.fail('No exception was raised')
         except Exception as inst:
             self.assertIsInstance(inst, exception_type)
-            self.assertEqual(inst.args[0], msg)
+            self.assertEqual(str(inst), msg)
 
 class TMissing(unittest.TestCase):
     @classmethod
