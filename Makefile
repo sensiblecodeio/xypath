@@ -1,10 +1,7 @@
 run:    build
-	@docker run \
-	    --rm \
-		-ti \
-	    xypath
+	@docker run --rm --tty --interactive xypath
 
 build:
-	@docker build -t xypath .
+	@docker build --tag xypath .
 
 .PHONY: run build
