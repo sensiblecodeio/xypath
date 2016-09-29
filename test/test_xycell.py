@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import tcore
 import xypath.xypath as xypath # no privacy
 
@@ -12,7 +14,7 @@ class Test_Lookup(unittest.TestCase):
         cls.messy, cls.table = tcore.get_messytables_fixture(cls.wpp_filename)
 
     def test_cell_lookup(self):
-        print self.table
+        print(self.table)
         v = self.table.filter("V")._cell
         a = self.table.filter("A")
         b = self.table.filter("B")

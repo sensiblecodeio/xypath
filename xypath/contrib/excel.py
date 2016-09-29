@@ -1,8 +1,12 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import sys
 from itertools import product
-from ..extern.tabulate import tabulate
+from xypath.extern.tabulate import tabulate
 import xypath
 import re
+from six.moves import range
+from six.moves import zip
 
 class InvalidExcelReference(Exception):
     pass
@@ -96,7 +100,7 @@ def filter_one(self, filter_by):
     elif filter_length > 1:
         foundmsg = "{}: {}".format(
             filter_length,
-            filtered.excel_locations(filtered)
+            filtered.excel_locations()
         )
 
     return filtered.assert_one(
@@ -126,9 +130,9 @@ def as_list(self, collapse_empty=False, excel_labels=False):
 
     width, height = xmax-xmin+1, ymax-ymin+1
 
-    result = [[None]*width for i in xrange(height)]
+    result = [[None]*width for i in range(height)]
 
-    for x, y in product(xrange(xmin, xmax+1), xrange(ymin, ymax+1)):
+    for x, y in product(range(xmin, xmax+1), range(ymin, ymax+1)):
         cell = self.table.get_at(x, y)
         result[y-ymin][x-xmin] = cell.value if cell in self else None
 
@@ -186,6 +190,6 @@ def pprint(self, collapse_empty=False,
             row[i] = cell
 
     if excel_labels:
-        print >>stream, tabulate(result[1:], headers=result[0])
+        print(tabulate(result[1:], headers=result[0]), file=stream)
     else:
-        print >>stream, tabulate(result)
+        print(tabulate(result), file=stream)

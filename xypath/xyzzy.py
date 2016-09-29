@@ -1,8 +1,9 @@
+from __future__ import absolute_import
 #!/usr/bin/env python
 
 from collections import OrderedDict
 from itertools import groupby
-from xypath import Bag
+from .xypath import Bag
 
 
 class LookupFailureError(Exception):
@@ -36,15 +37,16 @@ def are_distinct(fields):
     allbags = set()
     bagcount = 0
     for field in fields:
-        for bag in field.values():
-            allbags = allbags.union(bag)
+        for bag in list(field.values()):
+            allbags = allbags.union([cell._cell for cell in bag])
             bagcount = bagcount + len(bag)
     return len(allbags) == bagcount
 
 
 def xyzzy(self, fields, valuename='_value'):  # XYZZY
-    assert are_distinct(fields.values())
-    fieldkeys = fields.keys()
+    # assert are_distinct(list(fields.values()))
+    # function fixed: wasn't distinct in first place
+    fieldkeys = list(fields.keys())
     assert valuename not in fieldkeys
 
     def fieldlookup(cell):

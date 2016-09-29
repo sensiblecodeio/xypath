@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 #!/usr/bin/env python
 import sys
 import unittest
@@ -50,7 +51,7 @@ class TCore(unittest.TestCase):
             self.fail('No exception was raised')
         except Exception as inst:
             self.assertIsInstance(inst, exception_type)
-            self.assertEqual(inst.message, msg)
+            self.assertEqual(str(inst), msg)
 
 class TMissing(unittest.TestCase):
     @classmethod
