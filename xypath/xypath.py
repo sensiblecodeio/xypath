@@ -22,7 +22,9 @@ except ImportError:
 import sys
 if sys.version_info >= (3, 6):
     import typing
-    re._pattern_type = typing.re.Pattern
+    REGEX_PATTERN_TYPE = typing.re.Pattern
+else:
+    REGEX_PATTERN_TYPE = re._pattern_type
 
 from collections import defaultdict
 from copy import copy
@@ -81,7 +83,7 @@ def describe_filter_method(filter_by):
             return "containing the string {!r}".format(filter_by)
         if have_ham and isinstance(filter_by, hamcrest.matcher.Matcher):
             return "containing "+str(filter_by)
-        if isinstance(filter_by, re._pattern_type):
+        if isinstance(filter_by, REGEX_PATTERN_TYPE):
             return "matching the regex {!r}".format(filter_by.pattern)
         else:
             return "which we're surprised we found at all"
@@ -408,7 +410,7 @@ class CoreBag(object):
             return self._filter_internal(lambda cell: six.text_type(cell.value).strip() == filter_by)
         elif have_ham and isinstance(filter_by, hamcrest.matcher.Matcher):
             return self._filter_internal(lambda cell: filter_by.matches(cell.value))
-        elif isinstance(filter_by, re._pattern_type):
+        elif isinstance(filter_by, REGEX_PATTERN_TYPE):
             return self._filter_internal(
                 lambda cell: re.match(filter_by, six.text_type(cell.value)))
         else:
