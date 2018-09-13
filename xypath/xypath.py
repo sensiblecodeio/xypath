@@ -19,6 +19,11 @@ try:
 except ImportError:
     have_ham = False
 
+import sys
+if sys.version_info >= (3, 6):
+    import typing
+    re._pattern_type = typing.re.Pattern
+
 from collections import defaultdict
 from copy import copy
 from itertools import product, takewhile
