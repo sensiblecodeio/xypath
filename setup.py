@@ -8,7 +8,7 @@ navigating around and extracting values from tabular data.
 
 setup(
     name='xypath',
-    version='1.1.0',
+    version='1.1.1',
     description="Extract fields from tabular data with complex expressions.",
     long_description=long_desc,
     classifiers=[
@@ -20,6 +20,7 @@ setup(
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
     ],
     keywords='',
     author='The Sensible Code Company Ltd',
