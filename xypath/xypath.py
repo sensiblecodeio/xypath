@@ -22,7 +22,7 @@ except ImportError:
 import sys
 if sys.version_info >= (3, 6):
     import typing
-    REGEX_PATTERN_TYPE = typing.re.Pattern
+    REGEX_PATTERN_TYPE = typing.Pattern
 else:
     REGEX_PATTERN_TYPE = re._pattern_type
 
