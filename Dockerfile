@@ -1,8 +1,8 @@
-FROM ubuntu:16.04
+FROM ubuntu:20.04
 
 RUN apt-get update && \
     apt-get install -y \
-        python-pip \
+        locales \
         python3-pip
 
 RUN locale-gen en_GB.UTF-8
@@ -18,7 +18,6 @@ ENV HOME=/home/nobody \
 
 WORKDIR /home/nobody
 
-RUN pip install --user nose messytables pyhamcrest
 RUN pip3 install --user nose messytables pyhamcrest
 
 COPY . /home/nobody/
