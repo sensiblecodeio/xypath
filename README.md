@@ -2,9 +2,6 @@
 
 Select different parts of a spreadsheet via functions.
 
-[![Build Status](https://travis-ci.org/sensiblecodeio/xypath.png?branch=master)](https://travis-ci.org/sensiblecodeio/xypath)
-
-
 ```
 ----------------------------------------------------------------------
 | animal  | habitat    | max age | population 2012 | Population 2013 |
