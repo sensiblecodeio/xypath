@@ -1,0 +1,29 @@
+name: CI
+on:
+    push:
+      branches:
+        - master
+    pull_request:
+
+jobs:
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: [3.5, 3.6, 3.7, 3.8]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install packages
+        run: pip install -r requirements.txt -r hamcrest.txt
+
+      - name: Run tests
+        run: nosetests
