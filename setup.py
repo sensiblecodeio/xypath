@@ -33,6 +33,7 @@ setup(
     zip_safe=False,
     install_requires=[
         'messytables==0.15.1',
+        'xlrd<2',
     ],
     tests_require=[],
     entry_points=\
