@@ -32,7 +32,7 @@ setup(
     include_package_data=False,
     zip_safe=False,
     install_requires=[
-        'messytables==0.15.1',
+        'messytables==0.15.2',
         'xlrd<2',
     ],
     tests_require=[],
