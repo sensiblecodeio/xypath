@@ -1,3 +1,4 @@
+xlrd<2
 git+https://github.com/sensiblecodeio/messytables.git@f183b3a1d843847d32485bc3e2c0e5d809034f41#egg=messytables
 nose
 coverage
